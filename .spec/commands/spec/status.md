@@ -10,8 +10,10 @@ Show current status of all specs or a specific spec.
 ## Instructions
 Display the current status of spec workflows.
 
+**FILE LOCATION**: Feature files are located in `.documentation/features/`
+
 1. **If no feature-name provided:**
-   - List all specs in `./documentation/specs/` directory
+   - List all specs in `./documentation/features/` directory
    - Show current phase for each spec
    - Display completion status
 

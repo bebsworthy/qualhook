@@ -10,13 +10,15 @@ Generate implementation task list based on approved design.
 ## Instructions
 You are working on the tasks phase of the spec workflow.
 
+**FILE LOCATION**: Feature files are located in `.documentation/features/{feature-name}/`
+
 **WORKFLOW**: This is the FINAL step before command generation.
 **SEQUENCE**: Create Tasks → Get Approval → THEN run script
 **DO NOT** run any scripts until tasks are approved.
 
 1. **Prerequisites**
-   - Ensure design.md exists and is approved
-   - Load both requirements.md and design.md for context
+   - Ensure design.md exists and is approved in `.documentation/features/{feature-name}/`
+   - Load both requirements.md and design.md from `.documentation/features/{feature-name}/`
    - Understand the complete feature scope
 
 2. **Generate Task List**

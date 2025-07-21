@@ -10,9 +10,12 @@ Generate design document based on approved requirements.
 ## Instructions
 You are working on the design phase of the spec workflow.
 
+**FILE LOCATION**: Feature files are located in `.documentation/features/{feature-name}/`
+
 1. **Prerequisites**
-   - Ensure requirements.md exists and is approved
-   - Load the requirements document for context
+   - Ensure requirements.md exists and is approved in `.documentation/features/{feature-name}/`
+   - Load the requirements document from `.documentation/features/{feature-name}/requirements.md`
+   - Load research.md from `.documentation/features/{feature-name}/` if available
    - Research existing codebase patterns and architecture
 
 2. **Generate Design Document**

@@ -271,7 +271,7 @@ The workflow automatically creates and manages:
 ```
 .documentation/
 ├── architecture.md           # Global codebase architecture (NEW)
-├── specs/
+├── features/                 # ← Feature documentation go here
 │   └── {feature-name}/
 │       ├── context.md        # Feature context from create phase
 │       ├── research.md       # Feature-specific research (NEW)

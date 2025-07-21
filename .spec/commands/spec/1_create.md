@@ -13,13 +13,15 @@ You are helping create a new feature specification. Follow these steps:
 **WORKFLOW SEQUENCE**: 1_Create → 2_Research → 3_Requirements → 4_Design → 5_Tasks → 6_Execute
 **NEW**: Research phase now follows create phase for better context.
 
+**FILE LOCATION**: Feature files will be created in `.documentation/features/{feature-name}/`
+
 1. **Check Prerequisites**
    - If `.documentation/architecture.md` doesn't exist:
      - Inform user: "No architecture documentation found. Consider running `/spec:architecture` first for better context."
      - Continue anyway (architecture is helpful but not required)
 
 2. **Create Directory Structure**
-   - Create `./documentation/specs/{feature-name}` directory
+   - Create `./documentation/features/{feature-name}` directory
    - Create `context.md` with feature name and description
    - Initialize empty research.md, requirements.md, design.md, and tasks.md files
 

@@ -15,17 +15,19 @@ Perform lightweight, feature-specific research leveraging the global architectur
 
 You are performing focused research for a specific feature, building on the existing architecture documentation to avoid redundant analysis.
 
+**FILE LOCATION**: Feature files are located in `.documentation/features/{feature-name}/`
+
 ### Process
 
 1. **Validate Prerequisites**
    - Check if `.documentation/architecture.md` exists
      - If not: "Architecture documentation not found. Please run `/spec:architecture` first."
-   - Check if `.documentation/specs/{feature-name}/context.md` exists
+   - Check if `.documentation/features/{feature-name}/context.md` exists
      - If not: "Feature spec not found. Please run `/spec:1_create {feature-name}` first."
 
 2. **Load Context**
    - Read `.documentation/architecture.md` for codebase overview
-   - Read `.documentation/specs/{feature-name}/context.md` for feature description
+   - Read `.documentation/features/{feature-name}/context.md` for feature description
    - Understand the feature scope and requirements
 
 3. **Feature-Specific Analysis** (Focused Search Only)
@@ -67,7 +69,7 @@ You are performing focused research for a specific feature, building on the exis
    - Keep the document concise (target: under 2000 tokens)
 
 6. **Save and Continue**
-   - Save to `.documentation/specs/{feature-name}/research.md`
+   - Save to `.documentation/features/{feature-name}/research.md`
    - Ask: "Research complete. Proceed to requirements phase? (y/n)"
    - If yes, guide user to run `/spec:3_requirements {feature-name}`
 
