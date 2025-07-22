@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "projectType": "nodejs",
+  "commands": {
+    "format": {
+      "command": "npm",
+      "args": ["run", "format"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "\\[error\\]", "flags": "i" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the formatting issues below:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ errors?", "flags": "i" },
+          { "pattern": "\\d+ warnings?", "flags": "i" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" },
+          { "pattern": "^\\s*✖", "flags": "m" },
+          { "pattern": "ERROR:", "flags": "" },
+          { "pattern": "Error:", "flags": "" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the linting errors below:",
+      "timeout": 60000
+    },
+    "typecheck": {
+      "command": "npm",
+      "args": ["run", "typecheck"],
+      "errorDetection": {
+        "exitCodes": [1, 2],
+        "patterns": [
+          { "pattern": "Found \\d+ errors?", "flags": "" },
+          { "pattern": "error TS\\d+:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error TS\\d+:", "flags": "" },
+          { "pattern": "^[^:]+\\(\\d+,\\d+\\):", "flags": "m" },
+          { "pattern": "^\\s*Type '", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the TypeScript errors below:",
+      "timeout": 120000
+    },
+    "test": {
+      "command": "npm",
+      "args": ["test"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ failing", "flags": "" },
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "✗", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "✗", "flags": "" },
+          { "pattern": "Expected:", "flags": "" },
+          { "pattern": "Received:", "flags": "" },
+          { "pattern": "AssertionError", "flags": "" },
+          { "pattern": "\\s+at\\s+.+:\\d+:\\d+", "flags": "" }
+        ],
+        "contextLines": 10,
+        "maxOutput": 300
+      },
+      "prompt": "Fix the failing tests below:",
+      "timeout": 300000
+    }
+  }
+}

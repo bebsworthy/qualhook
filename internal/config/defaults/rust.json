@@ -1,0 +1,123 @@
+{
+  "version": "1.0",
+  "projectType": "rust",
+  "commands": {
+    "format": {
+      "command": "cargo",
+      "args": ["fmt"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "Diff in", "flags": "" },
+          { "pattern": "^-", "flags": "m" },
+          { "pattern": "^\\+", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 100
+      },
+      "prompt": "Format the following Rust files:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "cargo",
+      "args": ["clippy", "--", "-D", "warnings"],
+      "errorDetection": {
+        "exitCodes": [1, 101],
+        "patterns": [
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "warning:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "warning:", "flags": "" },
+          { "pattern": "-->", "flags": "" },
+          { "pattern": "^\\s*\\|", "flags": "m" },
+          { "pattern": "= note:", "flags": "" },
+          { "pattern": "= help:", "flags": "" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Clippy linting issues below:",
+      "timeout": 120000
+    },
+    "typecheck": {
+      "command": "cargo",
+      "args": ["check"],
+      "errorDetection": {
+        "exitCodes": [1, 101],
+        "patterns": [
+          { "pattern": "error\\[E\\d{4}\\]", "flags": "" },
+          { "pattern": "could not compile", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error\\[E\\d{4}\\]", "flags": "" },
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "-->", "flags": "" },
+          { "pattern": "^\\s*\\|", "flags": "m" },
+          { "pattern": "cannot find", "flags": "" },
+          { "pattern": "unresolved import", "flags": "" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Rust compilation errors below:",
+      "timeout": 120000
+    },
+    "test": {
+      "command": "cargo",
+      "args": ["test"],
+      "errorDetection": {
+        "exitCodes": [1, 101],
+        "patterns": [
+          { "pattern": "test result: FAILED", "flags": "" },
+          { "pattern": "\\d+ failed", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "---- .* ----", "flags": "" },
+          { "pattern": "thread .* panicked", "flags": "" },
+          { "pattern": "assertion failed", "flags": "" },
+          { "pattern": "left:", "flags": "" },
+          { "pattern": "right:", "flags": "" },
+          { "pattern": "^\\s+at ", "flags": "m" },
+          { "pattern": "FAILED", "flags": "" }
+        ],
+        "contextLines": 10,
+        "maxOutput": 300
+      },
+      "prompt": "Fix the failing Rust tests below:",
+      "timeout": 300000
+    },
+    "build": {
+      "command": "cargo",
+      "args": ["build"],
+      "errorDetection": {
+        "exitCodes": [1, 101],
+        "patterns": [
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "could not compile", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error\\[E\\d{4}\\]", "flags": "" },
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "-->", "flags": "" },
+          { "pattern": "^\\s*\\|", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Rust build errors below:",
+      "timeout": 180000
+    }
+  }
+}

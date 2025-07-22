@@ -1,0 +1,57 @@
+# .pre-commit-config.yaml - Pre-commit hooks for qualhook
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # General formatting and file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Go specific hooks
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-vet
+      - id: go-imports
+      - id: go-cyclo
+        args: [-over=15]
+      - id: go-mod-tidy
+      - id: go-unit-tests
+      - id: golangci-lint
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+# Local hooks
+  - repo: local
+    hooks:
+      - id: make-pre-commit
+        name: Run make pre-commit
+        entry: make pre-commit
+        language: system
+        pass_filenames: false
+        always_run: true

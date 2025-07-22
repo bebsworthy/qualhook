@@ -17,21 +17,21 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 1: Project Setup and Core Types
 
-- [ ] 1. **Initialize Go project structure**
+- [x] 1. **Initialize Go project structure**
   - Create directory structure as per design
   - Initialize go.mod with module path
   - Add .gitignore for Go projects
   - Create README.md with project overview
   - _Requirements: General setup_
 
-- [ ] 2. **Define core configuration types**
+- [x] 2. **Define core configuration types**
   - Create `pkg/types/config.go` with all configuration structs
   - Define Config, CommandConfig, PathConfig, FilterConfig types
   - Add JSON tags for serialization
   - Include validation methods on types
   - _Requirements: 3.1, 3.2_
 
-- [ ] 3. **Set up development tooling**
+- [x] 3. **Set up development tooling**
   - Add Makefile with build, test, lint targets
   - Configure golangci-lint for code quality
   - Set up GitHub Actions for CI (optional)
@@ -40,7 +40,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 2: Configuration System
 
-- [ ] 4. **Implement configuration loader**
+- [x] 4. **Implement configuration loader**
   - Create `internal/config/loader.go`
   - Implement JSON file loading from standard paths
   - Support environment variable for config path
@@ -48,7 +48,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Write unit tests for loader
   - _Requirements: 3.1, 3.3, 3.4_
 
-- [ ] 5. **Implement configuration validator**
+- [x] 5. **Implement configuration validator**
   - Create `internal/config/validator.go`
   - Validate required fields in configuration
   - Check regex pattern validity
@@ -56,7 +56,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Write unit tests for validation logic
   - _Requirements: 3.4, 11.2_
 
-- [ ] 6. **Create default configuration templates**
+- [x] 6. **Create default configuration templates**
   - Create `internal/config/defaults.go`
   - Define default configs for Node.js, Go, Python, Rust
   - Include common error patterns for each language
@@ -65,7 +65,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 3: Project Detection
 
-- [ ] 7. **Implement project detector**
+- [x] 7. **Implement project detector**
   - Create `internal/detector/project.go`
   - Scan for marker files (package.json, go.mod, etc.)
   - Calculate confidence scores based on files found
@@ -73,7 +73,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Write unit tests with sample project structures
   - _Requirements: 4.1, 4.3, 4.5_
 
-- [ ] 8. **Add monorepo detection logic**
+- [x] 8. **Add monorepo detection logic**
   - Extend detector to identify monorepo patterns
   - Detect workspace files (lerna.json, nx.json, etc.)
   - Map subdirectories to project types
@@ -82,21 +82,21 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 4: CLI Foundation
 
-- [ ] 9. **Set up Cobra CLI framework**
+- [x] 9. **Set up Cobra CLI framework**
   - Create `cmd/qualhook/main.go`
   - Initialize Cobra application
   - Define root command with global flags (--debug, --config)
   - Set up command hierarchy
   - _Requirements: 1.1-1.5_
 
-- [ ] 10. **Implement core quality commands**
+- [x] 10. **Implement core quality commands**
   - Add format, lint, typecheck, test subcommands
   - Create command handler structure
   - Support custom commands from config
   - Add --help documentation for each command
   - _Requirements: 1.1-1.5_
 
-- [ ] 11. **Implement config command**
+- [x] 11. **Implement config command**
   - Create `qualhook config` subcommand
   - Add interactive configuration wizard
   - Implement project detection integration
@@ -104,7 +104,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Write config file to appropriate location
   - _Requirements: 8.1, 4.2, 4.4_
 
-- [ ] 12. **Add config validation command**
+- [x] 12. **Add config validation command**
   - Implement `qualhook config --validate`
   - Check current configuration validity
   - Display detailed validation errors
@@ -113,7 +113,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 5: Command Execution
 
-- [ ] 13. **Implement command executor**
+- [x] 13. **Implement command executor**
   - Create `internal/executor/command.go`
   - Implement safe subprocess execution using exec.Command
   - Handle environment variables and working directory
@@ -121,7 +121,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Add timeout support with context
   - _Requirements: 1.6, 10.4, 11.1_
 
-- [ ] 14. **Add execution error handling**
+- [x] 14. **Add execution error handling**
   - Distinguish between different error types
   - Handle command not found errors
   - Manage permission denied scenarios
@@ -129,7 +129,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Write unit tests with mocked commands
   - _Requirements: 9.2, 9.4_
 
-- [ ] 15. **Implement parallel execution for monorepos**
+- [x] 15. **Implement parallel execution for monorepos**
   - Create `internal/executor/parallel.go`
   - Use goroutines for concurrent execution
   - Implement result aggregation
@@ -139,14 +139,14 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 6: File-Aware Execution
 
-- [ ] 16. **Parse Claude Code hook input**
+- [x] 16. **Parse Claude Code hook input**
   - Create `internal/hook/parser.go`
   - Parse JSON input from Claude Code
   - Extract edited file paths from tool_use
   - Handle different tool types (Edit, Write, etc.)
   - _Requirements: 2.4, 6.3_
 
-- [ ] 17. **Implement file-to-component mapping**
+- [x] 17. **Implement file-to-component mapping**
   - Create `internal/watcher/mapper.go`
   - Map file paths to configuration paths
   - Apply glob pattern matching
@@ -154,7 +154,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Group files by component
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 18. **Add file-aware command execution**
+- [x] 18. **Add file-aware command execution**
   - Integrate file mapping with command execution
   - Execute appropriate commands per component
   - Skip components with no changed files
@@ -163,7 +163,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 7: Output Filtering
 
-- [ ] 19. **Implement output filter engine**
+- [x] 19. **Implement output filter engine**
   - Create `internal/filter/output.go`
   - Apply regex patterns to command output
   - Extract matching lines with context
@@ -171,14 +171,14 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Handle large outputs with streaming
   - _Requirements: 7.1, 7.2, 10.2_
 
-- [ ] 20. **Add intelligent truncation**
+- [x] 20. **Add intelligent truncation**
   - Implement output size limits
   - Preserve error information during truncation
   - Add priority-based filtering (errors > warnings)
   - Include truncation indicators
   - _Requirements: 7.3, 7.4_
 
-- [ ] 21. **Create pattern management system**
+- [x] 21. **Create pattern management system**
   - Create `internal/filter/patterns.go`
   - Compile and cache regex patterns
   - Provide pattern validation
@@ -188,7 +188,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 8: Error Reporting
 
-- [ ] 22. **Implement error reporter**
+- [x] 22. **Implement error reporter**
   - Create `internal/reporter/error.go`
   - Format errors for LLM consumption
   - Add configurable prompt prefixes

@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "commands": {
+    "format": {
+      "command": "npm",
+      "args": ["run", "format"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" }
+        ],
+        "maxOutput": 50
+      },
+      "prompt": "Fix the formatting issues below:"
+    },
+    "lint": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ errors?", "flags": "i" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the linting errors below:"
+    }
+  }
+}
