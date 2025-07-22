@@ -1,0 +1,11 @@
+# Subtree configuration for specflow
+# These values can be overridden by environment variables
+
+# The git remote URL for the subtree repository
+SUBTREE_REMOTE="https://github.com/bebsworthy/specflow.git"
+
+# The branch to pull from / push to
+SUBTREE_BRANCH="main"
+
+# The local directory prefix for the subtree
+SUBTREE_PREFIX=".spec"

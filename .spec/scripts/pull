@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Pull updates from the specflow subtree remote
+# Usage: .spec/scripts/pull
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Default configuration
+SUBTREE_PREFIX=".spec"
+SUBTREE_REMOTE="https://github.com/bebsworthy/specflow.git"
+SUBTREE_BRANCH="main"
+
+# Source optional configuration file
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/../.subtree"
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+fi
+
+# Allow environment variables to override
+SUBTREE_PREFIX="${SUBTREE_PREFIX:-".spec"}"
+SUBTREE_REMOTE="${SUBTREE_REMOTE:-"https://github.com/bebsworthy/specflow.git"}"
+SUBTREE_BRANCH="${SUBTREE_BRANCH:-"main"}"
+
+echo -e "${YELLOW}Pulling updates from specflow subtree...${NC}"
+echo -e "Remote: ${SUBTREE_REMOTE}"
+echo -e "Branch: ${SUBTREE_BRANCH}"
+echo -e "Prefix: ${SUBTREE_PREFIX}"
+echo ""
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo -e "${RED}Error: Not in a git repository${NC}"
+    exit 1
+fi
+
+# Check for uncommitted changes
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo -e "${RED}Error: You have uncommitted changes. Please commit or stash them first.${NC}"
+    git status --short
+    exit 1
+fi
+
+# Pull the subtree
+echo -e "${YELLOW}Executing git subtree pull...${NC}"
+if git subtree pull --prefix="$SUBTREE_PREFIX" "$SUBTREE_REMOTE" "$SUBTREE_BRANCH" --squash; then
+    echo -e "${GREEN}Successfully pulled updates from specflow subtree!${NC}"
+    echo ""
+    echo "The latest changes from the specflow repository have been merged."
+    echo "Review the changes and test your project to ensure compatibility."
+else
+    echo -e "${RED}Failed to pull subtree updates.${NC}"
+    echo "You may need to resolve conflicts manually."
+    exit 1
+fi

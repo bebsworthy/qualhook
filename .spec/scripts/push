@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Push changes to the specflow subtree remote
+# Usage: .spec/scripts/push
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Default configuration
+SUBTREE_PREFIX=".spec"
+SUBTREE_REMOTE="https://github.com/bebsworthy/specflow.git"
+SUBTREE_BRANCH="main"
+
+# Source optional configuration file
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/../.subtree"
+if [[ -f "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+fi
+
+# Allow environment variables to override
+SUBTREE_PREFIX="${SUBTREE_PREFIX:-".spec"}"
+SUBTREE_REMOTE="${SUBTREE_REMOTE:-"https://github.com/bebsworthy/specflow.git"}"
+SUBTREE_BRANCH="${SUBTREE_BRANCH:-"main"}"
+
+echo -e "${YELLOW}Pushing changes to specflow subtree...${NC}"
+echo -e "Remote: ${SUBTREE_REMOTE}"
+echo -e "Branch: ${SUBTREE_BRANCH}"
+echo -e "Prefix: ${SUBTREE_PREFIX}"
+echo ""
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo -e "${RED}Error: Not in a git repository${NC}"
+    exit 1
+fi
+
+# Check for uncommitted changes in .spec
+if ! git diff --quiet -- "$SUBTREE_PREFIX" || ! git diff --cached --quiet -- "$SUBTREE_PREFIX"; then
+    echo -e "${RED}Error: You have uncommitted changes in $SUBTREE_PREFIX. Please commit them first.${NC}"
+    git status --short -- "$SUBTREE_PREFIX"
+    exit 1
+fi
+
+# Check if there are any commits to push
+if ! git log --oneline $(git subtree split --prefix="$SUBTREE_PREFIX" --rejoin)..HEAD -- "$SUBTREE_PREFIX" | grep -q .; then
+    echo -e "${YELLOW}No changes in $SUBTREE_PREFIX to push.${NC}"
+    exit 0
+fi
+
+# Push the subtree
+echo -e "${YELLOW}Executing git subtree push...${NC}"
+echo "This may take a moment as git extracts the subtree history..."
+echo ""
+
+if git subtree push --prefix="$SUBTREE_PREFIX" "$SUBTREE_REMOTE" "$SUBTREE_BRANCH"; then
+    echo -e "${GREEN}Successfully pushed changes to specflow subtree!${NC}"
+    echo ""
+    echo "Your changes have been pushed to the specflow repository."
+    echo "If you forked specflow, you may want to create a pull request."
+else
+    echo -e "${RED}Failed to push subtree changes.${NC}"
+    echo ""
+    echo "Possible reasons:"
+    echo "- You don't have write access to $SUBTREE_REMOTE"
+    echo "- The remote repository is protected"
+    echo "- Network connectivity issues"
+    echo ""
+    echo "If you don't have write access, consider:"
+    echo "1. Forking the repository on GitHub"
+    echo "2. Updating the SUBTREE_REMOTE in this script to your fork"
+    echo "3. Running the push again"
+    exit 1
+fi
