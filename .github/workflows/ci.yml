@@ -37,6 +37,9 @@ jobs:
       - name: Download dependencies
         run: go mod download
         
+      - name: Build project
+        run: go build ./...
+        
       - name: Run golangci-lint
         run: make lint
 
