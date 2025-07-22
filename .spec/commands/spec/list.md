@@ -10,7 +10,7 @@ List all specs in the current project.
 ## Instructions
 Display a comprehensive list of all specs in the project.
 
-**FILE LOCATION**: Feature files are located in `.documentation/features/`
+**FILE LOCATION**: Feature files are located in `documentation/features/`
 
 1. **Scan Directory**
    - Look in `./documentation/features/` directory

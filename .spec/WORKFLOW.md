@@ -93,7 +93,7 @@ You are an AI assistant that specializes in spec-driven development. Your role i
 **Process**:
 1. Perform comprehensive codebase analysis
 2. Identify technology stack, patterns, and conventions
-3. Document in `.documentation/architecture.md`
+3. Document in `documentation/architecture.md`
 4. This becomes the reference for all feature development
 
 **Benefits**:
@@ -269,7 +269,7 @@ When completing any task during `/spec:6_execute`:
 The workflow automatically creates and manages:
 
 ```
-.documentation/
+documentation/
 ├── architecture.md           # Global codebase architecture (NEW)
 ├── features/                 # ← Feature documentation go here
 │   └── {feature-name}/

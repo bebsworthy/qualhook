@@ -17,7 +17,7 @@ You are performing comprehensive analysis of the codebase to document its archit
 ### Process
 
 1. **Check Existing Documentation**
-   - Check if `.documentation/architecture.md` exists
+   - Check if `documentation/architecture.md` exists
    - If exists and `--new` flag NOT provided:
      - Load existing architecture.md
      - Focus on updating with new findings
@@ -141,9 +141,9 @@ src/
    - Single module: Simplify to one module section
    - Multi-module: Fill out all module sections
    - No inter-service communication: Skip that section
-3. Save to `.documentation/architecture.md`
+3. Save to `documentation/architecture.md`
 4. Log the analysis date and scope at the end of the file
-5. Report findings summary: "Architecture analysis complete. Found [X] modules/services with [list technologies]. Documentation saved to .documentation/architecture.md"
+5. Report findings summary: "Architecture analysis complete. Found [X] modules/services with [list technologies]. Documentation saved to documentation/architecture.md"
 
 ### Key Principles
 

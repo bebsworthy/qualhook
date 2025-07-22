@@ -10,13 +10,13 @@ Generate or update requirements document for an existing spec.
 ## Instructions
 You are working on the requirements phase of the spec workflow.
 
-**FILE LOCATION**: Feature files are located in `.documentation/features/{feature-name}/`
+**FILE LOCATION**: Feature files are located in `documentation/features/{feature-name}/`
 
 1. **Identify Current Spec**
    - If no feature-name provided, look for specs in `./documentation/features/` directory
    - If multiple specs exist, ask user to specify which one
-   - Load existing requirements.md if it exists from `.documentation/features/{feature-name}/`
-   - Load research.md if it exists from `.documentation/features/{feature-name}/` for valuable context
+   - Load existing requirements.md if it exists from `documentation/features/{feature-name}/`
+   - Load research.md if it exists from `documentation/features/{feature-name}/` for valuable context
 
 2. **Generate Requirements Document**
    - **Check for Research**: If `research.md` exists, use its findings to inform requirements
