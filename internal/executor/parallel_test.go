@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -145,10 +146,14 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 	// Track progress
 	var progressCount int32
 	progressIDs := make(map[string]bool)
+	var mu sync.Mutex
 	
 	progress := func(completed, total int, currentID string) {
 		atomic.AddInt32(&progressCount, 1)
+		
+		mu.Lock()
 		progressIDs[currentID] = true
+		mu.Unlock()
 		
 		if completed > total {
 			t.Errorf("completed %d > total %d", completed, total)
@@ -167,8 +172,12 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 		t.Errorf("expected 4 progress calls, got %d", finalCount)
 	}
 
-	if len(progressIDs) != 4 {
-		t.Errorf("expected 4 unique IDs in progress, got %d", len(progressIDs))
+	mu.Lock()
+	progressIDCount := len(progressIDs)
+	mu.Unlock()
+	
+	if progressIDCount != 4 {
+		t.Errorf("expected 4 unique IDs in progress, got %d", progressIDCount)
 	}
 
 	// Verify all commands succeeded
