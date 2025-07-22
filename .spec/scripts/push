@@ -48,7 +48,7 @@ if ! git diff --quiet -- "$SUBTREE_PREFIX" || ! git diff --cached --quiet -- "$S
 fi
 
 # Check if there are any commits to push
-if ! git log --oneline $(git subtree split --prefix="$SUBTREE_PREFIX" --rejoin)..HEAD -- "$SUBTREE_PREFIX" | grep -q .; then
+if ! git log --oneline $(git subtree split --prefix="$SUBTREE_PREFIX")..HEAD -- "$SUBTREE_PREFIX" | grep -q .; then
     echo -e "${YELLOW}No changes in $SUBTREE_PREFIX to push.${NC}"
     exit 0
 fi

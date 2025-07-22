@@ -196,7 +196,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Aggregate errors from multiple components
   - _Requirements: 2.1, 2.2, 2.5_
 
-- [ ] 23. **Add debug mode output**
+- [x] 23. **Add debug mode output**
   - Implement verbose logging for --debug flag
   - Show full command execution details
   - Display pattern matching process
@@ -205,7 +205,7 @@ Tasks are grouped into tracks that can be developed concurrently:
 
 ### Phase 9: Configuration Management
 
-- [ ] 24. **Build configuration wizard**
+- [x] 24. **Build configuration wizard**
   - Create interactive prompts using survey library
   - Guide through project type selection
   - Allow customization of default configs
@@ -213,7 +213,7 @@ Tasks are grouped into tracks that can be developed concurrently:
   - Save configuration with proper formatting
   - _Requirements: 8.1, 3.3_
 
-- [ ] 25. **Add import/export functionality**
+- [x] 25. **Add import/export functionality**
   - Implement config template export
   - Support importing shared configurations
   - Add config merging capabilities

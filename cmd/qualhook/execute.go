@@ -82,8 +82,8 @@ func executeCommand(cfg *config.Config, commandName string, extraArgs []string) 
 			
 			// Get command config for this component
 			var cmdConfig *config.CommandConfig
-			if group.Config != nil && group.Config.Commands != nil {
-				cmdConfig = group.Config.Commands[commandName]
+			if group.Config != nil {
+				cmdConfig = group.Config[commandName]
 			}
 			if cmdConfig == nil {
 				debug.Log("No command config for %s in component %s", commandName, group.Path)
