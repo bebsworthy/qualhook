@@ -1,0 +1,90 @@
+{
+  "version": "1.0",
+  "projectType": "documentation",
+  "commands": {
+    "spellcheck": {
+      "command": "cspell",
+      "args": ["**/*.{md,mdx,txt}", "--no-progress", "--no-summary"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "Unknown word", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^[^:]+:\\d+:\\d+", "flags": "m" },
+          { "pattern": "Unknown word \\([^)]+\\)", "flags": "" }
+        ],
+        "contextLines": 1,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the spelling errors below:",
+      "timeout": 30000
+    },
+    "markdown-lint": {
+      "command": "markdownlint",
+      "args": ["**/*.md", "--ignore", "node_modules"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "MD\\d{3}", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^[^:]+:\\d+", "flags": "m" },
+          { "pattern": "MD\\d{3}", "flags": "" }
+        ],
+        "contextLines": 0,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the markdown linting issues below:",
+      "timeout": 30000
+    },
+    "link-check": {
+      "command": "markdown-link-check",
+      "args": ["**/*.md", "--config", ".linkcheck.json"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "[✖]", "flags": "" },
+          { "pattern": "ERROR:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "[✖]", "flags": "" },
+          { "pattern": "→", "flags": "" },
+          { "pattern": "Status:", "flags": "" }
+        ],
+        "contextLines": 1,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the broken links below:",
+      "timeout": 120000
+    },
+    "api-docs": {
+      "command": "api-extractor",
+      "args": ["run", "--local"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "Error:", "flags": "" },
+          { "pattern": "Warning:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "Error:", "flags": "" },
+          { "pattern": "Warning:", "flags": "" },
+          { "pattern": "\\(ae-[^)]+\\)", "flags": "" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the API documentation issues below:",
+      "timeout": 60000
+    }
+  }
+}

@@ -1,0 +1,146 @@
+// Package main provides startup optimizations for the qualhook CLI tool.
+package main
+
+import (
+	"sync"
+	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/qualhook/qualhook/internal/config"
+	"github.com/qualhook/qualhook/internal/debug"
+	"github.com/qualhook/qualhook/internal/detector"
+	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+)
+
+// LazyComponents provides lazy initialization for heavy components
+type LazyComponents struct {
+	configLoader   *config.Loader
+	configOnce     sync.Once
+	
+	projectDetector *detector.ProjectDetector
+	detectorOnce    sync.Once
+	
+	configuration   *pkgconfig.Config
+	configLoadOnce  sync.Once
+	configLoadErr   error
+}
+
+var lazyComponents = &LazyComponents{}
+
+// GetConfigLoader returns the config loader, initializing it only when needed
+func GetConfigLoader() *config.Loader {
+	lazyComponents.configOnce.Do(func() {
+		lazyComponents.configLoader = config.NewLoader()
+	})
+	return lazyComponents.configLoader
+}
+
+// GetProjectDetector returns the project detector, initializing it only when needed
+func GetProjectDetector() *detector.ProjectDetector {
+	lazyComponents.detectorOnce.Do(func() {
+		lazyComponents.projectDetector = detector.New()
+	})
+	return lazyComponents.projectDetector
+}
+
+// GetConfiguration loads the configuration only when first accessed
+func GetConfiguration() (*pkgconfig.Config, error) {
+	lazyComponents.configLoadOnce.Do(func() {
+		loader := GetConfigLoader()
+		lazyComponents.configuration, lazyComponents.configLoadErr = loader.Load()
+	})
+	return lazyComponents.configuration, lazyComponents.configLoadErr
+}
+
+// StartupTimer tracks startup performance
+type StartupTimer struct {
+	start      time.Time
+	checkpoints map[string]time.Duration
+	mu         sync.Mutex
+}
+
+// NewStartupTimer creates a new startup timer
+func NewStartupTimer() *StartupTimer {
+	return &StartupTimer{
+		start:       time.Now(),
+		checkpoints: make(map[string]time.Duration),
+	}
+}
+
+// Checkpoint records a timing checkpoint
+func (st *StartupTimer) Checkpoint(name string) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	st.checkpoints[name] = time.Since(st.start)
+}
+
+// GetCheckpoints returns all recorded checkpoints
+func (st *StartupTimer) GetCheckpoints() map[string]time.Duration {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	
+	result := make(map[string]time.Duration)
+	for k, v := range st.checkpoints {
+		result[k] = v
+	}
+	return result
+}
+
+// OptimizedRootCmd creates a root command with optimized initialization
+func newOptimizedRootCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "qualhook",
+		Short: "Quality checks for Claude Code",
+		// Defer long description loading
+		Long: "", 
+		Version: Version,
+		// Don't run persistent pre-run for help/version commands
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Skip initialization for help and version commands
+			if cmd.Name() == "help" || cmd.Name() == "completion" || cmd.Name() == "man" {
+				return nil
+			}
+			if cmd.Flags().Changed("version") || cmd.Flags().Changed("help") {
+				return nil
+			}
+			
+			// Only initialize debug logger if debug flag is set
+			if debugFlag {
+				debug.Init(debugFlag)
+			}
+			
+			return nil
+		},
+	}
+
+	// Add flags without heavy initialization
+	cmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "Enable debug output")
+	cmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "Path to config file")
+	
+	// Defer subcommand addition to reduce initial parsing
+	cmd.AddCommand(
+		newLazyCommand("format", "Run code formatter", runFormat),
+		newLazyCommand("lint", "Run linter", runLint),
+		newLazyCommand("typecheck", "Run type checker", runTypecheck),
+		newLazyCommand("test", "Run tests", runTest),
+		newConfigCmd(),
+		newCompletionCmd(),
+		newManCmd(),
+	)
+
+	return cmd
+}
+
+// newLazyCommand creates a command that defers initialization
+func newLazyCommand(use, short string, runFunc func(cmd *cobra.Command, args []string) error) *cobra.Command {
+	return &cobra.Command{
+		Use:   use,
+		Short: short,
+		RunE:  runFunc,
+		// Don't load config until command actually runs
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			// Config loading happens in the run function
+			return nil
+		},
+	}
+}

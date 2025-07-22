@@ -9,9 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/qualhook/qualhook/internal/security"
 )
 
 // ExecOptions defines options for command execution
@@ -44,6 +45,8 @@ type ExecResult struct {
 type CommandExecutor struct {
 	// Default timeout for commands if not specified
 	defaultTimeout time.Duration
+	// Security validator for command validation
+	securityValidator *security.SecurityValidator
 }
 
 // NewCommandExecutor creates a new command executor
@@ -53,14 +56,15 @@ func NewCommandExecutor(defaultTimeout time.Duration) *CommandExecutor {
 	}
 	return &CommandExecutor{
 		defaultTimeout: defaultTimeout,
+		securityValidator: security.NewSecurityValidator(),
 	}
 }
 
 // Execute runs a command with the given options
 func (e *CommandExecutor) Execute(command string, args []string, options ExecOptions) (*ExecResult, error) {
-	// Validate command
-	if command == "" {
-		return nil, fmt.Errorf("command cannot be empty")
+	// Validate command using security validator
+	if err := e.securityValidator.ValidateCommand(command, args); err != nil {
+		return nil, fmt.Errorf("command validation failed: %w", err)
 	}
 
 	// Set default timeout if not specified
@@ -78,6 +82,11 @@ func (e *CommandExecutor) Execute(command string, args []string, options ExecOpt
 
 	// Set working directory
 	if options.WorkingDir != "" {
+		// Validate the working directory path
+		if err := e.securityValidator.ValidatePath(options.WorkingDir); err != nil {
+			return nil, fmt.Errorf("invalid working directory: %w", err)
+		}
+		
 		absPath, err := filepath.Abs(options.WorkingDir)
 		if err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)
@@ -152,9 +161,9 @@ func (e *CommandExecutor) Execute(command string, args []string, options ExecOpt
 
 // ExecuteWithStreaming runs a command and streams output to the provided writers
 func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, options ExecOptions, stdoutWriter, stderrWriter io.Writer) (*ExecResult, error) {
-	// Validate command
-	if command == "" {
-		return nil, fmt.Errorf("command cannot be empty")
+	// Validate command using security validator
+	if err := e.securityValidator.ValidateCommand(command, args); err != nil {
+		return nil, fmt.Errorf("command validation failed: %w", err)
 	}
 
 	// Set default timeout if not specified
@@ -172,6 +181,11 @@ func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, op
 
 	// Set working directory
 	if options.WorkingDir != "" {
+		// Validate the working directory path
+		if err := e.securityValidator.ValidatePath(options.WorkingDir); err != nil {
+			return nil, fmt.Errorf("invalid working directory: %w", err)
+		}
+		
 		absPath, err := filepath.Abs(options.WorkingDir)
 		if err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)
@@ -257,37 +271,29 @@ func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, op
 
 // prepareEnvironment prepares the environment variables for the command
 func (e *CommandExecutor) prepareEnvironment(options ExecOptions) []string {
-	var env []string
+	var baseEnv []string
 
 	// Start with parent environment if requested
 	if options.InheritEnv {
-		env = os.Environ()
+		// Sanitize the inherited environment
+		baseEnv = security.SanitizeEnvironment(os.Environ(), true)
+	} else {
+		// Use minimal environment
+		baseEnv = security.SanitizeEnvironment(nil, false)
 	}
 
-	// Create a map for efficient lookup and override
-	envMap := make(map[string]string)
-	for _, e := range env {
-		parts := strings.SplitN(e, "=", 2)
-		if len(parts) == 2 {
-			envMap[parts[0]] = parts[1]
+	// Merge with custom environment variables
+	if len(options.Environment) > 0 {
+		merged, err := security.MergeEnvironment(baseEnv, options.Environment)
+		if err != nil {
+			// Log error and fall back to base environment
+			// In production, you might want to handle this differently
+			return baseEnv
 		}
+		return merged
 	}
 
-	// Add/override with provided environment variables
-	for _, e := range options.Environment {
-		parts := strings.SplitN(e, "=", 2)
-		if len(parts) == 2 {
-			envMap[parts[0]] = parts[1]
-		}
-	}
-
-	// Convert back to slice
-	env = make([]string, 0, len(envMap))
-	for k, v := range envMap {
-		env = append(env, k+"="+v)
-	}
-
-	return env
+	return baseEnv
 }
 
 // StreamingWriter is a thread-safe writer that can be used for streaming output

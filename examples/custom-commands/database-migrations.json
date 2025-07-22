@@ -1,0 +1,105 @@
+{
+  "version": "1.0",
+  "projectType": "backend",
+  "commands": {
+    "format": {
+      "command": "npm",
+      "args": ["run", "format"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the formatting issues below:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the linting errors below:",
+      "timeout": 60000
+    },
+    "migration-lint": {
+      "command": "sequelize",
+      "args": ["db:migrate:status"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "down", "flags": "" },
+          { "pattern": "ERROR:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "down", "flags": "" },
+          { "pattern": "ERROR:", "flags": "" },
+          { "pattern": "Database connection error", "flags": "" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the database migration issues below:",
+      "timeout": 30000
+    },
+    "schema-validate": {
+      "command": "prisma",
+      "args": ["validate"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "error:", "flags": "i" },
+          { "pattern": "validation error", "flags": "i" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error:", "flags": "i" },
+          { "pattern": "→", "flags": "" },
+          { "pattern": "\\d+\\s*\\|", "flags": "" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Prisma schema validation errors below:",
+      "timeout": 30000
+    },
+    "seed-check": {
+      "command": "npm",
+      "args": ["run", "db:seed:check"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "Error:", "flags": "" },
+          { "pattern": "failed", "flags": "i" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "Error:", "flags": "" },
+          { "pattern": "failed", "flags": "i" },
+          { "pattern": "at\\s+", "flags": "" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the database seeding errors below:",
+      "timeout": 60000
+    }
+  }
+}

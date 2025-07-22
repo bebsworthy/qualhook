@@ -1,0 +1,285 @@
+{
+  "version": "1.0",
+  "projectType": "monorepo",
+  "commands": {
+    "format": {
+      "command": "echo",
+      "args": ["No root formatter configured"],
+      "errorDetection": {
+        "exitCodes": []
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^$", "flags": "" }
+        ],
+        "maxOutput": 0
+      },
+      "prompt": "Run format in specific project directories"
+    },
+    "lint": {
+      "command": "echo",
+      "args": ["No root linter configured"],
+      "errorDetection": {
+        "exitCodes": []
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^$", "flags": "" }
+        ],
+        "maxOutput": 0
+      },
+      "prompt": "Run lint in specific project directories"
+    }
+  },
+  "paths": [
+    {
+      "path": "frontend/**",
+      "commands": {
+        "format": {
+          "command": "npm",
+          "args": ["run", "format", "--prefix", "frontend"],
+          "errorDetection": {
+            "exitCodes": [1]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "error", "flags": "i" },
+              { "pattern": "\\[error\\]", "flags": "i" }
+            ],
+            "contextLines": 2,
+            "maxOutput": 100
+          },
+          "prompt": "Fix the formatting issues in frontend:",
+          "timeout": 30000
+        },
+        "lint": {
+          "command": "npm",
+          "args": ["run", "lint", "--prefix", "frontend"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "\\d+ errors?", "flags": "i" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "error", "flags": "i" },
+              { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+            ],
+            "contextLines": 3,
+            "maxOutput": 150
+          },
+          "prompt": "Fix the linting errors in frontend:",
+          "timeout": 60000
+        },
+        "typecheck": {
+          "command": "npm",
+          "args": ["run", "typecheck", "--prefix", "frontend"],
+          "errorDetection": {
+            "exitCodes": [1, 2],
+            "patterns": [
+              { "pattern": "Found \\d+ errors?", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "error TS\\d+:", "flags": "" },
+              { "pattern": "^[^:]+\\(\\d+,\\d+\\):", "flags": "m" }
+            ],
+            "contextLines": 5,
+            "maxOutput": 200
+          },
+          "prompt": "Fix the TypeScript errors in frontend:",
+          "timeout": 120000
+        },
+        "test": {
+          "command": "npm",
+          "args": ["test", "--prefix", "frontend"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "\\d+ failing", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "FAIL", "flags": "" },
+              { "pattern": "✗", "flags": "" },
+              { "pattern": "Expected:", "flags": "" },
+              { "pattern": "Received:", "flags": "" }
+            ],
+            "contextLines": 10,
+            "maxOutput": 300
+          },
+          "prompt": "Fix the failing frontend tests:",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "path": "backend/**",
+      "commands": {
+        "format": {
+          "command": "go",
+          "args": ["fmt", "./..."],
+          "errorDetection": {
+            "exitCodes": [1]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "^.+\\.go$", "flags": "m" }
+            ],
+            "contextLines": 0,
+            "maxOutput": 50
+          },
+          "prompt": "Format the following Go files in backend:",
+          "timeout": 10000
+        },
+        "lint": {
+          "command": "golangci-lint",
+          "args": ["run", "--path-prefix", "backend"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "\\d+ issues?", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" }
+            ],
+            "contextLines": 2,
+            "maxOutput": 200
+          },
+          "prompt": "Fix the linting issues in backend:",
+          "timeout": 120000
+        },
+        "typecheck": {
+          "command": "go",
+          "args": ["build", "-o", "/dev/null", "./..."],
+          "errorDetection": {
+            "exitCodes": [1, 2]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+              { "pattern": "cannot use", "flags": "" },
+              { "pattern": "undefined:", "flags": "" }
+            ],
+            "contextLines": 3,
+            "maxOutput": 150
+          },
+          "prompt": "Fix the Go compilation errors in backend:",
+          "timeout": 60000
+        },
+        "test": {
+          "command": "go",
+          "args": ["test", "./...", "-v"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "FAIL", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "--- FAIL:", "flags": "" },
+              { "pattern": "\\s+Error:", "flags": "" },
+              { "pattern": "panic:", "flags": "" }
+            ],
+            "contextLines": 10,
+            "maxOutput": 300
+          },
+          "prompt": "Fix the failing backend tests:",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "path": "services/auth/**",
+      "commands": {
+        "format": {
+          "command": "cargo",
+          "args": ["fmt", "--manifest-path", "services/auth/Cargo.toml", "--", "--check"],
+          "errorDetection": {
+            "exitCodes": [1]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "Diff in", "flags": "" }
+            ],
+            "contextLines": 5,
+            "maxOutput": 150
+          },
+          "prompt": "Fix the Rust formatting in auth service:",
+          "timeout": 30000
+        },
+        "lint": {
+          "command": "cargo",
+          "args": ["clippy", "--manifest-path", "services/auth/Cargo.toml", "--", "-D", "warnings"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "error:", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "^error\\[E\\d+\\]:", "flags": "m" },
+              { "pattern": "^warning:", "flags": "m" },
+              { "pattern": "^\\s+--> ", "flags": "m" }
+            ],
+            "contextLines": 5,
+            "maxOutput": 200
+          },
+          "prompt": "Fix the Clippy issues in auth service:",
+          "timeout": 120000
+        },
+        "test": {
+          "command": "cargo",
+          "args": ["test", "--manifest-path", "services/auth/Cargo.toml"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "test result: FAILED", "flags": "" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "---- .+ stdout ----", "flags": "" },
+              { "pattern": "thread .+ panicked", "flags": "" },
+              { "pattern": "FAILED", "flags": "" }
+            ],
+            "contextLines": 10,
+            "maxOutput": 300
+          },
+          "prompt": "Fix the failing auth service tests:",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "path": "packages/shared/**",
+      "extends": "frontend/**",
+      "commands": {
+        "test": {
+          "command": "npm",
+          "args": ["test", "--prefix", "packages/shared", "--", "--passWithNoTests"],
+          "errorDetection": {
+            "exitCodes": [1]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "FAIL", "flags": "" },
+              { "pattern": "✗", "flags": "" }
+            ],
+            "contextLines": 10,
+            "maxOutput": 300
+          },
+          "prompt": "Fix the failing shared package tests:",
+          "timeout": 300000
+        }
+      }
+    }
+  ]
+}

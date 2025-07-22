@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "projectType": "rust",
+  "commands": {
+    "format": {
+      "command": "cargo",
+      "args": ["fmt", "--", "--check"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "Diff in", "flags": "" },
+          { "pattern": "^-", "flags": "m" },
+          { "pattern": "^\\+", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the Rust formatting issues below:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "cargo",
+      "args": ["clippy", "--", "-D", "warnings"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "warning:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^error\\[E\\d+\\]:", "flags": "m" },
+          { "pattern": "^warning:", "flags": "m" },
+          { "pattern": "^\\s+--> ", "flags": "m" },
+          { "pattern": "^\\s+\\|", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Clippy warnings and errors below:",
+      "timeout": 120000
+    },
+    "typecheck": {
+      "command": "cargo",
+      "args": ["check"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "error\\[E\\d+\\]:", "flags": "" },
+          { "pattern": "could not compile", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^error\\[E\\d+\\]:", "flags": "m" },
+          { "pattern": "^\\s+--> ", "flags": "m" },
+          { "pattern": "^\\s+\\|", "flags": "m" },
+          { "pattern": "^\\s+=", "flags": "m" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the Rust compilation errors below:",
+      "timeout": 60000
+    },
+    "test": {
+      "command": "cargo",
+      "args": ["test"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "test result: FAILED", "flags": "" },
+          { "pattern": "\\d+ failed", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "---- .+ stdout ----", "flags": "" },
+          { "pattern": "thread .+ panicked", "flags": "" },
+          { "pattern": "assertion failed", "flags": "" },
+          { "pattern": "^\\s+left:", "flags": "m" },
+          { "pattern": "^\\s+right:", "flags": "m" },
+          { "pattern": "FAILED", "flags": "" }
+        ],
+        "contextLines": 10,
+        "maxOutput": 300
+      },
+      "prompt": "Fix the failing Rust tests below:",
+      "timeout": 300000
+    }
+  }
+}

@@ -1,0 +1,17 @@
+Benchmark Results - Tue Jul 22 23:00:57 CEST 2025
+======================================
+
+=== Pattern Matching Benchmarks ===
+
+goos: darwin
+goarch: arm64
+pkg: github.com/qualhook/qualhook/internal/filter
+cpu: Apple M3
+BenchmarkOptimizedPatternSet/RegularPatternSet-8         	 1204982	      9917 ns/op	       0 B/op	       0 allocs/op
+BenchmarkOptimizedPatternSet/OptimizedPatternSet-8       	 1000000	     10192 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/RegexLiterals-8                 	62294662	       192.3 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/OptimizedLiterals-8             	375713938	        31.82 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPrefixSuffixMatching/RegexPrefixSuffix-8        	 4352516	      2747 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPrefixSuffixMatching/OptimizedPrefixSuffix-8    	 4337414	      2788 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBatchMatching/SequentialMatching-8              	   19897	    596669 ns/op	    8199 B/op	      10 allocs/op
+BenchmarkBatchMatching/BatchMatching-8                   	

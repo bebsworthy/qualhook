@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "projectType": "python",
+  "commands": {
+    "format": {
+      "command": "black",
+      "args": [".", "--check"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "would reformat", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "would reformat", "flags": "" },
+          { "pattern": "^\\S+\\.py", "flags": "m" }
+        ],
+        "contextLines": 0,
+        "maxOutput": 100
+      },
+      "prompt": "Format the following Python files with black:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "pylint",
+      "args": ["**/*.py"],
+      "errorDetection": {
+        "exitCodes": [1, 2, 4, 8, 16],
+        "patterns": [
+          { "pattern": "rated at", "flags": "" },
+          { "pattern": "E\\d{4}:", "flags": "" },
+          { "pattern": "W\\d{4}:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+          { "pattern": "[EWRCIF]\\d{4}:", "flags": "" },
+          { "pattern": "\\*{10,}", "flags": "" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the pylint issues below:",
+      "timeout": 120000
+    },
+    "typecheck": {
+      "command": "mypy",
+      "args": ["."],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "Found \\d+ errors?", "flags": "" },
+          { "pattern": "error:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "^[^:]+:\\d+:", "flags": "m" },
+          { "pattern": "error:", "flags": "" },
+          { "pattern": "note:", "flags": "" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the mypy type errors below:",
+      "timeout": 60000
+    },
+    "test": {
+      "command": "pytest",
+      "args": ["-v", "--tb=short"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ failed", "flags": "" },
+          { "pattern": "FAILED", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "FAILED", "flags": "" },
+          { "pattern": "^E\\s+", "flags": "m" },
+          { "pattern": "AssertionError", "flags": "" },
+          { "pattern": "^>\\s+", "flags": "m" },
+          { "pattern": "^_+\\s+\\w+\\s+_+", "flags": "m" }
+        ],
+        "contextLines": 10,
+        "maxOutput": 300
+      },
+      "prompt": "Fix the failing pytest tests below:",
+      "timeout": 300000
+    }
+  }
+}

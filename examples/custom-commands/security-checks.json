@@ -1,0 +1,130 @@
+{
+  "version": "1.0",
+  "projectType": "nodejs",
+  "commands": {
+    "format": {
+      "command": "npm",
+      "args": ["run", "format"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 100
+      },
+      "prompt": "Fix the formatting issues below:",
+      "timeout": 30000
+    },
+    "lint": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the linting errors below:",
+      "timeout": 60000
+    },
+    "security": {
+      "command": "npm",
+      "args": ["audit", "--audit-level=moderate"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "found \\d+ vulnerabilities", "flags": "" },
+          { "pattern": "\\d+ moderate", "flags": "" },
+          { "pattern": "\\d+ high", "flags": "" },
+          { "pattern": "\\d+ critical", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "Severity:", "flags": "" },
+          { "pattern": "Package:", "flags": "" },
+          { "pattern": "Vulnerable Versions:", "flags": "" },
+          { "pattern": "Patched in:", "flags": "" },
+          { "pattern": "More info:", "flags": "" }
+        ],
+        "contextLines": 1,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the security vulnerabilities below:",
+      "timeout": 60000
+    },
+    "sast": {
+      "command": "semgrep",
+      "args": ["--config=auto", "--error", "--json"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\"severity\": \"ERROR\"", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "\"path\":", "flags": "" },
+          { "pattern": "\"line\":", "flags": "" },
+          { "pattern": "\"message\":", "flags": "" },
+          { "pattern": "\"severity\":", "flags": "" }
+        ],
+        "contextLines": 0,
+        "maxOutput": 300
+      },
+      "prompt": "Fix the security issues found by SAST:",
+      "timeout": 120000
+    },
+    "license-check": {
+      "command": "license-checker",
+      "args": ["--onlyAllow", "MIT;Apache-2.0;BSD-3-Clause;ISC;CC0-1.0"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "error:", "flags": "i" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error:", "flags": "i" },
+          { "pattern": "licenses:", "flags": "" },
+          { "pattern": "repository:", "flags": "" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 150
+      },
+      "prompt": "The following packages have incompatible licenses:",
+      "timeout": 30000
+    },
+    "bundle-size": {
+      "command": "bundlesize",
+      "args": [],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "exceeds", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "exceeds", "flags": "" },
+          { "pattern": "\\d+\\.\\d+KB", "flags": "" }
+        ],
+        "contextLines": 1,
+        "maxOutput": 100
+      },
+      "prompt": "The following bundles exceed size limits:",
+      "timeout": 60000
+    }
+  }
+}

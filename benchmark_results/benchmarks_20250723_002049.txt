@@ -1,0 +1,29 @@
+Benchmark Results - Wed Jul 23 00:20:49 CEST 2025
+======================================
+
+=== Pattern Matching Benchmarks ===
+
+goos: darwin
+goarch: arm64
+pkg: github.com/qualhook/qualhook/internal/filter
+cpu: Apple M3
+BenchmarkOptimizedPatternSet/RegularPatternSet-8         	 1230811	      9818 ns/op	       0 B/op	       0 allocs/op
+BenchmarkOptimizedPatternSet/OptimizedPatternSet-8       	 1000000	     10080 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/RegexLiterals-8                 	62920369	       190.8 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/OptimizedLiterals-8             	366083320	        33.08 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPrefixSuffixMatching/RegexPrefixSuffix-8        	 4309617	      2746 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPrefixSuffixMatching/OptimizedPrefixSuffix-8    	 4347552	      2788 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBatchMatching/SequentialMatching-8              	   20265	    597423 ns/op	    8194 B/op	      10 allocs/op
+BenchmarkBatchMatching/BatchMatching-8                   	   20026	    593715 ns/op	    6980 B/op	      13 allocs/op
+BenchmarkMemoryPooling/WithoutPooling-8                  	166394248	        72.30 ns/op	       0 B/op	       0 allocs/op
+BenchmarkMemoryPooling/WithPooling-8                     	611549986	        19.76 ns/op	      24 B/op	       1 allocs/op
+BenchmarkOutputFiltering/SmallOutput_NoErrors-8          	   29990	    404876 ns/op	10517251 B/op	    1016 allocs/op
+BenchmarkOutputFiltering/SmallOutput_FewErrors-8         	   30924	    388759 ns/op	10520478 B/op	     974 allocs/op
+BenchmarkOutputFiltering/SmallOutput_ManyErrors-8        	   38956	    313871 ns/op	10524370 B/op	     739 allocs/op
+BenchmarkOutputFiltering/MediumOutput_NoErrors-8         	    4950	   2553655 ns/op	10727723 B/op	   10019 allocs/op
+BenchmarkOutputFiltering/MediumOutput_FewErrors-8        	    5251	   2445717 ns/op	10919368 B/op	   10010 allocs/op
+BenchmarkOutputFiltering/MediumOutput_ManyErrors-8       	    7221	   1618259 ns/op	11106120 B/op	    8124 allocs/op
+BenchmarkOutputFiltering/LargeOutput_NoErrors-8          	     536	  22578242 ns/op	13158060 B/op	  100026 allocs/op
+BenchmarkOutputFiltering/LargeOutput_FewErrors-8         	     530	  22581312 ns/op	13348807 B/op	  100016 allocs/op
+BenchmarkOutputFiltering/LargeOutput_ManyErrors-8        	     558	  21225371 ns/op	14765396 B/op	   99204 allocs/op
+BenchmarkStreamFiltering/SmallStream-8                   	

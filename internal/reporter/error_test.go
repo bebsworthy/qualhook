@@ -23,17 +23,15 @@ func TestNewErrorReporter(t *testing.T) {
 func TestReport_NoErrors(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
+			Path:    ".",
 			Command: "lint",
 			ExecResult: &executor.ExecResult{
 				ExitCode: 0,
 				Stdout:   "All checks passed",
 			},
-			FilteredOutput: &filter.FilteredOutput{
-				HasErrors: false,
-			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -49,16 +47,17 @@ func TestReport_NoErrors(t *testing.T) {
 	if report.Stderr != "" {
 		t.Errorf("expected empty stderr, got %q", report.Stderr)
 	}
-	if !strings.Contains(report.Stdout, "successfully") {
-		t.Errorf("expected success message, got %q", report.Stdout)
+	if !strings.Contains(report.Stdout, "All quality checks passed") {
+		t.Errorf("expected success message in stdout, got %q", report.Stdout)
 	}
 }
 
 func TestReport_WithErrors(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
+			Path:    ".",
 			Command: "lint",
 			ExecResult: &executor.ExecResult{
 				ExitCode: 1,
@@ -68,7 +67,7 @@ func TestReport_WithErrors(t *testing.T) {
 				Lines:     []string{"file.js:10:5: error: Missing semicolon"},
 				HasErrors: true,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -102,8 +101,9 @@ func TestReport_ExecutionError(t *testing.T) {
 		Err:     errors.New("command not found"),
 	}
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
+			Path:           ".",
 			Command:        "lint",
 			ExecutionError: execErr,
 		},
@@ -128,7 +128,7 @@ func TestReport_ExecutionError(t *testing.T) {
 func TestReport_MonorepoMultipleComponents(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
 			Path:    "frontend",
 			Command: "lint",
@@ -140,7 +140,7 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 				Lines:     []string{"frontend/app.js:5: error"},
 				HasErrors: true,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -157,7 +157,7 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 				Lines:     []string{"backend/server.go:10: error"},
 				HasErrors: true,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -184,8 +184,9 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 func TestReport_TruncatedOutput(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
+			Path:    ".",
 			Command: "test",
 			ExecResult: &executor.ExecResult{
 				ExitCode: 1,
@@ -196,7 +197,7 @@ func TestReport_TruncatedOutput(t *testing.T) {
 				Truncated:  true,
 				TotalLines: 500,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -219,14 +220,14 @@ func TestHasErrors(t *testing.T) {
 	
 	tests := []struct {
 		name     string
-		result   ComponentResult
+		result   executor.ComponentExecResult
 		expected bool
 	}{
 		{
 			name: "exit code match",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 1},
-				Config: &config.CommandConfig{
+				CommandConfig: &config.CommandConfig{
 					ErrorDetection: &config.ErrorDetection{
 						ExitCodes: []int{1, 2},
 					},
@@ -236,9 +237,9 @@ func TestHasErrors(t *testing.T) {
 		},
 		{
 			name: "exit code no match",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 0},
-				Config: &config.CommandConfig{
+				CommandConfig: &config.CommandConfig{
 					ErrorDetection: &config.ErrorDetection{
 						ExitCodes: []int{1, 2},
 					},
@@ -248,7 +249,7 @@ func TestHasErrors(t *testing.T) {
 		},
 		{
 			name: "filtered output has errors",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				ExecResult:     &executor.ExecResult{ExitCode: 0},
 				FilteredOutput: &filter.FilteredOutput{HasErrors: true},
 			},
@@ -256,14 +257,14 @@ func TestHasErrors(t *testing.T) {
 		},
 		{
 			name: "no config non-zero exit",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 1},
 			},
 			expected: true,
 		},
 		{
 			name: "no config zero exit",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 0},
 			},
 			expected: false,
@@ -286,45 +287,45 @@ func TestGetPrompt(t *testing.T) {
 	tests := []struct {
 		name       string
 		command    string
-		components []ComponentResult
+		components []executor.ComponentExecResult
 		expected   string
 	}{
 		{
 			name:    "custom prompt",
 			command: "lint",
-			components: []ComponentResult{
-				{Config: &config.CommandConfig{Prompt: "Custom prompt:"}},
+			components: []executor.ComponentExecResult{
+				{CommandConfig: &config.CommandConfig{Prompt: "Custom prompt:"}},
 			},
 			expected: "Custom prompt:",
 		},
 		{
 			name:       "format default",
 			command:    "format",
-			components: []ComponentResult{{}},
+			components: []executor.ComponentExecResult{{}},
 			expected:   "Fix the formatting issues below:",
 		},
 		{
 			name:       "lint default",
 			command:    "lint",
-			components: []ComponentResult{{}},
+			components: []executor.ComponentExecResult{{}},
 			expected:   "Fix the linting errors below:",
 		},
 		{
 			name:       "typecheck default",
 			command:    "typecheck",
-			components: []ComponentResult{{}},
+			components: []executor.ComponentExecResult{{}},
 			expected:   "Fix the type errors below:",
 		},
 		{
 			name:       "test default",
 			command:    "test",
-			components: []ComponentResult{{}},
+			components: []executor.ComponentExecResult{{}},
 			expected:   "Fix the failing tests below:",
 		},
 		{
 			name:       "unknown command",
 			command:    "custom",
-			components: []ComponentResult{{}},
+			components: []executor.ComponentExecResult{{}},
 			expected:   "Fix the following errors:",
 		},
 	}
@@ -377,13 +378,13 @@ func TestFormatExecutionError(t *testing.T) {
 	
 	tests := []struct {
 		name     string
-		result   ComponentResult
+		result   executor.ComponentExecResult
 		execErr  *executor.ExecError
 		contains []string
 	}{
 		{
 			name: "command not found",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Path:    "frontend",
 				Command: "npm run lint",
 			},
@@ -400,7 +401,7 @@ func TestFormatExecutionError(t *testing.T) {
 		},
 		{
 			name: "permission denied",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Command: "./script.sh",
 			},
 			execErr: &executor.ExecError{
@@ -413,7 +414,7 @@ func TestFormatExecutionError(t *testing.T) {
 		},
 		{
 			name: "timeout",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Command: "test",
 			},
 			execErr: &executor.ExecError{
@@ -426,7 +427,7 @@ func TestFormatExecutionError(t *testing.T) {
 		},
 		{
 			name: "working directory",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Command: "build",
 			},
 			execErr: &executor.ExecError{
@@ -456,7 +457,7 @@ func TestFormatExecutionError(t *testing.T) {
 func TestGroupByCommand(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	components := []ComponentResult{
+	components := []executor.ComponentExecResult{
 		{Command: "lint", Path: "frontend"},
 		{Command: "test", Path: "backend"},
 		{Command: "lint", Path: "backend"},
@@ -487,18 +488,18 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 	
 	tests := []struct {
 		name     string
-		result   ComponentResult
+		result   executor.ComponentExecResult
 		expected string
 	}{
 		{
 			name: "stderr output",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Command: "lint",
 				ExecResult: &executor.ExecResult{
 					ExitCode: 1,
 					Stderr:   "Error on line 10",
 				},
-				Config: &config.CommandConfig{
+				CommandConfig: &config.CommandConfig{
 					ErrorDetection: &config.ErrorDetection{
 						ExitCodes: []int{1},
 					},
@@ -508,13 +509,13 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 		},
 		{
 			name: "stdout output when no stderr",
-			result: ComponentResult{
+			result: executor.ComponentExecResult{
 				Command: "test",
 				ExecResult: &executor.ExecResult{
 					ExitCode: 1,
 					Stdout:   "Test failed: assertion error",
 				},
-				Config: &config.CommandConfig{
+				CommandConfig: &config.CommandConfig{
 					ErrorDetection: &config.ErrorDetection{
 						ExitCodes: []int{1},
 					},
@@ -526,7 +527,7 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			report := reporter.Report([]ComponentResult{tt.result})
+			report := reporter.Report([]executor.ComponentExecResult{tt.result})
 			if !strings.Contains(report.Stderr, tt.expected) {
 				t.Errorf("expected %q in stderr, got %q", tt.expected, report.Stderr)
 			}
@@ -537,13 +538,13 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 func TestReport_MixedResults(t *testing.T) {
 	reporter := NewErrorReporter()
 	
-	results := []ComponentResult{
+	results := []executor.ComponentExecResult{
 		{
 			Command: "lint",
 			ExecResult: &executor.ExecResult{
 				ExitCode: 0,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},
@@ -559,7 +560,7 @@ func TestReport_MixedResults(t *testing.T) {
 				Lines:     []string{"Test failed: assertion error"},
 				HasErrors: true,
 			},
-			Config: &config.CommandConfig{
+			CommandConfig: &config.CommandConfig{
 				ErrorDetection: &config.ErrorDetection{
 					ExitCodes: []int{1},
 				},

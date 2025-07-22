@@ -9,7 +9,9 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 
+	"github.com/qualhook/qualhook/internal/security"
 	"github.com/qualhook/qualhook/pkg/config"
 )
 
@@ -20,13 +22,18 @@ type Validator struct {
 
 	// AllowedCommands is a whitelist of allowed commands (empty means all allowed)
 	AllowedCommands []string
+
+	// SecurityValidator for comprehensive security checks
+	securityValidator *security.SecurityValidator
 }
 
 // NewValidator creates a new configuration validator
 func NewValidator() *Validator {
+	secValidator := security.NewSecurityValidator()
 	return &Validator{
 		CheckCommands: true,
 		AllowedCommands: getDefaultAllowedCommands(),
+		securityValidator: secValidator,
 	}
 }
 
@@ -61,7 +68,12 @@ func (v *Validator) ValidateCommand(cmd *config.CommandConfig) error {
 
 // validateCommand performs validation on a command configuration
 func (v *Validator) validateCommand(name string, cmd *config.CommandConfig) error {
-	// Check if command is in allowed list
+	// Use security validator for comprehensive command validation
+	if err := v.securityValidator.ValidateCommand(cmd.Command, cmd.Args); err != nil {
+		return fmt.Errorf("security validation failed: %w", err)
+	}
+
+	// Check if command is in allowed list (backward compatibility)
 	if len(v.AllowedCommands) > 0 && !v.isCommandAllowed(cmd.Command) {
 		return fmt.Errorf("command %q is not in allowed list", cmd.Command)
 	}
@@ -96,13 +108,12 @@ func (v *Validator) validateCommand(name string, cmd *config.CommandConfig) erro
 		}
 	}
 
-	// Validate timeout
-	if cmd.Timeout > 0 && cmd.Timeout < 100 {
-		return fmt.Errorf("timeout %dms is too short, minimum is 100ms", cmd.Timeout)
-	}
-
-	if cmd.Timeout > 3600000 { // 1 hour
-		return fmt.Errorf("timeout %dms exceeds maximum of 1 hour", cmd.Timeout)
+	// Validate timeout using security validator
+	if cmd.Timeout > 0 {
+		timeoutDuration := time.Duration(cmd.Timeout) * time.Millisecond
+		if err := v.securityValidator.ValidateTimeout(timeoutDuration); err != nil {
+			return fmt.Errorf("timeout validation failed: %w", err)
+		}
 	}
 
 	return nil
@@ -136,9 +147,9 @@ func (v *Validator) validateRegexPattern(pattern *config.RegexPattern) error {
 		return err
 	}
 
-	// Check for potentially problematic patterns
-	if err := v.checkDangerousRegex(pattern.Pattern); err != nil {
-		return fmt.Errorf("potentially dangerous regex: %w", err)
+	// Use security validator for comprehensive regex validation
+	if err := v.securityValidator.ValidateRegexPattern(pattern.Pattern); err != nil {
+		return fmt.Errorf("security validation failed: %w", err)
 	}
 
 	// Try to compile and test the pattern
@@ -227,19 +238,27 @@ func (v *Validator) validatePathPattern(pattern string) error {
 		return fmt.Errorf("path pattern cannot be empty")
 	}
 
-	// Check for invalid characters
-	if strings.ContainsAny(pattern, "\x00") {
-		return fmt.Errorf("path pattern contains null character")
+	// Use security validator for comprehensive path validation
+	// Note: path patterns are relative, so we validate them as patterns, not full paths
+	if err := v.securityValidator.ValidatePath(pattern); err != nil {
+		// Path patterns have slightly different rules than full paths
+		// Check for the specific errors we care about for patterns
+		if strings.Contains(err.Error(), "directory traversal") ||
+		   strings.Contains(err.Error(), "null byte") {
+			return fmt.Errorf("security validation failed: %w", err)
+		}
+		// Ignore "outside project directory" errors for patterns as they're relative
 	}
 
 	// Check for absolute paths (security risk)
 	if filepath.IsAbs(pattern) {
 		return fmt.Errorf("absolute paths are not allowed in patterns")
 	}
-
-	// Check for parent directory references
-	if strings.Contains(pattern, "..") {
-		return fmt.Errorf("parent directory references (..) are not allowed")
+	
+	// Also check for Windows-style absolute paths on non-Windows systems
+	if runtime.GOOS != "windows" && len(pattern) >= 3 && 
+		pattern[1] == ':' && (pattern[2] == '\\' || pattern[2] == '/') {
+		return fmt.Errorf("absolute paths are not allowed in patterns")
 	}
 
 	// Validate glob syntax

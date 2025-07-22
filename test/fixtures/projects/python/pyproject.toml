@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "test-python-project"
+version = "0.1.0"
+description = "Test Python project for qualhook"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+black = "^22.0.0"
+flake8 = "^4.0.0"
+mypy = "^0.950"
+pytest = "^7.0.0"
+
+[tool.black]
+line-length = 88
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true

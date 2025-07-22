@@ -296,8 +296,7 @@ func TestParallelExecute_Empty(t *testing.T) {
 }
 
 func TestExecuteWithAggregation(t *testing.T) {
-	cmdExecutor := NewCommandExecutor(10 * time.Second)
-	pe := NewParallelExecutor(cmdExecutor, 4)
+	pe := NewTestParallelExecutor(4)
 
 	// Create commands with different outputs
 	commands := []ParallelCommand{

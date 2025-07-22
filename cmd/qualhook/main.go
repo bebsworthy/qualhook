@@ -21,18 +21,95 @@ var (
 	configPath string
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "qualhook",
-	Short: "Quality checks for Claude Code",
-	Long: `Qualhook is a configurable command-line utility that serves as Claude Code 
+// newRootCmd creates and returns the root command
+func newRootCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "qualhook",
+		Short: "Quality checks for Claude Code",
+		Long: `Qualhook is a configurable command-line utility that serves as Claude Code 
 hooks to enforce code quality for LLM coding agents.
 
 It acts as an intelligent wrapper around project-specific commands (format, lint, 
 typecheck, test), filtering their output to provide only relevant error 
-information to the LLM.`,
-	Version: Version,
+information to the LLM.
+
+GETTING STARTED:
+  1. Configure qualhook for your project:
+     $ qualhook config
+
+  2. Run quality checks:
+     $ qualhook format    # Run code formatter
+     $ qualhook lint      # Run linter
+     $ qualhook typecheck # Run type checker
+     $ qualhook test      # Run tests
+
+COMMON USAGE PATTERNS:
+  • Monorepo with multiple projects:
+    Configure path-specific commands in .qualhook.json
+    
+  • Custom commands:
+    Add any command to your configuration and run it directly:
+    $ qualhook my-custom-check
+
+  • Claude Code integration:
+    Use exit code 2 for errors that should be fed back to the LLM
+
+EXAMPLES:
+  # Configure a new project interactively
+  $ qualhook config
+
+  # Run linting and see only relevant errors
+  $ qualhook lint
+
+  # Validate your configuration
+  $ qualhook config --validate
+
+  # Use a specific config file
+  $ qualhook --config ./custom-config.json lint
+
+  # Enable debug output for troubleshooting
+  $ qualhook --debug format
+
+  # Import a configuration template
+  $ qualhook template import nodejs-eslint
+
+For more information, see: https://github.com/qualhook/qualhook`,
+		Version: Version,
+		Example: `  # Initial setup
+  qualhook config
+
+  # Daily usage
+  qualhook format
+  qualhook lint
+  qualhook test
+
+  # CI/CD integration
+  qualhook lint || exit 2`,
+	}
+	
+	// Global flags
+	cmd.PersistentFlags().BoolVar(&debugFlag, "debug", false, "Enable debug output")
+	cmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to configuration file")
+
+	// Disable the default completion command
+	cmd.CompletionOptions.DisableDefaultCmd = true
+	
+	// Allow interspersed args for custom commands
+	cmd.Flags().SetInterspersed(false)
+	
+	// Add subcommands
+	cmd.AddCommand(formatCmd)
+	cmd.AddCommand(lintCmd)
+	cmd.AddCommand(typecheckCmd)
+	cmd.AddCommand(testCmd)
+	cmd.AddCommand(configCmd)
+	cmd.AddCommand(templateCmd)
+	
+	return cmd
 }
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = newRootCmd()
 
 func main() {
 	// Parse global flags early to enable debug logging
@@ -47,7 +124,7 @@ func main() {
 	if len(os.Args) > 1 && !strings.HasPrefix(os.Args[1], "-") {
 		// Check if it's a known command
 		cmdName := os.Args[1]
-		knownCommands := []string{"format", "lint", "typecheck", "test", "help", "completion"}
+		knownCommands := []string{"format", "lint", "typecheck", "test", "config", "template", "help", "completion", "man"}
 		isKnown := false
 		for _, known := range knownCommands {
 			if cmdName == known {
@@ -130,17 +207,3 @@ func tryCustomCommand(cmdName string, args []string) error {
 
 	return fmt.Errorf("unknown command %q", cmdName)
 }
-
-func init() {
-	// Global flags
-	rootCmd.PersistentFlags().BoolVar(&debugFlag, "debug", false, "Enable debug output")
-	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to configuration file")
-
-	// Disable the default completion command
-	rootCmd.CompletionOptions.DisableDefaultCmd = true
-	
-	// Allow interspersed args for custom commands
-	rootCmd.Flags().SetInterspersed(false)
-	
-}
-

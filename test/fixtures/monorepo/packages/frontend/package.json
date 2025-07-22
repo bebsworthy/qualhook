@@ -1,0 +1,9 @@
+{
+  "name": "@test/frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "format": "prettier --write src",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  }
+}

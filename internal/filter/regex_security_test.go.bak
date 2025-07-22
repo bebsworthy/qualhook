@@ -1,0 +1,360 @@
+package filter
+
+import (
+	"regexp"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/qualhook/qualhook/internal/security"
+	"github.com/qualhook/qualhook/pkg/config"
+)
+
+// TestPatternManager_ReDoSPrevention tests that ReDoS vulnerable patterns are rejected
+func TestPatternManager_ReDoSPrevention(t *testing.T) {
+	pm := NewPatternManager()
+	secValidator := security.NewSecurityValidator()
+
+	tests := []struct {
+		name    string
+		pattern string
+		wantErr bool
+		errMsg  string
+	}{
+		{
+			name:    "nested quantifiers (.*)*",
+			pattern: "(.*)*",
+			wantErr: true,
+			errMsg:  "catastrophic backtracking",
+		},
+		{
+			name:    "nested quantifiers (.+)+",
+			pattern: "(.+)+",
+			wantErr: true,
+			errMsg:  "catastrophic backtracking",
+		},
+		{
+			name:    "alternation with quantifier (a|a)*",
+			pattern: "(a|a)*",
+			wantErr: true,
+			errMsg:  "catastrophic backtracking",
+		},
+		{
+			name:    "complex nested groups ((a+)+)+",
+			pattern: "((a+)+)+",
+			wantErr: true,
+			errMsg:  "catastrophic backtracking",
+		},
+		{
+			name:    "safe pattern",
+			pattern: "^error: (.+)$",
+			wantErr: false,
+		},
+		{
+			name:    "safe alternation",
+			pattern: "(error|warning): (.+)",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// First validate with security validator
+			err := secValidator.ValidateRegexPattern(tt.pattern)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateRegexPattern() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
+				t.Errorf("ValidateRegexPattern() error = %v, want error containing %q", err, tt.errMsg)
+			}
+
+			// If validation passes, try to compile
+			if err == nil {
+				rp := &config.RegexPattern{Pattern: tt.pattern}
+				compiledRe, compileErr := pm.CompilePattern(rp)
+				if compileErr != nil {
+					t.Errorf("Failed to compile safe pattern: %v", compileErr)
+				} else if compiledRe == nil {
+					t.Error("CompilePattern returned nil for safe pattern")
+				}
+			}
+		})
+	}
+}
+
+// TestPatternManager_PatternTimeout tests that pattern compilation has reasonable timeouts
+func TestPatternManager_PatternTimeout(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping timeout test in short mode")
+	}
+
+	pm := NewPatternManager()
+
+	// This pattern is complex but not necessarily ReDoS vulnerable
+	// It's just meant to test timeout handling
+	complexPattern := strings.Repeat("(a?){1,}", 50) + strings.Repeat("a", 50)
+
+	done := make(chan bool, 1)
+	var compileErr error
+
+	go func() {
+		rp := &config.RegexPattern{Pattern: complexPattern}
+		_, compileErr = pm.CompilePattern(rp)
+		done <- true
+	}()
+
+	select {
+	case <-done:
+		// Compilation completed (either success or error)
+		if compileErr == nil {
+			t.Log("Complex pattern compiled successfully")
+		} else {
+			t.Logf("Complex pattern failed to compile: %v", compileErr)
+		}
+	case <-time.After(200 * time.Millisecond):
+		// If we're still waiting after 200ms, that's concerning
+		t.Error("Pattern compilation took too long (possible ReDoS)")
+	}
+}
+
+// TestPatternManager_MaliciousPatterns tests various malicious regex patterns
+func TestPatternManager_MaliciousPatterns(t *testing.T) {
+	secValidator := security.NewSecurityValidator()
+
+	maliciousPatterns := []struct {
+		name        string
+		pattern     string
+		description string
+	}{
+		{
+			name:        "exponential backtracking",
+			pattern:     "(a*)*b",
+			description: "causes exponential backtracking on non-matching input",
+		},
+		{
+			name:        "nested groups with alternation",
+			pattern:     "((a|b)*)*c",
+			description: "nested quantifiers with alternation",
+		},
+		{
+			name:        "overlapping alternation",
+			pattern:     "(a|ab)*c",
+			description: "overlapping alternatives with quantifier",
+		},
+		{
+			name:        "complex lookahead",
+			pattern:     "(?=a*)*b",
+			description: "quantified lookahead assertion",
+		},
+		{
+			name:        "deeply nested groups",
+			pattern:     "((((a*)*)*)*)*",
+			description: "deeply nested quantifiers",
+		},
+		{
+			name:        "alternation of similar patterns",
+			pattern:     "(x+x+)+y",
+			description: "redundant repetition",
+		},
+	}
+
+	for _, mp := range maliciousPatterns {
+		t.Run(mp.name, func(t *testing.T) {
+			err := secValidator.ValidateRegexPattern(mp.pattern)
+			if err == nil {
+				t.Errorf("Pattern %q (%s) should have been rejected", mp.pattern, mp.description)
+			} else {
+				t.Logf("Successfully rejected %s: %v", mp.description, err)
+			}
+		})
+	}
+}
+
+// TestPatternManager_SafePatterns tests that legitimate patterns are not blocked
+func TestPatternManager_SafePatterns(t *testing.T) {
+	pm := NewPatternManager()
+	secValidator := security.NewSecurityValidator()
+
+	safePatterns := []struct {
+		name    string
+		pattern string
+		test    string
+		match   bool
+	}{
+		{
+			name:    "simple error pattern",
+			pattern: `error:\s*(.+)`,
+			test:    "error: something went wrong",
+			match:   true,
+		},
+		{
+			name:    "line number pattern",
+			pattern: `^\s*at\s+(.+?)\s*\((.+?):(\d+):(\d+)\)`,
+			test:    "  at function (file.js:10:5)",
+			match:   true,
+		},
+		{
+			name:    "log level pattern",
+			pattern: `^(ERROR|WARN|INFO|DEBUG):\s*(.+)`,
+			test:    "ERROR: Database connection failed",
+			match:   true,
+		},
+		{
+			name:    "file path pattern",
+			pattern: `^([a-zA-Z]:)?[/\\]?(?:[^/\\]+[/\\])*[^/\\]+\.[a-zA-Z]+$`,
+			test:    "/home/user/project/file.go",
+			match:   true,
+		},
+		{
+			name:    "test result pattern",
+			pattern: `^(PASS|FAIL|SKIP):\s*(.+?)\s*\(([0-9.]+)s\)`,
+			test:    "PASS: TestFunction (0.05s)",
+			match:   true,
+		},
+	}
+
+	for _, sp := range safePatterns {
+		t.Run(sp.name, func(t *testing.T) {
+			// Validate pattern
+			err := secValidator.ValidateRegexPattern(sp.pattern)
+			if err != nil {
+				t.Fatalf("Safe pattern rejected: %v", err)
+			}
+
+			// Compile pattern
+			rp := &config.RegexPattern{Pattern: sp.pattern}
+			re, err := pm.CompilePattern(rp)
+			if err != nil {
+				t.Fatalf("Failed to compile safe pattern: %v", err)
+			}
+
+			// Test pattern matching
+			matched := re.MatchString(sp.test)
+			if matched != sp.match {
+				t.Errorf("Pattern match = %v, want %v for test string %q", matched, sp.match, sp.test)
+			}
+		})
+	}
+}
+
+// TestPatternManager_PerformanceUnderLoad tests pattern matching performance
+func TestPatternManager_PerformanceUnderLoad(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping performance test in short mode")
+	}
+
+	pm := NewPatternManager()
+
+	// Create several safe patterns
+	patterns := []*config.RegexPattern{
+		{Pattern: `error:\s*(.+)`},
+		{Pattern: `warning:\s*(.+)`},
+		{Pattern: `^\s+at\s+(.+?)\s*\((.+?):(\d+):(\d+)\)`},
+		{Pattern: `^(PASS|FAIL):\s*(.+)`},
+		{Pattern: `\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\]\s*(.+)`},
+	}
+
+	// Compile all patterns
+	compiled := make([]*regexp.Regexp, len(patterns))
+	for i, p := range patterns {
+		re, err := pm.CompilePattern(p)
+		if err != nil {
+			t.Fatalf("Failed to compile pattern %d: %v", i, err)
+		}
+		compiled[i] = re
+	}
+
+	// Test strings
+	testStrings := []string{
+		"error: connection timeout",
+		"warning: deprecated function used",
+		"  at handleRequest (server.js:45:12)",
+		"PASS: TestSecurityValidation",
+		"[2024-01-15 10:30:45] Server started successfully",
+		"normal log line without pattern match",
+		"another line that shouldn't match any pattern",
+	}
+
+	// Run performance test
+	start := time.Now()
+	iterations := 10000
+	
+	for i := 0; i < iterations; i++ {
+		for _, s := range testStrings {
+			for _, re := range compiled {
+				_ = re.MatchString(s)
+			}
+		}
+	}
+
+	elapsed := time.Since(start)
+	opsPerSecond := float64(iterations*len(testStrings)*len(compiled)) / elapsed.Seconds()
+
+	t.Logf("Performed %d pattern matching operations in %v", iterations*len(testStrings)*len(compiled), elapsed)
+	t.Logf("Operations per second: %.0f", opsPerSecond)
+
+	// Ensure performance is reasonable (at least 100k ops/sec)
+	if opsPerSecond < 100000 {
+		t.Errorf("Pattern matching performance too low: %.0f ops/sec", opsPerSecond)
+	}
+}
+
+// TestPatternManager_ConcurrentAccess tests thread safety of pattern compilation and matching
+func TestPatternManager_ConcurrentAccess(t *testing.T) {
+	pm := NewPatternManager()
+	
+	patterns := []*config.RegexPattern{
+		{Pattern: `error:\s*(.+)`},
+		{Pattern: `warning:\s*(.+)`},
+		{Pattern: `info:\s*(.+)`},
+	}
+
+	// Number of concurrent goroutines
+	concurrency := 20
+	iterations := 100
+	done := make(chan bool, concurrency)
+
+	for i := 0; i < concurrency; i++ {
+		go func(id int) {
+			defer func() { done <- true }()
+
+			for j := 0; j < iterations; j++ {
+				// Compile patterns
+				for _, p := range patterns {
+					re, err := pm.CompilePattern(p)
+					if err != nil {
+						t.Errorf("Goroutine %d: Failed to compile pattern: %v", id, err)
+						return
+					}
+
+					// Test pattern matching
+					testStr := "error: test message"
+					if !re.MatchString(testStr) && p.Pattern == `error:\s*(.+)` {
+						t.Errorf("Goroutine %d: Pattern should have matched", id)
+					}
+				}
+
+				// Also test getting compiled patterns
+				for _, p := range patterns {
+					re := pm.GetCompiledPattern(p.Pattern)
+					if re != nil && !re.MatchString("error: test") && p.Pattern == `error:\s*(.+)` {
+						t.Errorf("Goroutine %d: Cached pattern failed to match", id)
+					}
+				}
+			}
+		}(i)
+	}
+
+	// Wait for all goroutines
+	for i := 0; i < concurrency; i++ {
+		<-done
+	}
+
+	// Verify cache integrity
+	for _, p := range patterns {
+		re := pm.GetCompiledPattern(p.Pattern)
+		if re == nil {
+			t.Errorf("Pattern %q should be in cache after concurrent access", p.Pattern)
+		}
+	}
+}

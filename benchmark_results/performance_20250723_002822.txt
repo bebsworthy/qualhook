@@ -1,0 +1,70 @@
+Qualhook Performance Benchmark Results
+=====================================
+Date: Wed Jul 23 00:28:22 CEST 2025
+Go Version: go version go1.24.4 darwin/arm64
+
+## Pattern Matching Performance
+--------------------------------
+goos: darwin
+goarch: arm64
+pkg: github.com/qualhook/qualhook/internal/filter
+cpu: Apple M3
+BenchmarkPatternCompilation-8          	  281618	      7660 ns/op	   20560 B/op	     169 allocs/op
+BenchmarkPatternCacheHit-8             	29397204	        82.92 ns/op	      56 B/op	       3 allocs/op
+BenchmarkPatternCacheMiss-8            	 2358448	      1020 ns/op	    2456 B/op	      24 allocs/op
+BenchmarkPatternMatching/SimplePattern_SmallInput-8         	 9576642	       249.5 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternMatching/SimplePattern_LargeInput-8         	    2359	   1008318 ns/op	       3 B/op	       0 allocs/op
+BenchmarkPatternMatching/ComplexPattern_SmallInput-8        	 2176873	      1116 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternMatching/ComplexPattern_LargeInput-8        	    1464	   1653551 ns/op	       4 B/op	       0 allocs/op
+BenchmarkPatternMatching/AnchoredPattern_SmallInput-8       	127089830	        18.63 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternMatching/AnchoredPattern_LargeInput-8       	    4243	    572065 ns/op	       1 B/op	       0 allocs/op
+BenchmarkPatternSet/SmallSet_SmallInput-8                   	 9500124	       252.4 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternSet/SmallSet_LargeInput-8                   	    2349	   1033258 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternSet/LargeSet_SmallInput-8                   	 9553412	       253.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternSet/LargeSet_LargeInput-8                   	    2373	   1037034 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPatternFindAll-8                                   	  231462	     10453 ns/op	    1169 B/op	      18 allocs/op
+BenchmarkPatternCache_GetOrCompile-8                        	28611506	        86.83 ns/op	      56 B/op	       3 allocs/op
+BenchmarkPatternSet_MatchAny-8                              	 8061284	       294.7 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/qualhook/qualhook/internal/filter	44.582s
+
+## Output Filtering Performance
+--------------------------------
+goos: darwin
+goarch: arm64
+pkg: github.com/qualhook/qualhook/internal/filter
+cpu: Apple M3
+BenchmarkOutputFiltering/SmallOutput_NoErrors-8         	    5836	    404795 ns/op	10516792 B/op	    1016 allocs/op
+BenchmarkOutputFiltering/SmallOutput_FewErrors-8        	    6151	    394192 ns/op	10520582 B/op	     974 allocs/op
+BenchmarkOutputFiltering/SmallOutput_ManyErrors-8       	    7477	    322896 ns/op	10524258 B/op	     739 allocs/op
+BenchmarkOutputFiltering/MediumOutput_NoErrors-8        	     988	   2442361 ns/op	10726820 B/op	   10019 allocs/op
+BenchmarkOutputFiltering/MediumOutput_FewErrors-8       	    1038	   2327508 ns/op	10920859 B/op	   10010 allocs/op
+BenchmarkOutputFiltering/MediumOutput_ManyErrors-8      	    1479	   1623611 ns/op	11105691 B/op	    8124 allocs/op
+BenchmarkOutputFiltering/LargeOutput_NoErrors-8         	     100	  22230881 ns/op	13155305 B/op	  100025 allocs/op
+BenchmarkOutputFiltering/LargeOutput_FewErrors-8        	     100	  22594003 ns/op	13355939 B/op	  100018 allocs/op
+BenchmarkOutputFiltering/LargeOutput_ManyErrors-8       	     100	  21730742 ns/op	14773269 B/op	   99207 allocs/op
+BenchmarkStreamFiltering/SmallStream-8                  	    8059	    282570 ns/op	10511388 B/op	     434 allocs/op
+BenchmarkStreamFiltering/MediumStream-8                 	    1975	   1216774 ns/op	10705546 B/op	    4053 allocs/op
+BenchmarkStreamFiltering/LargeStream-8                  	     214	  11095954 ns/op	13935497 B/op	   45221 allocs/op
+PASS
+ok  	github.com/qualhook/qualhook/internal/filter	32.319s
+
+## Optimization Performance
+------------------------------
+goos: darwin
+goarch: arm64
+pkg: github.com/qualhook/qualhook/internal/filter
+cpu: Apple M3
+BenchmarkOptimizedPatternSet/RegularPatternSet-8         	  213494	      9745 ns/op	       0 B/op	       0 allocs/op
+BenchmarkOptimizedPatternSet/OptimizedPatternSet-8       	  238464	     10151 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/RegexLiterals-8                 	12298365	       192.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiteralMatching/OptimizedLiterals-8             	75238845	        32.34 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBatchMatching/SequentialMatching-8              	    3937	    594094 ns/op	    8205 B/op	      10 allocs/op
+BenchmarkBatchMatching/BatchMatching-8                   	    4057	    599646 ns/op	    6984 B/op	      13 allocs/op
+PASS
+ok  	github.com/qualhook/qualhook/internal/filter	14.828s
+
+## Startup Time Measurement
+------------------------------
+Building qualhook binary...
+go: cannot run *_test.go files (benchmark_results/startup_test.go)

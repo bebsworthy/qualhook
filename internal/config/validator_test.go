@@ -84,7 +84,7 @@ func TestValidator_Validate(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			errMsg:  "timeout 3700000ms exceeds maximum",
+			errMsg:  "exceeds maximum allowed",
 		},
 		{
 			name: "dangerous regex pattern",
@@ -141,7 +141,7 @@ func TestValidator_Validate(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			errMsg:  "parent directory references",
+			errMsg:  "directory traversal",
 		},
 	}
 
@@ -193,7 +193,7 @@ func TestValidator_ValidateCommand(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			errMsg:  "not in allowed list",
+			errMsg:  "dangerous rm command",
 		},
 	}
 
@@ -295,8 +295,8 @@ func TestValidator_ValidatePathPattern(t *testing.T) {
 		{"packages/*/src", false, ""},
 		{"", true, "cannot be empty"},
 		{"/absolute/path", true, "absolute paths are not allowed"},
-		{"../parent", true, "parent directory references"},
-		{"path\x00null", true, "null character"},
+		{"../parent", true, "directory traversal"},
+		{"path\x00null", true, "null byte"},
 		{"[invalid", true, "invalid glob pattern"},
 	}
 

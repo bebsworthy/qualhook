@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "projectType": "monorepo",
+  "commands": {
+    "format": {
+      "command": "lerna",
+      "args": ["run", "format", "--stream"],
+      "errorDetection": {
+        "exitCodes": [1]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "\\[error\\]", "flags": "i" },
+          { "pattern": "ERR!", "flags": "" }
+        ],
+        "contextLines": 2,
+        "maxOutput": 150
+      },
+      "prompt": "Fix the formatting issues below:",
+      "timeout": 60000
+    },
+    "lint": {
+      "command": "lerna",
+      "args": ["run", "lint", "--stream"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ errors?", "flags": "i" },
+          { "pattern": "ERR!", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error", "flags": "i" },
+          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" },
+          { "pattern": "\\[\\w+\\]:", "flags": "" }
+        ],
+        "contextLines": 3,
+        "maxOutput": 200
+      },
+      "prompt": "Fix the linting errors below:",
+      "timeout": 120000
+    },
+    "typecheck": {
+      "command": "lerna",
+      "args": ["run", "typecheck", "--stream"],
+      "errorDetection": {
+        "exitCodes": [1, 2],
+        "patterns": [
+          { "pattern": "Found \\d+ errors?", "flags": "" },
+          { "pattern": "error TS\\d+:", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "error TS\\d+:", "flags": "" },
+          { "pattern": "^[^:]+\\(\\d+,\\d+\\):", "flags": "m" },
+          { "pattern": "\\[\\w+\\]", "flags": "" }
+        ],
+        "contextLines": 5,
+        "maxOutput": 250
+      },
+      "prompt": "Fix the TypeScript errors below:",
+      "timeout": 180000
+    },
+    "test": {
+      "command": "lerna",
+      "args": ["run", "test", "--stream", "--", "--ci"],
+      "errorDetection": {
+        "exitCodes": [1],
+        "patterns": [
+          { "pattern": "\\d+ failing", "flags": "" },
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "ERR!", "flags": "" }
+        ]
+      },
+      "outputFilter": {
+        "errorPatterns": [
+          { "pattern": "FAIL", "flags": "" },
+          { "pattern": "✗", "flags": "" },
+          { "pattern": "Expected:", "flags": "" },
+          { "pattern": "Received:", "flags": "" },
+          { "pattern": "\\[\\w+\\]", "flags": "" }
+        ],
+        "contextLines": 10,
+        "maxOutput": 400
+      },
+      "prompt": "Fix the failing tests below:",
+      "timeout": 600000
+    }
+  },
+  "paths": [
+    {
+      "path": "packages/core/**",
+      "commands": {
+        "test": {
+          "command": "npm",
+          "args": ["test", "--prefix", "packages/core", "--", "--coverage"],
+          "errorDetection": {
+            "exitCodes": [1]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "FAIL", "flags": "" },
+              { "pattern": "✗", "flags": "" }
+            ],
+            "contextLines": 10,
+            "maxOutput": 300
+          },
+          "prompt": "Fix the failing core package tests:",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "path": "packages/ui/**",
+      "commands": {
+        "lint": {
+          "command": "npm",
+          "args": ["run", "lint:strict", "--prefix", "packages/ui"],
+          "errorDetection": {
+            "exitCodes": [1],
+            "patterns": [
+              { "pattern": "\\d+ errors?", "flags": "i" }
+            ]
+          },
+          "outputFilter": {
+            "errorPatterns": [
+              { "pattern": "error", "flags": "i" },
+              { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+            ],
+            "contextLines": 4,
+            "maxOutput": 200
+          },
+          "prompt": "Fix the UI package linting errors:",
+          "timeout": 60000
+        }
+      }
+    }
+  ]
+}

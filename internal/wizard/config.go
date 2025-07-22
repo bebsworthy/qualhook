@@ -64,7 +64,7 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 
 	// Welcome message
 	fmt.Println("🚀 Welcome to the qualhook configuration wizard!")
-	fmt.Println("This wizard will help you set up qualhook for your project.\n")
+	fmt.Println("This wizard will help you set up qualhook for your project.")
 
 	// Detect project type
 	projectDir, err := os.Getwd()

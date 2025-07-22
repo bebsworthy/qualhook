@@ -16,6 +16,9 @@ import (
 	"github.com/qualhook/qualhook/pkg/config"
 )
 
+// osExit is a variable to allow mocking os.Exit in tests
+var osExit = os.Exit
+
 // executeCommand executes a configured command and processes its output
 func executeCommand(cfg *config.Config, commandName string, extraArgs []string) error {
 	start := time.Now()
@@ -237,7 +240,7 @@ func executeCommand(cfg *config.Config, commandName string, extraArgs []string) 
 	}
 	
 	if report.ExitCode != 0 {
-		os.Exit(report.ExitCode)
+		osExit(report.ExitCode)
 	}
 	
 	return nil
