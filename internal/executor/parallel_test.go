@@ -528,23 +528,23 @@ func getExitArgs(code int) []string {
 
 func getSleepCommand() string {
 	if runtime.GOOS == osWindows {
-		return "cmd"
+		return cmdCommand
 	}
 	return "sleep"
 }
 
 func getSleepArgs(seconds int) []string {
 	if runtime.GOOS == osWindows {
-		return []string{"/c", "timeout", "/t", fmt.Sprintf("%d", seconds), "/nobreak"}
+		return []string{cmdArgC, "timeout", "/t", fmt.Sprintf("%d", seconds), "/nobreak"}
 	}
 	return []string{fmt.Sprintf("%d", seconds)}
 }
 
 func getStderrCommand() string {
 	if runtime.GOOS == osWindows {
-		return "cmd"
+		return cmdCommand
 	}
-	return "sh"
+	return shCommand
 }
 
 func getStderrArgs(message string) []string {
@@ -556,9 +556,9 @@ func getStderrArgs(message string) []string {
 
 func getBothOutputCommand() string {
 	if runtime.GOOS == osWindows {
-		return "cmd"
+		return cmdCommand
 	}
-	return "sh"
+	return shCommand
 }
 
 func getBothOutputArgs(stdout, stderr string) []string {

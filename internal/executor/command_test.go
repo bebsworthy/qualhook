@@ -52,7 +52,7 @@ func TestExecute_Success(t *testing.T) {
 	var cmd string
 	var args []string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "echo", "hello world"}
 	} else {
 		cmd = echoCommand
@@ -114,7 +114,7 @@ func TestExecute_Timeout(t *testing.T) {
 	var cmd string
 	var args []string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "timeout", "/t", "5", "/nobreak"}
 	} else {
 		cmd = "sleep"
@@ -145,10 +145,10 @@ func TestExecute_NonZeroExit(t *testing.T) {
 	var cmd string
 	var args []string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "exit", "1"}
 	} else {
-		cmd = "sh"
+		cmd = shCommand
 		args = []string{"-c", "exit 1"}
 	}
 
@@ -180,7 +180,7 @@ func TestExecute_WorkingDirectory(t *testing.T) {
 	var cmd string
 	var args []string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "cd"}
 	} else {
 		cmd = "pwd"
@@ -212,7 +212,7 @@ func TestExecute_InvalidWorkingDirectory(t *testing.T) {
 
 	var cmd string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 	} else {
 		cmd = echoCommand
 	}
@@ -239,10 +239,10 @@ func TestExecute_Environment(t *testing.T) {
 	testValue := "test-value-12345"
 	
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "echo", "%" + testVar + "%"}
 	} else {
-		cmd = "sh"
+		cmd = shCommand
 		args = []string{"-c", "echo $" + testVar}
 	}
 
@@ -281,10 +281,10 @@ func TestExecuteWithStreaming(t *testing.T) {
 	var cmd string
 	var args []string
 	if runtime.GOOS == osWindows {
-		cmd = "cmd"
+		cmd = cmdCommand
 		args = []string{"/c", "echo stdout message && echo stderr message 1>&2"}
 	} else {
-		cmd = "sh"
+		cmd = shCommand
 		args = []string{"-c", "echo stdout message && echo stderr message >&2"}
 	}
 

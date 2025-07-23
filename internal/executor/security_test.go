@@ -169,10 +169,10 @@ func TestExecute_PathTraversalPrevention(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var cmd string
-			if runtime.GOOS == "windows" {
-				cmd = "cmd"
+			if runtime.GOOS == osWindows {
+				cmd = cmdCommand
 			} else {
-				cmd = "echo"
+				cmd = echoCommand
 			}
 
 			_, err := executor.Execute(cmd, []string{"test"}, ExecOptions{
@@ -220,11 +220,11 @@ func TestExecute_EnvironmentVariableFiltering(t *testing.T) {
 	// Command to print all environment variables
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
-		cmd = "cmd"
+	if runtime.GOOS == osWindows {
+		cmd = cmdCommand
 		args = []string{"/c", "set"}
 	} else {
-		cmd = "sh"
+		cmd = shCommand
 		args = []string{"-c", "env"}
 	}
 
@@ -486,10 +486,10 @@ func TestExecute_EnvironmentInjection(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var cmd string
-			if runtime.GOOS == "windows" {
-				cmd = "cmd"
+			if runtime.GOOS == osWindows {
+				cmd = cmdCommand
 			} else {
-				cmd = "echo"
+				cmd = echoCommand
 			}
 
 			// Execute should handle malicious environment variables safely
