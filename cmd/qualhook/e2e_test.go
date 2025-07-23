@@ -56,10 +56,12 @@ func TestE2EFormatCommand(t *testing.T) {
 	}
 	defer func() { osExit = oldExit }()
 	
-	// Capture stderr
+	// Capture stderr using errorWriter
 	oldStderr := os.Stderr
+	oldErrorWriter := errorWriter
 	r, w, _ := os.Pipe()
 	os.Stderr = w
+	errorWriter = w
 	
 	cmd := newRootCmd()
 	cmd.SetArgs([]string{"format"})
@@ -67,6 +69,7 @@ func TestE2EFormatCommand(t *testing.T) {
 	
 	w.Close()
 	os.Stderr = oldStderr
+	errorWriter = oldErrorWriter
 	
 	// Read captured output
 	var buf bytes.Buffer
@@ -117,10 +120,12 @@ func TestE2ESuccessfulCommand(t *testing.T) {
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
 	
-	// Capture stdout
+	// Capture stdout using outputWriter
 	oldStdout := os.Stdout
+	oldOutputWriter := outputWriter
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+	outputWriter = w
 	
 	cmd := newRootCmd()
 	cmd.SetArgs([]string{"lint"})
@@ -128,6 +133,7 @@ func TestE2ESuccessfulCommand(t *testing.T) {
 	
 	w.Close()
 	os.Stdout = oldStdout
+	outputWriter = oldOutputWriter
 	
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
@@ -219,10 +225,12 @@ func TestE2EMonorepoExecution(t *testing.T) {
 		os.Chdir(frontendDir)
 		defer os.Chdir(oldDir)
 		
-		// Capture stdout
+		// Capture stdout using outputWriter
 		oldStdout := os.Stdout
+		oldOutputWriter := outputWriter
 		r, w, _ := os.Pipe()
 		os.Stdout = w
+		outputWriter = w
 		
 		cmd := newRootCmd()
 		cmd.SetArgs([]string{"--config", configFile, "lint"})
@@ -230,6 +238,7 @@ func TestE2EMonorepoExecution(t *testing.T) {
 		
 		w.Close()
 		os.Stdout = oldStdout
+		outputWriter = oldOutputWriter
 		
 		var buf bytes.Buffer
 		buf.ReadFrom(r)
@@ -272,10 +281,12 @@ func TestE2ECustomCommand(t *testing.T) {
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
 	
-	// Capture stdout
+	// Capture stdout using outputWriter
 	oldStdout := os.Stdout
+	oldOutputWriter := outputWriter
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+	outputWriter = w
 	
 	// Set global config path for tryCustomCommand
 	oldConfigPath := configPath
@@ -287,6 +298,7 @@ func TestE2ECustomCommand(t *testing.T) {
 	
 	w.Close()
 	os.Stdout = oldStdout
+	outputWriter = oldOutputWriter
 	
 	if err != nil {
 		t.Errorf("Custom command failed: %v", err)

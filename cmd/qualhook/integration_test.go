@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/qualhook/qualhook/internal/debug"
 	"github.com/qualhook/qualhook/internal/hook"
 	"github.com/qualhook/qualhook/pkg/config"
 )
@@ -145,13 +146,33 @@ exit 1`
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
 	
-	// Expect error (exit code 2 for LLM)
+	// Also redirect the global output writers used by executeCommand
+	oldOutputWriter := outputWriter
+	oldErrorWriter := errorWriter
+	outputWriter = &stdout
+	errorWriter = &stderr
+	defer func() {
+		outputWriter = oldOutputWriter
+		errorWriter = oldErrorWriter
+	}()
+	
+	// Replace os.Exit temporarily to capture exit code
+	oldExit := osExit
+	exitCode := 0
+	osExit = func(code int) {
+		exitCode = code
+	}
+	defer func() { osExit = oldExit }()
+	
+	// Execute the command
 	err = rootCmd.Execute()
-	if err == nil {
-		t.Error("Expected command to fail with errors")
+	
+	// Verify exit code 2 for errors
+	if exitCode != 2 {
+		t.Errorf("Expected exit code 2, got %d", exitCode)
 	}
 	
-	// Verify output contains the error (error reporter outputs to stdout)
+	// Verify output contains the error (error reporter outputs to stderr)
 	stdoutStr := stdout.String()
 	stderrStr := stderr.String()
 	combinedOutput := stdoutStr + stderrStr
@@ -290,6 +311,16 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
 	
+	// Also redirect the global output writers used by executeCommand
+	oldOutputWriter := outputWriter
+	oldErrorWriter := errorWriter
+	outputWriter = &stdout
+	errorWriter = &stderr
+	defer func() {
+		outputWriter = oldOutputWriter
+		errorWriter = oldErrorWriter
+	}()
+	
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
@@ -345,8 +376,10 @@ func TestIntegration_CustomCommand(t *testing.T) {
 	// Execute custom command using tryCustomCommand (custom commands aren't cobra subcommands)
 	// Capture stdout
 	oldStdout := os.Stdout
+	oldOutputWriter := outputWriter
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+	outputWriter = w
 	
 	// tryCustomCommand will load config from current directory
 	// since we've already changed to tempDir
@@ -355,6 +388,7 @@ func TestIntegration_CustomCommand(t *testing.T) {
 	
 	w.Close()
 	os.Stdout = oldStdout
+	outputWriter = oldOutputWriter
 	
 	// Read captured output
 	var buf bytes.Buffer
@@ -457,6 +491,12 @@ func TestIntegration_DebugMode(t *testing.T) {
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
 	
+	// Set up debug output capture
+	var debugBuf bytes.Buffer
+	debug.SetWriter(&debugBuf)
+	debug.Enable() // Enable debug mode for this test
+	defer debug.SetWriter(os.Stderr) // Reset after test
+	
 	// Execute test command with debug flag
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"--debug", "test"})
@@ -466,21 +506,30 @@ func TestIntegration_DebugMode(t *testing.T) {
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
 	
+	// Also redirect the global output writers used by executeCommand
+	oldOutputWriter := outputWriter
+	oldErrorWriter := errorWriter
+	outputWriter = &stdout
+	errorWriter = &stderr
+	defer func() {
+		outputWriter = oldOutputWriter
+		errorWriter = oldErrorWriter
+	}()
+	
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
 	
-	// Verify debug output (might be in stderr or stdout)
-	stdoutStr := stdout.String()
-	stderrStr := stderr.String()
-	combinedOutput := stdoutStr + stderrStr
+	// Get debug output
+	debugOutput := debugBuf.String()
 	
-	if !strings.Contains(combinedOutput, "[DEBUG") {
-		t.Errorf("Expected debug output not found. Stdout: %s, Stderr: %s", stdoutStr, stderrStr)
+	// Verify debug output
+	if !strings.Contains(debugOutput, "[DEBUG") {
+		t.Errorf("Expected debug output not found. Debug output: %s", debugOutput)
 	}
-	if !strings.Contains(combinedOutput, "Command Execution") {
-		t.Errorf("Expected debug section not found. Stdout: %s, Stderr: %s", stdoutStr, stderrStr)
+	if !strings.Contains(debugOutput, "Command Execution") {
+		t.Errorf("Expected debug section not found. Debug output: %s", debugOutput)
 	}
 }
 

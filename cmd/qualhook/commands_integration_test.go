@@ -71,13 +71,16 @@ func TestCommandsIntegration(t *testing.T) {
 		
 		// Capture output using a pipe
 		oldStdout := os.Stdout
+		oldOutputWriter := outputWriter
 		r, w, _ := os.Pipe()
 		os.Stdout = w
+		outputWriter = w
 		
 		err := cmd.Execute()
 		
 		w.Close()
 		os.Stdout = oldStdout
+		outputWriter = oldOutputWriter
 		
 		var buf bytes.Buffer
 		buf.ReadFrom(r)
@@ -99,13 +102,16 @@ func TestCommandsIntegration(t *testing.T) {
 		
 		// Capture output using a pipe
 		oldStdout := os.Stdout
+		oldOutputWriter := outputWriter
 		r, w, _ := os.Pipe()
 		os.Stdout = w
+		outputWriter = w
 		
 		err := cmd.Execute()
 		
 		w.Close()
 		os.Stdout = oldStdout
+		outputWriter = oldOutputWriter
 		
 		var buf bytes.Buffer
 		buf.ReadFrom(r)
@@ -170,10 +176,12 @@ func TestCommandWithErrors(t *testing.T) {
 		cmd := newRootCmd()
 		cmd.SetArgs([]string{"lint"})
 		
-		// Capture stderr using a pipe
+		// Capture stderr using errorWriter
 		oldStderr := os.Stderr
+		oldErrorWriter := errorWriter
 		r, w, _ := os.Pipe()
 		os.Stderr = w
+		errorWriter = w
 		
 		// We expect this to exit with code 2, so we need to handle the exit
 		// by replacing os.Exit temporarily
@@ -188,6 +196,7 @@ func TestCommandWithErrors(t *testing.T) {
 		
 		w.Close()
 		os.Stderr = oldStderr
+		errorWriter = oldErrorWriter
 		
 		var buf bytes.Buffer
 		buf.ReadFrom(r)
