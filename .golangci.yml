@@ -1,16 +1,8 @@
-version: 2
-
+version: "2"
 run:
-  timeout: 5m
   tests: true
-
 linters:
   enable:
-    - errcheck
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
     - bodyclose
     - dogsled
     - dupl
@@ -25,49 +17,53 @@ linters:
     - unconvert
     - unparam
     - whitespace
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-
-  gocyclo:
-    min-complexity: 15
-
-  dupl:
-    threshold: 100
-
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-
-  misspell:
-    locale: US
-
-  revive:
+  settings:
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocyclo:
+      min-complexity: 15
+    gosec:
+      excludes:
+        - G104
+        - G204
+    misspell:
+      locale: US
+    revive:
+      rules:
+        - name: package-comments
+          disabled: false
+        - name: var-naming
+          disabled: true
+  exclusions:
+    generated: lax
     rules:
-      - name: package-comments
-        disabled: false
-      - name: var-naming
-        disabled: true
-
-  gosec:
-    excludes:
-      - G104
-      - G204
-
+      - linters:
+          - dupl
+          - errcheck
+          - gocyclo
+          - gosec
+        path: _test\.go
+      - linters:
+          - revive
+        path: pkg/types/
+        text: 'var-naming: avoid meaningless package names'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-    - path: pkg/types/
-      linters:
-        - revive
-      text: "var-naming: avoid meaningless package names"
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
