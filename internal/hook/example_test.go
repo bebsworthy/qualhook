@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/qualhook/qualhook/internal/hook"
+	"github.com/bebsworthy/qualhook/internal/hook"
 )
 
 func ExampleParser_Parse() {

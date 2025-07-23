@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestNewPatternCache(t *testing.T) {

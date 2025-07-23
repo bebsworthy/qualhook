@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 const (

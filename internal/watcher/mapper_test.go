@@ -5,7 +5,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestFileMapper_MapFilesToComponents(t *testing.T) {

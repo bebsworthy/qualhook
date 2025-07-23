@@ -69,7 +69,7 @@ Designed specifically for AI-assisted development:
 
 1. **Install Quality Hook**:
    ```bash
-   go install github.com/boyd/qualhook/cmd/qualhook@latest
+   go install github.com/bebsworthy/qualhook/cmd/qualhook@latest
    ```
 
 2. **Configure your project**:

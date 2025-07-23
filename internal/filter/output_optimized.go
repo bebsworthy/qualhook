@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // OptimizedOutputFilter provides memory-efficient output filtering

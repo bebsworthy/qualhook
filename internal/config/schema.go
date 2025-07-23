@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // CurrentSchemaVersion is the current configuration schema version

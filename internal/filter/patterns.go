@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // PatternCache manages compiled regex patterns with thread-safe caching

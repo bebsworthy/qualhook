@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestNewConfigWizard(t *testing.T) {

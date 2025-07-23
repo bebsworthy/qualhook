@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/qualhook/qualhook/internal/executor"
+	"github.com/bebsworthy/qualhook/internal/executor"
 )
 
 

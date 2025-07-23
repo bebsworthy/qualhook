@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/config"
-	"github.com/qualhook/qualhook/internal/detector"
-	"github.com/qualhook/qualhook/internal/executor"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/config"
+	"github.com/bebsworthy/qualhook/internal/detector"
+	"github.com/bebsworthy/qualhook/internal/executor"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // BenchmarkCLIStartup measures the startup overhead of the CLI

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/qualhook/qualhook/internal/config"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/config"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 var (

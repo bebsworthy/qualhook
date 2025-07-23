@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 	
-	config "github.com/qualhook/qualhook/pkg/config"
+	config "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // BenchmarkOptimizedPatternSet compares optimized vs regular pattern matching

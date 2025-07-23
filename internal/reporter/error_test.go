@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/qualhook/qualhook/internal/executor"
-	"github.com/qualhook/qualhook/internal/filter"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/executor"
+	"github.com/bebsworthy/qualhook/internal/filter"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestNewErrorReporter(t *testing.T) {

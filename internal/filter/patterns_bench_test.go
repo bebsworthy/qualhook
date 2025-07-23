@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	config "github.com/qualhook/qualhook/pkg/config"
+	config "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // Common test patterns for benchmarking

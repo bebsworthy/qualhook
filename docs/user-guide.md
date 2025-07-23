@@ -30,26 +30,26 @@ Quality Hook is a configurable CLI tool that wraps your project's quality comman
 
 ```bash
 # Requires Go 1.21 or later
-go install github.com/boyd/qualhook/cmd/qualhook@latest
+go install github.com/bebsworthy/qualhook/cmd/qualhook@latest
 ```
 
 ### Pre-built Binaries
 
-Download the appropriate binary for your platform from the [releases page](https://github.com/boyd/qualhook/releases).
+Download the appropriate binary for your platform from the [releases page](https://github.com/bebsworthy/qualhook/releases).
 
 ```bash
 # macOS (Apple Silicon)
-curl -L https://github.com/boyd/qualhook/releases/latest/download/qualhook-darwin-arm64 -o qualhook
+curl -L https://github.com/bebsworthy/qualhook/releases/latest/download/qualhook-darwin-arm64 -o qualhook
 chmod +x qualhook
 sudo mv qualhook /usr/local/bin/
 
 # macOS (Intel)
-curl -L https://github.com/boyd/qualhook/releases/latest/download/qualhook-darwin-amd64 -o qualhook
+curl -L https://github.com/bebsworthy/qualhook/releases/latest/download/qualhook-darwin-amd64 -o qualhook
 chmod +x qualhook
 sudo mv qualhook /usr/local/bin/
 
 # Linux (x64)
-curl -L https://github.com/boyd/qualhook/releases/latest/download/qualhook-linux-amd64 -o qualhook
+curl -L https://github.com/bebsworthy/qualhook/releases/latest/download/qualhook-linux-amd64 -o qualhook
 chmod +x qualhook
 sudo mv qualhook /usr/local/bin/
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TestE2EFormatCommand tests the format command end-to-end

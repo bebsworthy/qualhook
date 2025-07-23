@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TestCommandsIntegration tests the actual command execution

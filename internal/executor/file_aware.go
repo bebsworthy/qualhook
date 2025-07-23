@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/filter"
-	"github.com/qualhook/qualhook/internal/hook"
-	"github.com/qualhook/qualhook/internal/watcher"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/filter"
+	"github.com/bebsworthy/qualhook/internal/hook"
+	"github.com/bebsworthy/qualhook/internal/watcher"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // ComponentExecResult represents the result of executing a command for a component

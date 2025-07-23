@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 	
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // OptimizedPatternSet provides optimized pattern matching for common cases

@@ -34,7 +34,7 @@ The security package provides comprehensive security validation and protection m
 ### Basic Security Validation
 
 ```go
-import "github.com/qualhook/qualhook/internal/security"
+import "github.com/bebsworthy/qualhook/internal/security"
 
 // Create a security validator
 validator := security.NewSecurityValidator()

@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/qualhook/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/internal/debug"
 )
 
 // ProjectType represents a detected project type with confidence score

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/security"
+	"github.com/bebsworthy/qualhook/internal/security"
 )
 
 // ExecOptions defines options for command execution

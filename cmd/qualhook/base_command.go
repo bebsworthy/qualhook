@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/qualhook/qualhook/internal/config"
+	"github.com/bebsworthy/qualhook/internal/config"
 )
 
 // createQualityCommand creates a standard qualhook command with common execution logic

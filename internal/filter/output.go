@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // OutputFilter processes command output according to configured rules

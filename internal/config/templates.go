@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TemplateManager handles configuration template import/export

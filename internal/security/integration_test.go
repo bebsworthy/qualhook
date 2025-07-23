@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TestSecurityIntegration_CommandExecution tests end-to-end security for command execution

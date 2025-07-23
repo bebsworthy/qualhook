@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/qualhook/qualhook/internal/config"
-	"github.com/qualhook/qualhook/internal/debug"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // Version is set at build time via ldflags
@@ -73,7 +73,7 @@ EXAMPLES:
   # Import a configuration template
   $ qualhook template import nodejs-eslint
 
-For more information, see: https://github.com/qualhook/qualhook`,
+For more information, see: https://github.com/bebsworthy/qualhook`,
 		Version: Version,
 		Example: `  # Initial setup
   qualhook config

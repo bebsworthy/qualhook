@@ -11,9 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	"github.com/qualhook/qualhook/internal/hook"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/internal/hook"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TestIntegration_FormatCommand tests the format command end-to-end

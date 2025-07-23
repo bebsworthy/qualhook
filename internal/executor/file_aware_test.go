@@ -3,9 +3,9 @@ package executor
 import (
 	"testing"
 
-	"github.com/qualhook/qualhook/internal/filter"
-	"github.com/qualhook/qualhook/internal/hook"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/filter"
+	"github.com/bebsworthy/qualhook/internal/hook"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {

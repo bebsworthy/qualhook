@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/qualhook/qualhook/internal/config"
-	"github.com/qualhook/qualhook/internal/wizard"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/config"
+	"github.com/bebsworthy/qualhook/internal/wizard"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 var (

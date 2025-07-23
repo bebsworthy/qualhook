@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/security"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/security"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // TestPatternCache_ReDoSPrevention tests that ReDoS vulnerable patterns are rejected

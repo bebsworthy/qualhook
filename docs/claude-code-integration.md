@@ -82,10 +82,10 @@ Claude Code provides information about the editing session via JSON input:
 
 ```bash
 # Install from source
-go install github.com/boyd/qualhook/cmd/qualhook@latest
+go install github.com/bebsworthy/qualhook/cmd/qualhook@latest
 
 # Or download pre-built binary
-curl -L https://github.com/boyd/qualhook/releases/latest/download/qualhook-$(uname -s)-$(uname -m) -o qualhook
+curl -L https://github.com/bebsworthy/qualhook/releases/latest/download/qualhook-$(uname -s)-$(uname -m) -o qualhook
 chmod +x qualhook
 sudo mv qualhook /usr/local/bin/
 ```

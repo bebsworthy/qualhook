@@ -19,7 +19,7 @@ Quality Hook acts as a wrapper around your project's existing quality tools, int
 
 ```bash
 # Install from source
-go install github.com/boyd/qualhook/cmd/qualhook@latest
+go install github.com/bebsworthy/qualhook/cmd/qualhook@latest
 
 # Or download a pre-built binary from releases
 ```
@@ -82,7 +82,7 @@ For detailed documentation, see the [documentation/features/quality-hook](docume
 
 ```bash
 # Clone the repository
-git clone https://github.com/boyd/qualhook.git
+git clone https://github.com/bebsworthy/qualhook.git
 cd qualhook
 
 # Install dependencies

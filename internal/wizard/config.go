@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/qualhook/qualhook/internal/config"
-	"github.com/qualhook/qualhook/internal/debug"
-	"github.com/qualhook/qualhook/internal/detector"
-	pkgconfig "github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/internal/detector"
+	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // ConfigWizard provides an interactive configuration wizard

@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/debug"
-	"github.com/qualhook/qualhook/internal/executor"
-	"github.com/qualhook/qualhook/internal/filter"
-	"github.com/qualhook/qualhook/internal/hook"
-	"github.com/qualhook/qualhook/internal/reporter"
-	"github.com/qualhook/qualhook/internal/watcher"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/debug"
+	"github.com/bebsworthy/qualhook/internal/executor"
+	"github.com/bebsworthy/qualhook/internal/filter"
+	"github.com/bebsworthy/qualhook/internal/hook"
+	"github.com/bebsworthy/qualhook/internal/reporter"
+	"github.com/bebsworthy/qualhook/internal/watcher"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // osExit is a variable to allow mocking os.Exit in tests

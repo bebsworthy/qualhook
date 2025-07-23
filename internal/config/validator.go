@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qualhook/qualhook/internal/security"
-	"github.com/qualhook/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/internal/security"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // Validator provides enhanced validation for configurations
