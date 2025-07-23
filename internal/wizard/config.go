@@ -38,22 +38,16 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 	debug.LogSection("Configuration Wizard")
 	
 	// Determine output path
-	if outputPath == "" {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("failed to get current directory: %w", err)
-		}
-		outputPath = filepath.Join(cwd, config.ConfigFileName)
+	path, err := w.determineOutputPath(outputPath)
+	if err != nil {
+		return err
 	}
+	outputPath = path
 
 	// Check if configuration already exists
-	if _, err := os.Stat(outputPath); err == nil && !force {
-		overwrite := false
-		prompt := &survey.Confirm{
-			Message: fmt.Sprintf("Configuration already exists at %s. Overwrite?", outputPath),
-			Default: false,
-		}
-		if err := survey.AskOne(prompt, &overwrite); err != nil {
+	if !force {
+		overwrite, err := w.checkExistingConfig(outputPath)
+		if err != nil {
 			return err
 		}
 		if !overwrite {
@@ -63,148 +57,36 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 	}
 
 	// Welcome message
-	fmt.Println("🚀 Welcome to the qualhook configuration wizard!")
-	fmt.Println("This wizard will help you set up qualhook for your project.")
+	w.printWelcome()
 
-	// Detect project type
-	projectDir, err := os.Getwd()
+	// Detect project type and monorepo
+	detectedTypes, monorepoInfo, err := w.detectProject()
 	if err != nil {
-		return fmt.Errorf("failed to get current directory: %w", err)
-	}
-
-	detectedTypes, err := w.projectDetector.Detect(projectDir)
-	if err != nil {
-		debug.LogError(err, "detecting project type")
-	}
-
-	// Check for monorepo
-	monorepoInfo, err := w.projectDetector.DetectMonorepo(projectDir)
-	if err != nil {
-		debug.LogError(err, "detecting monorepo")
+		return err
 	}
 
 	// Display detection results
-	if len(detectedTypes) > 0 {
-		fmt.Println("📦 Detected project types:")
-		for _, dt := range detectedTypes {
-			fmt.Printf("   • %s (confidence: %.0f%%)\n", dt.Name, dt.Confidence*100)
-		}
-		fmt.Println()
-	}
-
-	if monorepoInfo.IsMonorepo {
-		fmt.Printf("🏢 Monorepo detected: %s\n", monorepoInfo.Type)
-		if len(monorepoInfo.Workspaces) > 0 {
-			fmt.Println("   Workspaces found:")
-			for _, ws := range monorepoInfo.Workspaces {
-				fmt.Printf("   • %s\n", ws)
-			}
-		}
-		fmt.Println()
-	}
+	w.displayDetectionResults(detectedTypes, monorepoInfo)
 
 	// Choose configuration approach
-	var cfg *pkgconfig.Config
-
-	if len(detectedTypes) > 0 {
-		useDefault := false
-		prompt := &survey.Confirm{
-			Message: fmt.Sprintf("Would you like to use the default configuration for %s?", detectedTypes[0].Name),
-			Default: true,
-		}
-		if err := survey.AskOne(prompt, &useDefault); err != nil {
-			return err
-		}
-
-		if useDefault {
-			cfg, err = w.createFromDefault(detectedTypes[0].Name)
-			if err != nil {
-				return err
-			}
-
-			// Ask about customization
-			customize := false
-			prompt := &survey.Confirm{
-				Message: "Would you like to customize the configuration?",
-				Default: false,
-			}
-			if err := survey.AskOne(prompt, &customize); err != nil {
-				return err
-			}
-
-			if customize {
-				cfg, err = w.customizeConfiguration(cfg)
-				if err != nil {
-					return err
-				}
-			}
-		} else {
-			cfg, err = w.createManualConfiguration()
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		fmt.Println("📝 No project type detected. Let's create a custom configuration.")
-		cfg, err = w.createManualConfiguration()
-		if err != nil {
-			return err
-		}
+	cfg, err := w.createConfiguration(detectedTypes)
+	if err != nil {
+		return err
 	}
 
 	// Handle monorepo configuration
-	if monorepoInfo.IsMonorepo {
-		configureMonorepo := false
-		prompt := &survey.Confirm{
-			Message: "Would you like to configure monorepo paths?",
-			Default: true,
-		}
-		if err := survey.AskOne(prompt, &configureMonorepo); err != nil {
-			return err
-		}
-
-		if configureMonorepo {
-			cfg, err = w.configureMonorepoPaths(cfg, monorepoInfo)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// Validate configuration
-	validator := config.NewValidator()
-	if err := validator.Validate(cfg); err != nil {
-		fmt.Printf("\n⚠️  Configuration validation warning: %v\n", err)
-		
-		saveAnyway := false
-		prompt := &survey.Confirm{
-			Message: "Do you want to save anyway?",
-			Default: false,
-		}
-		if err := survey.AskOne(prompt, &saveAnyway); err != nil {
-			return err
-		}
-		if !saveAnyway {
-			return fmt.Errorf("configuration validation failed")
-		}
-	}
-
-	// Save configuration
-	data, err := pkgconfig.SaveConfig(cfg)
+	cfg, err = w.handleMonorepoConfig(cfg, monorepoInfo)
 	if err != nil {
-		return fmt.Errorf("failed to serialize configuration: %w", err)
+		return err
 	}
 
-	if err := os.WriteFile(outputPath, data, 0600); err != nil {
-		return fmt.Errorf("failed to write configuration file: %w", err)
+	// Validate and save configuration
+	if err := w.validateAndSave(cfg, outputPath); err != nil {
+		return err
 	}
 
-	fmt.Printf("\n✅ Configuration saved to: %s\n", outputPath)
-	fmt.Println("\n🎉 Setup complete! You can now use qualhook commands:")
-	fmt.Println("   • qualhook format")
-	fmt.Println("   • qualhook lint")
-	fmt.Println("   • qualhook typecheck")
-	fmt.Println("   • qualhook test")
+	// Print success message
+	w.printSuccess(outputPath)
 
 	return nil
 }
@@ -536,4 +418,190 @@ func (w *ConfigWizard) configureMonorepoPaths(cfg *pkgconfig.Config, info *detec
 	}
 
 	return cfg, nil
+}
+
+// determineOutputPath determines the output path for configuration
+func (w *ConfigWizard) determineOutputPath(outputPath string) (string, error) {
+	if outputPath != "" {
+		return outputPath, nil
+	}
+	
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("failed to get current directory: %w", err)
+	}
+	return filepath.Join(cwd, config.ConfigFileName), nil
+}
+
+// checkExistingConfig checks if config exists and prompts for overwrite
+func (w *ConfigWizard) checkExistingConfig(outputPath string) (bool, error) {
+	if _, err := os.Stat(outputPath); err != nil {
+		// File doesn't exist, proceed
+		return true, nil
+	}
+	
+	overwrite := false
+	prompt := &survey.Confirm{
+		Message: fmt.Sprintf("Configuration already exists at %s. Overwrite?", outputPath),
+		Default: false,
+	}
+	if err := survey.AskOne(prompt, &overwrite); err != nil {
+		return false, err
+	}
+	return overwrite, nil
+}
+
+// printWelcome prints welcome message
+func (w *ConfigWizard) printWelcome() {
+	fmt.Println("🚀 Welcome to the qualhook configuration wizard!")
+	fmt.Println("This wizard will help you set up qualhook for your project.")
+}
+
+// detectProject detects project type and monorepo
+func (w *ConfigWizard) detectProject() ([]detector.ProjectType, *detector.MonorepoInfo, error) {
+	projectDir, err := os.Getwd()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get current directory: %w", err)
+	}
+
+	detectedTypes, err := w.projectDetector.Detect(projectDir)
+	if err != nil {
+		debug.LogError(err, "detecting project type")
+	}
+
+	monorepoInfo, err := w.projectDetector.DetectMonorepo(projectDir)
+	if err != nil {
+		debug.LogError(err, "detecting monorepo")
+	}
+
+	return detectedTypes, monorepoInfo, nil
+}
+
+// displayDetectionResults displays project detection results
+func (w *ConfigWizard) displayDetectionResults(detectedTypes []detector.ProjectType, monorepoInfo *detector.MonorepoInfo) {
+	if len(detectedTypes) > 0 {
+		fmt.Println("📦 Detected project types:")
+		for _, dt := range detectedTypes {
+			fmt.Printf("   • %s (confidence: %.0f%%)\n", dt.Name, dt.Confidence*100)
+		}
+		fmt.Println()
+	}
+
+	if monorepoInfo.IsMonorepo {
+		fmt.Printf("🏢 Monorepo detected: %s\n", monorepoInfo.Type)
+		if len(monorepoInfo.Workspaces) > 0 {
+			fmt.Println("   Workspaces found:")
+			for _, ws := range monorepoInfo.Workspaces {
+				fmt.Printf("   • %s\n", ws)
+			}
+		}
+		fmt.Println()
+	}
+}
+
+// createConfiguration creates configuration based on detected project types
+func (w *ConfigWizard) createConfiguration(detectedTypes []detector.ProjectType) (*pkgconfig.Config, error) {
+	if len(detectedTypes) == 0 {
+		fmt.Println("📝 No project type detected. Let's create a custom configuration.")
+		return w.createManualConfiguration()
+	}
+
+	useDefault := false
+	prompt := &survey.Confirm{
+		Message: fmt.Sprintf("Would you like to use the default configuration for %s?", detectedTypes[0].Name),
+		Default: true,
+	}
+	if err := survey.AskOne(prompt, &useDefault); err != nil {
+		return nil, err
+	}
+
+	if !useDefault {
+		return w.createManualConfiguration()
+	}
+
+	cfg, err := w.createFromDefault(detectedTypes[0].Name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ask about customization
+	customize := false
+	customPrompt := &survey.Confirm{
+		Message: "Would you like to customize the configuration?",
+		Default: false,
+	}
+	if err := survey.AskOne(customPrompt, &customize); err != nil {
+		return nil, err
+	}
+
+	if customize {
+		return w.customizeConfiguration(cfg)
+	}
+
+	return cfg, nil
+}
+
+// handleMonorepoConfig handles monorepo configuration
+func (w *ConfigWizard) handleMonorepoConfig(cfg *pkgconfig.Config, monorepoInfo *detector.MonorepoInfo) (*pkgconfig.Config, error) {
+	if !monorepoInfo.IsMonorepo {
+		return cfg, nil
+	}
+
+	configureMonorepo := false
+	prompt := &survey.Confirm{
+		Message: "Would you like to configure monorepo paths?",
+		Default: true,
+	}
+	if err := survey.AskOne(prompt, &configureMonorepo); err != nil {
+		return nil, err
+	}
+
+	if configureMonorepo {
+		return w.configureMonorepoPaths(cfg, monorepoInfo)
+	}
+
+	return cfg, nil
+}
+
+// validateAndSave validates and saves configuration
+func (w *ConfigWizard) validateAndSave(cfg *pkgconfig.Config, outputPath string) error {
+	// Validate configuration
+	validator := config.NewValidator()
+	if err := validator.Validate(cfg); err != nil {
+		fmt.Printf("\n⚠️  Configuration validation warning: %v\n", err)
+		
+		saveAnyway := false
+		prompt := &survey.Confirm{
+			Message: "Do you want to save anyway?",
+			Default: false,
+		}
+		if err := survey.AskOne(prompt, &saveAnyway); err != nil {
+			return err
+		}
+		if !saveAnyway {
+			return fmt.Errorf("configuration validation failed")
+		}
+	}
+
+	// Save configuration
+	data, err := pkgconfig.SaveConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to serialize configuration: %w", err)
+	}
+
+	if err := os.WriteFile(outputPath, data, 0600); err != nil {
+		return fmt.Errorf("failed to write configuration file: %w", err)
+	}
+
+	return nil
+}
+
+// printSuccess prints success message
+func (w *ConfigWizard) printSuccess(outputPath string) {
+	fmt.Printf("\n✅ Configuration saved to: %s\n", outputPath)
+	fmt.Println("\n🎉 Setup complete! You can now use qualhook commands:")
+	fmt.Println("   • qualhook format")
+	fmt.Println("   • qualhook lint")
+	fmt.Println("   • qualhook typecheck")
+	fmt.Println("   • qualhook test")
 }
