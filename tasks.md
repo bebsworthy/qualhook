@@ -2,8 +2,8 @@
 
 ## Current Status
 - **Initial Issues**: 78
-- **Fixed Issues**: 49 (Phases 1-4, 5-7, 9 completed)
-- **Remaining Issues**: 29
+- **Fixed Issues**: 52 (Phases 1-4, 5-7, 9 completed; Phase 8 in progress)
+- **Remaining Issues**: 26
 - **Last Updated**: 2025-07-23
 
 ## Issue Breakdown
@@ -93,26 +93,26 @@
 
 ### Phase 8: Reduce Cyclomatic Complexity (8 issues)
 
-- [ ] 21. **Refactor executeCommand (complexity: 26)**
+- [x] 21. **Refactor executeCommand (complexity: 26)**
   - File: `cmd/qualhook/execute.go:23`
-  - Extract validation logic into `validateExecution()`
-  - Extract file-aware logic into `handleFileAwareExecution()`
-  - Extract result processing into `processExecutionResults()`
-  - _Effort: 2 hours_
+  - Extracted `parseHookInput()`, `extractEditedFiles()`, `executeFileAwareCommand()`
+  - Extracted `executeSingleCommand()`, `executeWithOptions()`, `applyOutputFilter()`
+  - Extracted `reportAndOutputResults()` for result processing
+  - _Successfully reduced complexity to <15_
 
-- [ ] 22. **Refactor ConfigWizard.Run (complexity: 33)**
+- [x] 22. **Refactor ConfigWizard.Run (complexity: 33)**
   - File: `internal/wizard/config.go:37`
-  - Extract project detection into `detectAndSelectProject()`
-  - Extract configuration creation into separate methods
-  - Split validation and writing logic
-  - _Effort: 2 hours_
+  - Extracted `detectProject()`, `displayDetectionResults()`, `createConfiguration()`
+  - Extracted `handleMonorepoConfig()`, `validateAndSave()`, `printSuccess()`
+  - Split validation and writing logic into separate methods
+  - _Successfully reduced complexity to <15_
 
-- [ ] 23. **Refactor FileAwareExecutor.ExecuteForEditedFiles (complexity: 21)**
+- [x] 23. **Refactor FileAwareExecutor.ExecuteForEditedFiles (complexity: 21)**
   - File: `internal/executor/file_aware.go:58`
-  - Extract file mapping logic
-  - Create `executeComponentCommands()` method
-  - Simplify error aggregation
-  - _Effort: 1.5 hours_
+  - Extracted `executeForRootComponent()` and `executeForComponents()`
+  - Created debug logging helper methods
+  - Simplified error aggregation
+  - _Successfully reduced complexity to <15_
 
 - [ ] 24. **Refactor SecurityValidator.ValidatePath (complexity: 21)**
   - File: `internal/security/validator.go:83`
