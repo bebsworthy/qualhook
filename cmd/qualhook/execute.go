@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -18,6 +19,12 @@ import (
 
 // osExit is a variable to allow mocking os.Exit in tests
 var osExit = os.Exit
+
+// output writers that can be overridden for testing
+var (
+	outputWriter io.Writer = os.Stdout
+	errorWriter  io.Writer = os.Stderr
+)
 
 // executeCommand executes a configured command and processes its output
 func executeCommand(cfg *config.Config, commandName string, extraArgs []string) error {
@@ -272,10 +279,10 @@ func reportAndOutputResults(results []executor.ComponentExecResult, start time.T
 	
 	// Output results
 	if report.Stdout != "" {
-		_, _ = fmt.Fprintln(os.Stdout, report.Stdout) //nolint:errcheck // Best effort output to stdout
+		_, _ = fmt.Fprintln(outputWriter, report.Stdout) //nolint:errcheck // Best effort output to stdout
 	}
 	if report.Stderr != "" {
-		_, _ = fmt.Fprintln(os.Stderr, report.Stderr) //nolint:errcheck // Best effort output to stderr
+		_, _ = fmt.Fprintln(errorWriter, report.Stderr) //nolint:errcheck // Best effort output to stderr
 	}
 	
 	if report.ExitCode != 0 {

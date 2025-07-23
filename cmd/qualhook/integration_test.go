@@ -63,14 +63,26 @@ func TestIntegration_FormatCommand(t *testing.T) {
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
 	
+	// Also redirect the global output writers used by executeCommand
+	oldOutputWriter := outputWriter
+	oldErrorWriter := errorWriter
+	outputWriter = &stdout
+	errorWriter = &stderr
+	defer func() {
+		outputWriter = oldOutputWriter
+		errorWriter = oldErrorWriter
+	}()
+	
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
 	
 	// Verify output - the error reporter returns success message when no errors
-	if !strings.Contains(stdout.String(), "All quality checks passed successfully") {
-		t.Errorf("Expected output not found: %s", stdout.String())
+	stdoutStr := stdout.String()
+	if !strings.Contains(stdoutStr, "All quality checks passed successfully") {
+		t.Errorf("Expected output not found in stdout: %q", stdoutStr)
+		t.Logf("Stderr: %q", stderr.String())
 	}
 }
 
