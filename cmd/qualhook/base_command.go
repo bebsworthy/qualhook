@@ -10,8 +10,13 @@ import (
 
 // createQualityCommand creates a standard qualhook command with common execution logic
 func createQualityCommand(name, short, long, example string) *cobra.Command {
+	return createQualityCommandWithUsage(name, " [files...]", short, long, example)
+}
+
+// createQualityCommandWithUsage creates a standard qualhook command with custom usage suffix
+func createQualityCommandWithUsage(name, usageSuffix, short, long, example string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     name + " [files...]",
+		Use:     name + usageSuffix,
 		Short:   short,
 		Long:    long,
 		Example: example,

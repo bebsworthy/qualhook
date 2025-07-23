@@ -1,8 +1,9 @@
 package main
 
 // testCmd represents the test command
-var testCmd = createQualityCommand(
+var testCmd = createQualityCommandWithUsage(
 	"test",
+	" [test-files-or-patterns...]",
 	"Run the configured test command",
 	`Run the configured test command for the current project.
 
