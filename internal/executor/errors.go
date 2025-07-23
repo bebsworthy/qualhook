@@ -114,18 +114,8 @@ func ClassifyError(err error, command string, args []string) *ExecError {
 	}
 	
 	// Check for exec.Error which indicates command not found or permission issues
-	var execError *exec.Error
-	if errors.As(err, &execError) {
-		errStr := strings.ToLower(execError.Error())
-		
-		if strings.Contains(errStr, "executable file not found") ||
-			strings.Contains(errStr, "command not found") ||
-			strings.Contains(errStr, "no such file or directory") {
-			execErr.Type = ErrorTypeCommandNotFound
-		} else if strings.Contains(errStr, "permission denied") ||
-			strings.Contains(errStr, "operation not permitted") {
-			execErr.Type = ErrorTypePermissionDenied
-		}
+	if errType := classifyExecError(err); errType != ErrorTypeUnknown {
+		execErr.Type = errType
 		return execErr
 	}
 	
@@ -138,19 +128,9 @@ func ClassifyError(err error, command string, args []string) *ExecError {
 	}
 	
 	// Check error message for common patterns
-	errStr := strings.ToLower(err.Error())
-	switch {
-	case strings.Contains(errStr, "permission denied"):
-		execErr.Type = ErrorTypePermissionDenied
-	case strings.Contains(errStr, "not found"):
-		execErr.Type = ErrorTypeCommandNotFound
-	case strings.Contains(errStr, "timeout") || strings.Contains(errStr, "deadline exceeded"):
-		execErr.Type = ErrorTypeTimeout
-	case strings.Contains(errStr, "working directory") || strings.Contains(errStr, "chdir"):
-		execErr.Type = ErrorTypeWorkingDirectory
+	execErr.Type = classifyByErrorMessage(err.Error())
+	if execErr.Type == ErrorTypeWorkingDirectory {
 		execErr.Details = err.Error()
-	default:
-		execErr.Type = ErrorTypeExecution
 	}
 	
 	return execErr
@@ -175,4 +155,45 @@ func HandleTimeoutCleanup(cmd *exec.Cmd) error {
 	_, _ = cmd.Process.Wait()
 	
 	return nil
+}
+
+// classifyExecError classifies exec.Error types
+func classifyExecError(err error) ErrorType {
+	var execError *exec.Error
+	if !errors.As(err, &execError) {
+		return ErrorTypeUnknown
+	}
+	
+	errStr := strings.ToLower(execError.Error())
+	
+	if strings.Contains(errStr, "executable file not found") ||
+		strings.Contains(errStr, "command not found") ||
+		strings.Contains(errStr, "no such file or directory") {
+		return ErrorTypeCommandNotFound
+	}
+	
+	if strings.Contains(errStr, "permission denied") ||
+		strings.Contains(errStr, "operation not permitted") {
+		return ErrorTypePermissionDenied
+	}
+	
+	return ErrorTypeUnknown
+}
+
+// classifyByErrorMessage classifies errors by their message content
+func classifyByErrorMessage(errorMessage string) ErrorType {
+	errStr := strings.ToLower(errorMessage)
+	
+	switch {
+	case strings.Contains(errStr, "permission denied"):
+		return ErrorTypePermissionDenied
+	case strings.Contains(errStr, "not found"):
+		return ErrorTypeCommandNotFound
+	case strings.Contains(errStr, "timeout") || strings.Contains(errStr, "deadline exceeded"):
+		return ErrorTypeTimeout
+	case strings.Contains(errStr, "working directory") || strings.Contains(errStr, "chdir"):
+		return ErrorTypeWorkingDirectory
+	default:
+		return ErrorTypeExecution
+	}
 }

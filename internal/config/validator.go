@@ -67,7 +67,7 @@ func (v *Validator) ValidateCommand(cmd *config.CommandConfig) error {
 }
 
 // validateCommand performs validation on a command configuration
-func (v *Validator) validateCommand(name string, cmd *config.CommandConfig) error {
+func (v *Validator) validateCommand(_ string, cmd *config.CommandConfig) error {
 	// Use security validator for comprehensive command validation
 	if err := v.securityValidator.ValidateCommand(cmd.Command, cmd.Args); err != nil {
 		return fmt.Errorf("security validation failed: %w", err)
