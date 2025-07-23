@@ -81,14 +81,9 @@ func (v *SecurityValidator) ValidateCommand(command string, args []string) error
 
 // ValidatePath validates a file path to prevent directory traversal attacks
 func (v *SecurityValidator) ValidatePath(path string) error {
-	// Empty path is invalid
-	if path == "" {
-		return fmt.Errorf("path cannot be empty")
-	}
-
-	// Check for null bytes
-	if strings.Contains(path, "\x00") {
-		return fmt.Errorf("path contains null byte")
+	// Basic path validation
+	if err := v.validateBasicPath(path); err != nil {
+		return err
 	}
 
 	// Clean the path
@@ -106,44 +101,18 @@ func (v *SecurityValidator) ValidatePath(path string) error {
 	}
 
 	// Check against banned paths
-	for _, banned := range v.bannedPaths {
-		// Normalize the banned path for comparison
-		normalizedBanned := filepath.Clean(banned)
-		if strings.HasPrefix(absPath, normalizedBanned) || 
-		   strings.HasPrefix(strings.ToLower(absPath), strings.ToLower(normalizedBanned)) {
-			return fmt.Errorf("access to path '%s' is forbidden", banned)
-		}
+	if err := v.checkBannedPaths(absPath, path); err != nil {
+		return err
 	}
 
-	// Check if it's a Windows path on any system (for cross-platform validation)
-	if len(path) >= 3 && path[1] == ':' && (path[2] == '\\' || path[2] == '/') {
-		// This is a Windows absolute path like C:\ or D:/
-		drive := strings.ToUpper(string(path[0]))
-		if drive >= "A" && drive <= "Z" {
-			// Check against Windows banned paths
-			for _, banned := range v.bannedPaths {
-				if strings.Contains(banned, ":\\") || strings.Contains(banned, ":/") {
-					if strings.HasPrefix(strings.ToLower(path), strings.ToLower(banned)) {
-						return fmt.Errorf("access to path '%s' is forbidden", banned)
-					}
-				}
-			}
-		}
+	// Check Windows-specific paths
+	if err := v.checkWindowsPaths(path); err != nil {
+		return err
 	}
 
-	// Ensure path is within working directory or its subdirectories
-	cwd, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("cannot get working directory: %w", err)
-	}
-
-	// Allow paths within current directory
-	if !strings.HasPrefix(absPath, cwd) {
-		// Also allow temp directories for certain operations
-		tempDir := os.TempDir()
-		if !strings.HasPrefix(absPath, tempDir) {
-			return fmt.Errorf("path '%s' is outside project directory", path)
-		}
+	// Ensure path is within allowed directories
+	if err := v.checkPathScope(absPath, path); err != nil {
+		return err
 	}
 
 	return nil
@@ -254,57 +223,21 @@ func (v *SecurityValidator) checkForShellInjection(input string) error {
 func (v *SecurityValidator) checkDangerousCommands(command string, args []string) error {
 	baseCmd := filepath.Base(command)
 
-	// List of dangerous commands
-	dangerousCommands := map[string]bool{
-		"rm":     true,
-		"del":    true,
-		"format": true,
-		"dd":     true,
-		"mkfs":   true,
-		"fdisk":  true,
-		"curl":   true,
-		"wget":   true,
-		"nc":     true,
-		"netcat": true,
+	// Check if command is dangerous
+	if !isDangerousCommand(baseCmd) {
+		return nil
 	}
 
-	if dangerousCommands[baseCmd] {
-		// Special validation for dangerous commands
-		switch baseCmd {
-		case "rm", "del":
-			// Check for recursive or force flags
-			hasRecursive := false
-			hasForce := false
-			for _, arg := range args {
-				if arg == "-rf" || arg == "-fr" {
-					return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
-				}
-				if arg == "-r" || arg == "-R" || arg == "--recursive" {
-					hasRecursive = true
-				}
-				if arg == "-f" || arg == "--force" {
-					hasForce = true
-				}
-			}
-			if hasRecursive && hasForce {
-				return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
-			}
-		case "curl", "wget":
-			// Check for output redirection to sensitive locations
-			for i, arg := range args {
-				if arg == "-o" || arg == "--output" {
-					if i+1 < len(args) {
-						outputPath := args[i+1]
-						if err := v.ValidatePath(outputPath); err != nil {
-							return fmt.Errorf("dangerous output path for %s: %w", baseCmd, err)
-						}
-					}
-				}
-			}
-		}
+	// Validate dangerous command based on type
+	switch baseCmd {
+	case "rm", "del":
+		return v.validateRemoveCommand(baseCmd, args)
+	case "curl", "wget":
+		return v.validateDownloadCommand(baseCmd, args)
+	default:
+		// Other dangerous commands require additional scrutiny
+		return nil
 	}
-
-	return nil
 }
 
 // checkReDoSPattern checks for ReDoS vulnerable regex patterns
@@ -417,4 +350,131 @@ func (v *SecurityValidator) SetMaxRegexLength(length int) {
 // SetMaxOutputSize updates the maximum allowed output size
 func (v *SecurityValidator) SetMaxOutputSize(size int64) {
 	v.maxOutputSize = size
+}
+
+// validateBasicPath performs basic path validation checks
+func (v *SecurityValidator) validateBasicPath(path string) error {
+	// Empty path is invalid
+	if path == "" {
+		return fmt.Errorf("path cannot be empty")
+	}
+
+	// Check for null bytes
+	if strings.Contains(path, "\x00") {
+		return fmt.Errorf("path contains null byte")
+	}
+
+	return nil
+}
+
+// checkBannedPaths checks if the path matches any banned paths
+func (v *SecurityValidator) checkBannedPaths(absPath, originalPath string) error {
+	for _, banned := range v.bannedPaths {
+		// Normalize the banned path for comparison
+		normalizedBanned := filepath.Clean(banned)
+		if strings.HasPrefix(absPath, normalizedBanned) || 
+		   strings.HasPrefix(strings.ToLower(absPath), strings.ToLower(normalizedBanned)) {
+			return fmt.Errorf("access to path '%s' is forbidden", banned)
+		}
+	}
+	return nil
+}
+
+// checkWindowsPaths checks Windows-specific path restrictions
+func (v *SecurityValidator) checkWindowsPaths(path string) error {
+	// Check if it's a Windows path on any system (for cross-platform validation)
+	if len(path) >= 3 && path[1] == ':' && (path[2] == '\\' || path[2] == '/') {
+		// This is a Windows absolute path like C:\ or D:/
+		drive := strings.ToUpper(string(path[0]))
+		if drive >= "A" && drive <= "Z" {
+			// Check against Windows banned paths
+			for _, banned := range v.bannedPaths {
+				if strings.Contains(banned, ":\\") || strings.Contains(banned, ":/") {
+					if strings.HasPrefix(strings.ToLower(path), strings.ToLower(banned)) {
+						return fmt.Errorf("access to path '%s' is forbidden", banned)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// checkPathScope ensures path is within allowed directories
+func (v *SecurityValidator) checkPathScope(absPath, originalPath string) error {
+	// Ensure path is within working directory or its subdirectories
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("cannot get working directory: %w", err)
+	}
+
+	// Allow paths within current directory
+	if !strings.HasPrefix(absPath, cwd) {
+		// Also allow temp directories for certain operations
+		tempDir := os.TempDir()
+		if !strings.HasPrefix(absPath, tempDir) {
+			return fmt.Errorf("path '%s' is outside project directory", originalPath)
+		}
+	}
+
+	return nil
+}
+
+// isDangerousCommand checks if a command is in the dangerous commands list
+func isDangerousCommand(baseCmd string) bool {
+	dangerousCommands := map[string]bool{
+		"rm":     true,
+		"del":    true,
+		"format": true,
+		"dd":     true,
+		"mkfs":   true,
+		"fdisk":  true,
+		"curl":   true,
+		"wget":   true,
+		"nc":     true,
+		"netcat": true,
+	}
+	return dangerousCommands[baseCmd]
+}
+
+// validateRemoveCommand validates rm/del commands for dangerous flags
+func (v *SecurityValidator) validateRemoveCommand(baseCmd string, args []string) error {
+	hasRecursive := false
+	hasForce := false
+	
+	for _, arg := range args {
+		// Check for combined flags
+		if arg == "-rf" || arg == "-fr" {
+			return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
+		}
+		
+		// Check individual flags
+		if arg == "-r" || arg == "-R" || arg == "--recursive" {
+			hasRecursive = true
+		}
+		if arg == "-f" || arg == "--force" {
+			hasForce = true
+		}
+	}
+	
+	if hasRecursive && hasForce {
+		return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
+	}
+	
+	return nil
+}
+
+// validateDownloadCommand validates curl/wget commands for dangerous output paths
+func (v *SecurityValidator) validateDownloadCommand(baseCmd string, args []string) error {
+	for i, arg := range args {
+		if arg == "-o" || arg == "--output" {
+			if i+1 < len(args) {
+				outputPath := args[i+1]
+				if err := v.ValidatePath(outputPath); err != nil {
+					return fmt.Errorf("dangerous output path for %s: %w", baseCmd, err)
+				}
+			}
+		}
+	}
+	return nil
 }
