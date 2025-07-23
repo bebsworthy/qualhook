@@ -32,10 +32,15 @@ jobs:
 
       - name: Install golangci-lint
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
 
       - name: Download dependencies
-        run: go mod download
+        run: |
+          go mod download
+          go mod verify
+        
+      - name: Vendor dependencies
+        run: go mod vendor
         
       - name: Build project
         run: go build ./...

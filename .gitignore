@@ -58,6 +58,7 @@ bin/
 .secrets.baseline
 
 # Debug files
-debug
-debug.test
+/debug
+/debug.test
+*.debug
 *.pprof
