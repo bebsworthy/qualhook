@@ -63,7 +63,7 @@ func (tm *TemplateManager) ExportTemplate(cfg *pkgconfig.Config, name, descripti
 	}
 
 	// Ensure template directory exists
-	if err := os.MkdirAll(tm.templateDir, 0755); err != nil {
+	if err := os.MkdirAll(tm.templateDir, 0750); err != nil {
 		return fmt.Errorf("failed to create template directory: %w", err)
 	}
 
@@ -74,7 +74,7 @@ func (tm *TemplateManager) ExportTemplate(cfg *pkgconfig.Config, name, descripti
 		return fmt.Errorf("failed to marshal template: %w", err)
 	}
 
-	if err := os.WriteFile(templatePath, data, 0644); err != nil {
+	if err := os.WriteFile(templatePath, data, 0600); err != nil {
 		return fmt.Errorf("failed to write template file: %w", err)
 	}
 
@@ -98,6 +98,7 @@ func (tm *TemplateManager) ImportTemplate(nameOrPath string) (*pkgconfig.Config,
 	}
 
 	// Read template file
+	// #nosec G304 - templatePath is constructed from controlled inputs
 	data, err := os.ReadFile(templatePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -146,6 +147,7 @@ func (tm *TemplateManager) ListTemplates() ([]TemplateInfo, error) {
 
 		// Read template file to get info
 		templatePath := filepath.Join(tm.templateDir, entry.Name())
+		// #nosec G304 - templatePath is constructed from directory listing
 		data, err := os.ReadFile(templatePath)
 		if err != nil {
 			debug.LogError(err, "reading template file")

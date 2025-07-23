@@ -126,7 +126,7 @@ func (e *CommandExecutor) Execute(command string, args []string, options ExecOpt
 	// Wait for command to complete
 	waitErr := cmd.Wait()
 
-	// Check if context was cancelled (timeout)
+	// Check if context was canceled (timeout)
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
@@ -236,7 +236,7 @@ func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, op
 	// Wait for command to complete
 	waitErr := cmd.Wait()
 
-	// Check if context was cancelled (timeout)
+	// Check if context was canceled (timeout)
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true

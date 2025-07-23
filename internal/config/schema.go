@@ -53,7 +53,11 @@ func (sv *SchemaVersioner) ValidateVersion(version string) error {
 	}
 	
 	// Parse current version
-	currentMajor, currentMinor, _ := parseVersion(CurrentSchemaVersion)
+	currentMajor, currentMinor, err := parseVersion(CurrentSchemaVersion)
+	if err != nil {
+		// This should never happen with a hardcoded constant
+		panic(fmt.Sprintf("invalid CurrentSchemaVersion: %v", err))
+	}
 	
 	// Check if version is from the future
 	if major > currentMajor || (major == currentMajor && minor > currentMinor) {

@@ -49,7 +49,7 @@ func init() {
 
 func runGenerateMan(cmd *cobra.Command, args []string) error {
 	// Ensure directory exists
-	if err := os.MkdirAll(manDir, 0755); err != nil {
+	if err := os.MkdirAll(manDir, 0750); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 

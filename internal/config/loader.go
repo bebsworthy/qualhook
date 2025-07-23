@@ -118,12 +118,13 @@ func (l *Loader) LoadForMonorepo(workingDir string) (*config.Config, error) {
 func (l *Loader) loadFromPath(path string) (*config.Config, error) {
 	debug.Log("Loading config from file: %s", path)
 	
+	// #nosec G304 - path is validated by caller (LoadFromPath checks file existence)
 	file, err := os.Open(path)
 	if err != nil {
 		debug.LogError(err, "opening config file")
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -250,11 +251,12 @@ func getDefaultSearchPaths() []string {
 
 // ValidateConfigFile validates a configuration file without loading it fully
 func ValidateConfigFile(path string) error {
+	// #nosec G304 - path is provided by user for validation purposes
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var cfg config.Config
 	decoder := json.NewDecoder(file)

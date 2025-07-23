@@ -158,7 +158,7 @@ func (c *Config) ParseTimeout() (time.Duration, error) {
 func (c *Config) Save(configPath string) error {
 	// Ensure directory exists
 	dir := filepath.Dir(configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
 

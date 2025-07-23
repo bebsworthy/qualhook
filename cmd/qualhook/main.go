@@ -189,9 +189,9 @@ func tryCustomCommand(cmdName string, args []string) error {
 	if configPath != "" {
 		cfg, err = loader.LoadFromPath(configPath)
 	} else {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("failed to get working directory: %w", err)
+		cwd, errWd := os.Getwd()
+		if errWd != nil {
+			return fmt.Errorf("failed to get working directory: %w", errWd)
 		}
 		cfg, err = loader.LoadForMonorepo(cwd)
 	}

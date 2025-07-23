@@ -1,4 +1,4 @@
-// test_helpers.go
+// Package executor provides test helper utilities for command execution testing.
 package executor
 
 import (

@@ -96,7 +96,7 @@ func init() {
 	exportCmd.Flags().StringVar(&templateName, "name", "", "Template name (required)")
 	exportCmd.Flags().StringVar(&templateDescription, "description", "", "Template description")
 	exportCmd.Flags().StringVar(&templateDir, "dir", "", "Directory to export template to")
-	exportCmd.MarkFlagRequired("name")
+	_ = exportCmd.MarkFlagRequired("name")
 	
 	// Import flags
 	importCmd.Flags().BoolVar(&mergeFlag, "merge", false, "Merge with existing configuration")
@@ -206,7 +206,7 @@ func runImportTemplate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 	
-	if err := os.WriteFile(outputPath, data, 0644); err != nil {
+	if err := os.WriteFile(outputPath, data, 0600); err != nil {
 		return fmt.Errorf("failed to write configuration file: %w", err)
 	}
 	
@@ -249,8 +249,8 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 	fmt.Printf("📋 Available templates (%d):\n\n", len(templates))
 	
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "NAME\tDESCRIPTION\tCREATED")
-	fmt.Fprintln(w, "----\t-----------\t-------")
+	_, _ = fmt.Fprintln(w, "NAME\tDESCRIPTION\tCREATED")
+	_, _ = fmt.Fprintln(w, "----\t-----------\t-------")
 	
 	for _, tmpl := range templates {
 		desc := tmpl.Description
@@ -269,10 +269,10 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 			}
 		}
 		
-		fmt.Fprintf(w, "%s\t%s\t%s\n", tmpl.Name, desc, created)
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", tmpl.Name, desc, created)
 	}
 	
-	w.Flush()
+	_ = w.Flush()
 	
 	fmt.Println("\nImport a template with: qualhook template import <name>")
 	

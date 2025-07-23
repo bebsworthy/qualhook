@@ -219,7 +219,11 @@ func (d *ProjectDetector) scanDirectory(dir string, scores map[string]*projectSc
 func (d *ProjectDetector) matchesMarker(filename, pattern string) bool {
 	// Handle glob patterns
 	if strings.Contains(pattern, "*") {
-		matched, _ := filepath.Match(pattern, filename)
+		matched, err := filepath.Match(pattern, filename)
+		if err != nil {
+			// Invalid pattern, treat as no match
+			return false
+		}
 		return matched
 	}
 	// Exact match
@@ -287,9 +291,7 @@ func (d *ProjectDetector) DetectMonorepo(path string) (*MonorepoInfo, error) {
 
 	// If monorepo detected, scan for workspaces
 	if info.IsMonorepo {
-		if err := d.scanWorkspaces(info); err != nil {
-			return info, fmt.Errorf("error scanning workspaces: %w", err)
-		}
+		d.scanWorkspaces(info)
 	}
 
 	return info, nil
@@ -307,6 +309,7 @@ type MonorepoInfo struct {
 // checkYarnWorkspaces checks if package.json contains workspaces field
 func (d *ProjectDetector) checkYarnWorkspaces(path string) bool {
 	packageJSON := filepath.Join(path, "package.json")
+	// #nosec G304 - path is from project detection, not user input
 	data, err := os.ReadFile(packageJSON)
 	if err != nil {
 		return false
@@ -317,7 +320,7 @@ func (d *ProjectDetector) checkYarnWorkspaces(path string) bool {
 }
 
 // scanWorkspaces scans for workspace directories in a monorepo
-func (d *ProjectDetector) scanWorkspaces(info *MonorepoInfo) error {
+func (d *ProjectDetector) scanWorkspaces(info *MonorepoInfo) {
 	// Common workspace patterns
 	workspacePatterns := []string{
 		"packages/*",
@@ -360,8 +363,6 @@ func (d *ProjectDetector) scanWorkspaces(info *MonorepoInfo) error {
 
 	// Sort workspaces for consistent output
 	sort.Strings(info.Workspaces)
-
-	return nil
 }
 
 // GetDefaultConfigName returns the default configuration name for a project type

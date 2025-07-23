@@ -233,10 +233,10 @@ func executeCommand(cfg *config.Config, commandName string, extraArgs []string) 
 	
 	// Output results
 	if report.Stdout != "" {
-		fmt.Fprintln(os.Stdout, report.Stdout)
+		_, _ = fmt.Fprintln(os.Stdout, report.Stdout)
 	}
 	if report.Stderr != "" {
-		fmt.Fprintln(os.Stderr, report.Stderr)
+		_, _ = fmt.Fprintln(os.Stderr, report.Stderr)
 	}
 	
 	if report.ExitCode != 0 {

@@ -41,14 +41,8 @@ type ProgressCallback func(completed int, total int, currentID string)
 
 // ParallelExecutor executes multiple commands concurrently
 type ParallelExecutor struct {
-	executor     *CommandExecutor
-	maxParallel  int
-	progressChan chan progressUpdate
-}
-
-type progressUpdate struct {
-	id        string
-	completed bool
+	executor    *CommandExecutor
+	maxParallel int
 }
 
 // NewParallelExecutor creates a new parallel executor

@@ -272,7 +272,7 @@ func TestParallelExecute_ContextCancellation(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Some commands should have been cancelled
+	// Some commands should have been canceled
 	cancelledCount := 0
 	for _, execResult := range result.Results {
 		if execResult.Error == context.DeadlineExceeded {
@@ -281,7 +281,7 @@ func TestParallelExecute_ContextCancellation(t *testing.T) {
 	}
 
 	if cancelledCount == 0 {
-		t.Error("expected at least some commands to be cancelled")
+		t.Error("expected at least some commands to be canceled")
 	}
 }
 

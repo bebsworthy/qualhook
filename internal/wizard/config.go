@@ -57,7 +57,7 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 			return err
 		}
 		if !overwrite {
-			fmt.Println("Configuration wizard cancelled.")
+			fmt.Println("Configuration wizard canceled.")
 			return nil
 		}
 	}
@@ -195,7 +195,7 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 		return fmt.Errorf("failed to serialize configuration: %w", err)
 	}
 
-	if err := os.WriteFile(outputPath, data, 0644); err != nil {
+	if err := os.WriteFile(outputPath, data, 0600); err != nil {
 		return fmt.Errorf("failed to write configuration file: %w", err)
 	}
 
@@ -316,7 +316,11 @@ func (w *ConfigWizard) createManualConfiguration() (*pkgconfig.Config, error) {
 		}
 		for _, code := range exitCodes {
 			var exitCode int
-			fmt.Sscanf(code, "%d", &exitCode)
+			_, err := fmt.Sscanf(code, "%d", &exitCode)
+			if err != nil {
+				// Skip invalid exit codes
+				continue
+			}
 			cmdConfig.ErrorDetection.ExitCodes = append(cmdConfig.ErrorDetection.ExitCodes, exitCode)
 		}
 

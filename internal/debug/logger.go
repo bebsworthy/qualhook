@@ -53,7 +53,7 @@ func Log(format string, args ...interface{}) {
 		message += "\n"
 	}
 	
-	fmt.Fprint(globalLogger.writer, prefix+message)
+	_, _ = fmt.Fprint(globalLogger.writer, prefix+message)
 }
 
 // LogSection writes a section header for better organization
