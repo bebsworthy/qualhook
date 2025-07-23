@@ -13,8 +13,4 @@ const (
 	// Command arguments
 	cmdArgC     = "/C"
 	shArgC      = "-c"
-	
-	// Test output constants
-	testOutput  = "test output"
-	testMessage = "Hello, World!"
 )

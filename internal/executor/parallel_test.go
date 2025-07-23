@@ -514,16 +514,16 @@ func getEchoArgs(message string) []string {
 
 func getExitCommand() string {
 	if runtime.GOOS == osWindows {
-		return "cmd"
+		return cmdCommand
 	}
-	return "sh"
+	return shCommand
 }
 
 func getExitArgs(code int) []string {
 	if runtime.GOOS == osWindows {
-		return []string{"/c", "exit", fmt.Sprintf("%d", code)}
+		return []string{cmdArgC, "exit", fmt.Sprintf("%d", code)}
 	}
-	return []string{"-c", fmt.Sprintf("exit %d", code)}
+	return []string{shArgC, fmt.Sprintf("exit %d", code)}
 }
 
 func getSleepCommand() string {
@@ -551,7 +551,7 @@ func getStderrArgs(message string) []string {
 	if runtime.GOOS == osWindows {
 		return []string{"/c", "echo", message, "1>&2"}
 	}
-	return []string{"-c", fmt.Sprintf("echo '%s' >&2", message)}
+	return []string{shArgC, fmt.Sprintf("echo '%s' >&2", message)}
 }
 
 func getBothOutputCommand() string {
@@ -565,5 +565,5 @@ func getBothOutputArgs(stdout, stderr string) []string {
 	if runtime.GOOS == osWindows {
 		return []string{"/c", fmt.Sprintf("echo %s && echo %s 1>&2", stdout, stderr)}
 	}
-	return []string{"-c", fmt.Sprintf("echo '%s' && echo '%s' >&2", stdout, stderr)}
+	return []string{shArgC, fmt.Sprintf("echo '%s' && echo '%s' >&2", stdout, stderr)}
 }

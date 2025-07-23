@@ -51,11 +51,11 @@ func TestExecute_Success(t *testing.T) {
 	// Use a simple command that exists on all platforms
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "echo", "hello world"}
 	} else {
-		cmd = "echo"
+		cmd = echoCommand
 		args = []string{"hello world"}
 	}
 
@@ -113,7 +113,7 @@ func TestExecute_Timeout(t *testing.T) {
 	// Use a command that sleeps
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "timeout", "/t", "5", "/nobreak"}
 	} else {
@@ -144,7 +144,7 @@ func TestExecute_NonZeroExit(t *testing.T) {
 	// Use a command that exits with non-zero
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "exit", "1"}
 	} else {
@@ -179,7 +179,7 @@ func TestExecute_WorkingDirectory(t *testing.T) {
 	// Use pwd/cd to verify working directory
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "cd"}
 	} else {
@@ -211,10 +211,10 @@ func TestExecute_InvalidWorkingDirectory(t *testing.T) {
 	executor := NewCommandExecutor(10 * time.Second)
 
 	var cmd string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 	} else {
-		cmd = "echo"
+		cmd = echoCommand
 	}
 
 	_, err := executor.Execute(cmd, []string{}, ExecOptions{
@@ -238,7 +238,7 @@ func TestExecute_Environment(t *testing.T) {
 	testVar := "QUALHOOK_TEST_VAR"
 	testValue := "test-value-12345"
 	
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "echo", "%" + testVar + "%"}
 	} else {
@@ -280,7 +280,7 @@ func TestExecuteWithStreaming(t *testing.T) {
 	// Command that outputs to both stdout and stderr
 	var cmd string
 	var args []string
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		cmd = "cmd"
 		args = []string{"/c", "echo stdout message && echo stderr message 1>&2"}
 	} else {

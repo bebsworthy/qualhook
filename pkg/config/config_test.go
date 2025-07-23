@@ -708,7 +708,7 @@ func TestErrorDetection_Clone(t *testing.T) {
 	}
 
 	clone.Patterns[0].Pattern = testModifiedValue
-	if original.Patterns[0].Pattern == "modified" {
+	if original.Patterns[0].Pattern == testModifiedValue {
 		t.Error("Patterns not deep copied")
 	}
 
