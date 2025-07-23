@@ -392,7 +392,11 @@ type FilterRules struct {
 
 // NewSimpleOutputFilter creates a new output filter without rules (for simple filtering)
 func NewSimpleOutputFilter() *OutputFilter {
-	cache, _ := NewPatternCache()
+	cache, err := NewPatternCache()
+	if err != nil {
+		// Pattern cache is optional for simple filtering, continue without it
+		cache = nil
+	}
 	return &OutputFilter{
 		patternCache:  cache,
 		maxBufferSize: 10 * 1024 * 1024, // 10MB default

@@ -215,7 +215,11 @@ func (bm *BatchMatcher) MatchLines(lines []string, patterns []*config.RegexPatte
 
 // GetBuffer gets a buffer from the pool
 func (bm *BatchMatcher) GetBuffer() []byte {
-	return bm.bufferPool.Get().([]byte)
+	if buf, ok := bm.bufferPool.Get().([]byte); ok {
+		return buf
+	}
+	// Fallback if pool returns unexpected type
+	return make([]byte, 0, 4096)
 }
 
 // PutBuffer returns a buffer to the pool

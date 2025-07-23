@@ -327,7 +327,11 @@ func (v *SecurityValidator) checkReDoSPattern(pattern string) error {
 	}
 
 	for _, vp := range vulnerablePatterns {
-		matched, _ := regexp.MatchString(vp.pattern, pattern)
+		matched, err := regexp.MatchString(vp.pattern, pattern)
+		if err != nil {
+			// Invalid pattern in our check, skip it
+			continue
+		}
 		if matched {
 			return fmt.Errorf("pattern contains %s which can cause catastrophic backtracking", vp.name)
 		}

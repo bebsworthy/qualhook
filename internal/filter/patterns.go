@@ -135,7 +135,12 @@ func (pc *PatternCache) ResetStats() {
 // NewPatternValidator creates a new pattern validator
 func NewPatternValidator(cache *PatternCache) *PatternValidator {
 	if cache == nil {
-		cache, _ = NewPatternCache()
+		cache, err := NewPatternCache()
+		if err != nil {
+			// Create validator without cache - will compile patterns on demand
+			return &PatternValidator{cache: nil}
+		}
+		return &PatternValidator{cache: cache}
 	}
 	return &PatternValidator{cache: cache}
 }
@@ -300,7 +305,12 @@ type PatternSet struct {
 // NewPatternSet creates a new pattern set
 func NewPatternSet(patterns []*config.RegexPattern, cache *PatternCache) (*PatternSet, error) {
 	if cache == nil {
-		cache, _ = NewPatternCache()
+		var err error
+		cache, err = NewPatternCache()
+		if err != nil {
+			// Continue without cache - patterns will be compiled directly
+			cache = nil
+		}
 	}
 
 	ps := &PatternSet{
