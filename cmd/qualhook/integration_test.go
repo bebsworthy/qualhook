@@ -237,7 +237,9 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 		"old_str":      "console.log('frontend')",
 		"new_str":      "console.log('updated frontend')",
 	})
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatalf("Failed to marshal input data: %v", err)
+	}
 
 	hookInput := &hook.HookInput{
 		SessionID:      "test-session",
