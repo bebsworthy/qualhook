@@ -119,157 +119,18 @@ func (w *ConfigWizard) createManualConfiguration() (*pkgconfig.Config, error) {
 	}
 
 	// Get project type
-	projectType := ""
-	prompt := &survey.Input{
-		Message: "Project type (optional, e.g., nodejs, go, python):",
-	}
-	if err := survey.AskOne(prompt, &projectType, survey.WithValidator(survey.Required)); err != nil {
-		if err.Error() != "interrupt" {
-			// User pressed enter without input, which is fine
-			projectType = ""
-		} else {
-			return nil, err
-		}
-	}
-	if projectType != "" {
-		cfg.ProjectType = projectType
-	}
-
-	// Configure standard commands
-	fmt.Println("\nLet's configure the standard commands.")
-	
-	standardCommands := []struct {
-		name   string
-		prompt string
-		defaultPrompt string
-	}{
-		{"format", "Formatting command", "Fix the formatting issues below:"},
-		{"lint", "Linting command", "Fix the linting errors below:"},
-		{"typecheck", "Type checking command", "Fix the type errors below:"},
-		{"test", "Testing command", "Fix the failing tests below:"},
-	}
-
-	for _, cmd := range standardCommands {
-		fmt.Printf("\n📝 Configuring '%s' command:\n", cmd.name)
-		
-		command := ""
-		commandPrompt := &survey.Input{
-			Message: cmd.prompt + " (leave empty to skip):",
-		}
-		if err := survey.AskOne(commandPrompt, &command); err != nil {
-			return nil, err
-		}
-		
-		if command == "" {
-			fmt.Printf("  Skipping %s command.\n", cmd.name)
-			continue
-		}
-
-		cmdConfig := &pkgconfig.CommandConfig{
-			Command: command,
-			Prompt:  cmd.defaultPrompt,
-		}
-
-		// Get additional arguments
-		args := ""
-		argsPrompt := &survey.Input{
-			Message: "Additional arguments (space-separated):",
-		}
-		if err := survey.AskOne(argsPrompt, &args); err != nil {
-			return nil, err
-		}
-		if args != "" {
-			cmdConfig.Args = strings.Fields(args)
-		}
-
-		// Configure error detection
-		exitCodes := []string{"1"}
-		exitCodesPrompt := &survey.MultiSelect{
-			Message: "Exit codes that indicate errors:",
-			Options: []string{"0", "1", "2", "3", "4", "5"},
-			Default: []string{"1"},
-		}
-		if err := survey.AskOne(exitCodesPrompt, &exitCodes); err != nil {
-			return nil, err
-		}
-		
-		cmdConfig.ErrorDetection = &pkgconfig.ErrorDetection{
-			ExitCodes: make([]int, 0, len(exitCodes)),
-		}
-		for _, code := range exitCodes {
-			var exitCode int
-			_, err := fmt.Sscanf(code, "%d", &exitCode)
-			if err != nil {
-				// Skip invalid exit codes
-				continue
-			}
-			cmdConfig.ErrorDetection.ExitCodes = append(cmdConfig.ErrorDetection.ExitCodes, exitCode)
-		}
-
-		// Configure output filter
-		errorPattern := ""
-		errorPatternPrompt := &survey.Input{
-			Message: "Error pattern (regex, default: error):",
-			Default: "error",
-		}
-		if err := survey.AskOne(errorPatternPrompt, &errorPattern); err != nil {
-			return nil, err
-		}
-		
-		cmdConfig.OutputFilter = &pkgconfig.FilterConfig{
-			ErrorPatterns: []*pkgconfig.RegexPattern{
-				{Pattern: errorPattern, Flags: "i"},
-			},
-			MaxOutput: 100,
-		}
-
-		cfg.Commands[cmd.name] = cmdConfig
-	}
-
-	// Custom commands
-	addCustom := false
-	customPrompt := &survey.Confirm{
-		Message: "Would you like to add custom commands?",
-		Default: false,
-	}
-	if err := survey.AskOne(customPrompt, &addCustom); err != nil {
+	if err := w.configureProjectType(cfg); err != nil {
 		return nil, err
 	}
 
-	if addCustom {
-		for {
-			cmdName := ""
-			namePrompt := &survey.Input{
-				Message: "Custom command name (empty to finish):",
-			}
-			if err := survey.AskOne(namePrompt, &cmdName); err != nil {
-				return nil, err
-			}
-			if cmdName == "" {
-				break
-			}
+	// Configure standard commands
+	if err := w.configureStandardCommands(cfg); err != nil {
+		return nil, err
+	}
 
-			command := ""
-			commandPrompt := &survey.Input{
-				Message: "Command to run:",
-			}
-			if err := survey.AskOne(commandPrompt, &command, survey.WithValidator(survey.Required)); err != nil {
-				return nil, err
-			}
-
-			cfg.Commands[cmdName] = &pkgconfig.CommandConfig{
-				Command: command,
-				ErrorDetection: &pkgconfig.ErrorDetection{
-					ExitCodes: []int{1},
-				},
-				OutputFilter: &pkgconfig.FilterConfig{
-					ErrorPatterns: []*pkgconfig.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-					MaxOutput: 100,
-				},
-			}
-		}
+	// Custom commands
+	if err := w.configureCustomCommands(cfg); err != nil {
+		return nil, err
 	}
 
 	return cfg, nil
@@ -604,4 +465,200 @@ func (w *ConfigWizard) printSuccess(outputPath string) {
 	fmt.Println("   • qualhook lint")
 	fmt.Println("   • qualhook typecheck")
 	fmt.Println("   • qualhook test")
+}
+
+// configureProjectType prompts for and sets the project type
+func (w *ConfigWizard) configureProjectType(cfg *pkgconfig.Config) error {
+	projectType := ""
+	prompt := &survey.Input{
+		Message: "Project type (optional, e.g., nodejs, go, python):",
+	}
+	if err := survey.AskOne(prompt, &projectType, survey.WithValidator(survey.Required)); err != nil {
+		if err.Error() != "interrupt" {
+			// User pressed enter without input, which is fine
+			projectType = ""
+		} else {
+			return err
+		}
+	}
+	if projectType != "" {
+		cfg.ProjectType = projectType
+	}
+	return nil
+}
+
+// configureStandardCommands configures the standard commands (format, lint, typecheck, test)
+func (w *ConfigWizard) configureStandardCommands(cfg *pkgconfig.Config) error {
+	fmt.Println("\nLet's configure the standard commands.")
+	
+	standardCommands := []struct {
+		name   string
+		prompt string
+		defaultPrompt string
+	}{
+		{"format", "Formatting command", "Fix the formatting issues below:"},
+		{"lint", "Linting command", "Fix the linting errors below:"},
+		{"typecheck", "Type checking command", "Fix the type errors below:"},
+		{"test", "Testing command", "Fix the failing tests below:"},
+	}
+
+	for _, cmd := range standardCommands {
+		cmdConfig, err := w.configureStandardCommand(cmd.name, cmd.prompt, cmd.defaultPrompt)
+		if err != nil {
+			return err
+		}
+		if cmdConfig != nil {
+			cfg.Commands[cmd.name] = cmdConfig
+		}
+	}
+
+	return nil
+}
+
+// configureStandardCommand configures a single standard command
+func (w *ConfigWizard) configureStandardCommand(name, prompt, defaultPrompt string) (*pkgconfig.CommandConfig, error) {
+	fmt.Printf("\n📝 Configuring '%s' command:\n", name)
+	
+	command := ""
+	commandPrompt := &survey.Input{
+		Message: prompt + " (leave empty to skip):",
+	}
+	if err := survey.AskOne(commandPrompt, &command); err != nil {
+		return nil, err
+	}
+	
+	if command == "" {
+		fmt.Printf("  Skipping %s command.\n", name)
+		return nil, nil
+	}
+
+	cmdConfig := &pkgconfig.CommandConfig{
+		Command: command,
+		Prompt:  defaultPrompt,
+	}
+
+	// Get additional arguments
+	args := ""
+	argsPrompt := &survey.Input{
+		Message: "Additional arguments (space-separated):",
+	}
+	if err := survey.AskOne(argsPrompt, &args); err != nil {
+		return nil, err
+	}
+	if args != "" {
+		cmdConfig.Args = strings.Fields(args)
+	}
+
+	// Configure error detection
+	if err := w.configureErrorDetection(cmdConfig); err != nil {
+		return nil, err
+	}
+
+	// Configure output filter
+	if err := w.configureOutputFilter(cmdConfig); err != nil {
+		return nil, err
+	}
+
+	return cmdConfig, nil
+}
+
+// configureErrorDetection configures error detection for a command
+func (w *ConfigWizard) configureErrorDetection(cmdConfig *pkgconfig.CommandConfig) error {
+	exitCodes := []string{"1"}
+	exitCodesPrompt := &survey.MultiSelect{
+		Message: "Exit codes that indicate errors:",
+		Options: []string{"0", "1", "2", "3", "4", "5"},
+		Default: []string{"1"},
+	}
+	if err := survey.AskOne(exitCodesPrompt, &exitCodes); err != nil {
+		return err
+	}
+	
+	cmdConfig.ErrorDetection = &pkgconfig.ErrorDetection{
+		ExitCodes: make([]int, 0, len(exitCodes)),
+	}
+	for _, code := range exitCodes {
+		var exitCode int
+		_, err := fmt.Sscanf(code, "%d", &exitCode)
+		if err != nil {
+			// Skip invalid exit codes
+			continue
+		}
+		cmdConfig.ErrorDetection.ExitCodes = append(cmdConfig.ErrorDetection.ExitCodes, exitCode)
+	}
+	
+	return nil
+}
+
+// configureOutputFilter configures output filtering for a command
+func (w *ConfigWizard) configureOutputFilter(cmdConfig *pkgconfig.CommandConfig) error {
+	errorPattern := ""
+	errorPatternPrompt := &survey.Input{
+		Message: "Error pattern (regex, default: error):",
+		Default: "error",
+	}
+	if err := survey.AskOne(errorPatternPrompt, &errorPattern); err != nil {
+		return err
+	}
+	
+	cmdConfig.OutputFilter = &pkgconfig.FilterConfig{
+		ErrorPatterns: []*pkgconfig.RegexPattern{
+			{Pattern: errorPattern, Flags: "i"},
+		},
+		MaxOutput: 100,
+	}
+	
+	return nil
+}
+
+// configureCustomCommands prompts for and configures custom commands
+func (w *ConfigWizard) configureCustomCommands(cfg *pkgconfig.Config) error {
+	addCustom := false
+	customPrompt := &survey.Confirm{
+		Message: "Would you like to add custom commands?",
+		Default: false,
+	}
+	if err := survey.AskOne(customPrompt, &addCustom); err != nil {
+		return err
+	}
+
+	if !addCustom {
+		return nil
+	}
+
+	for {
+		cmdName := ""
+		namePrompt := &survey.Input{
+			Message: "Custom command name (empty to finish):",
+		}
+		if err := survey.AskOne(namePrompt, &cmdName); err != nil {
+			return err
+		}
+		if cmdName == "" {
+			break
+		}
+
+		command := ""
+		commandPrompt := &survey.Input{
+			Message: "Command to run:",
+		}
+		if err := survey.AskOne(commandPrompt, &command, survey.WithValidator(survey.Required)); err != nil {
+			return err
+		}
+
+		cfg.Commands[cmdName] = &pkgconfig.CommandConfig{
+			Command: command,
+			ErrorDetection: &pkgconfig.ErrorDetection{
+				ExitCodes: []int{1},
+			},
+			OutputFilter: &pkgconfig.FilterConfig{
+				ErrorPatterns: []*pkgconfig.RegexPattern{
+					{Pattern: "error", Flags: "i"},
+				},
+				MaxOutput: 100,
+			},
+		}
+	}
+
+	return nil
 }
