@@ -131,7 +131,7 @@ func (e *CommandExecutor) Execute(command string, args []string, options ExecOpt
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
 		// Ensure process is cleaned up after timeout
-		_ = HandleTimeoutCleanup(cmd)
+		_ = HandleTimeoutCleanup(cmd) //nolint:errcheck // Best effort cleanup after timeout
 	}
 
 	// Get exit code
@@ -241,7 +241,7 @@ func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, op
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
 		// Ensure process is cleaned up after timeout
-		_ = HandleTimeoutCleanup(cmd)
+		_ = HandleTimeoutCleanup(cmd) //nolint:errcheck // Best effort cleanup after timeout
 	}
 
 	// Get exit code

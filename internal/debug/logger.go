@@ -53,7 +53,7 @@ func Log(format string, args ...interface{}) {
 		message += "\n"
 	}
 	
-	_, _ = fmt.Fprint(globalLogger.writer, prefix+message)
+	_, _ = fmt.Fprint(globalLogger.writer, prefix+message) //nolint:errcheck // Debug output is best effort
 }
 
 // LogSection writes a section header for better organization

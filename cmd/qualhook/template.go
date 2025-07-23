@@ -96,7 +96,10 @@ func init() {
 	exportCmd.Flags().StringVar(&templateName, "name", "", "Template name (required)")
 	exportCmd.Flags().StringVar(&templateDescription, "description", "", "Template description")
 	exportCmd.Flags().StringVar(&templateDir, "dir", "", "Directory to export template to")
-	_ = exportCmd.MarkFlagRequired("name")
+	if err := exportCmd.MarkFlagRequired("name"); err != nil {
+		// This is a programming error and should never happen
+		panic(fmt.Sprintf("failed to mark 'name' flag as required: %v", err))
+	}
 	
 	// Import flags
 	importCmd.Flags().BoolVar(&mergeFlag, "merge", false, "Merge with existing configuration")
@@ -249,8 +252,8 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 	fmt.Printf("📋 Available templates (%d):\n\n", len(templates))
 	
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	_, _ = fmt.Fprintln(w, "NAME\tDESCRIPTION\tCREATED")
-	_, _ = fmt.Fprintln(w, "----\t-----------\t-------")
+	_, _ = fmt.Fprintln(w, "NAME\tDESCRIPTION\tCREATED") //nolint:errcheck // Best effort table output
+	_, _ = fmt.Fprintln(w, "----\t-----------\t-------") //nolint:errcheck // Best effort table output
 	
 	for _, tmpl := range templates {
 		desc := tmpl.Description
@@ -269,10 +272,12 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 			}
 		}
 		
-		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", tmpl.Name, desc, created)
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", tmpl.Name, desc, created) //nolint:errcheck // Best effort table output
 	}
 	
-	_ = w.Flush()
+	if err := w.Flush(); err != nil {
+		return fmt.Errorf("failed to flush table output: %w", err)
+	}
 	
 	fmt.Println("\nImport a template with: qualhook template import <name>")
 	

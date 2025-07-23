@@ -70,7 +70,7 @@ func (e *TestCommandExecutor) Execute(command string, args []string, options Exe
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
-		_ = HandleTimeoutCleanup(cmd)
+		_ = HandleTimeoutCleanup(cmd) //nolint:errcheck // Best effort cleanup in test
 	}
 
 	exitCode := 0
@@ -140,7 +140,7 @@ func (e *TestCommandExecutor) ExecuteWithStreaming(command string, args []string
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
-		_ = HandleTimeoutCleanup(cmd)
+		_ = HandleTimeoutCleanup(cmd) //nolint:errcheck // Best effort cleanup in test
 	}
 
 	exitCode := 0

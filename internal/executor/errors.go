@@ -152,7 +152,7 @@ func HandleTimeoutCleanup(cmd *exec.Cmd) error {
 	
 	// Wait for the process to actually exit
 	// This prevents zombie processes
-	_, _ = cmd.Process.Wait()
+	_, _ = cmd.Process.Wait() //nolint:errcheck // Best effort wait to prevent zombies
 	
 	return nil
 }

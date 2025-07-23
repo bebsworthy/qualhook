@@ -272,10 +272,10 @@ func reportAndOutputResults(results []executor.ComponentExecResult, start time.T
 	
 	// Output results
 	if report.Stdout != "" {
-		_, _ = fmt.Fprintln(os.Stdout, report.Stdout)
+		_, _ = fmt.Fprintln(os.Stdout, report.Stdout) //nolint:errcheck // Best effort output to stdout
 	}
 	if report.Stderr != "" {
-		_, _ = fmt.Fprintln(os.Stderr, report.Stderr)
+		_, _ = fmt.Fprintln(os.Stderr, report.Stderr) //nolint:errcheck // Best effort output to stderr
 	}
 	
 	if report.ExitCode != 0 {

@@ -124,7 +124,7 @@ func (l *Loader) loadFromPath(path string) (*config.Config, error) {
 		debug.LogError(err, "opening config file")
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}
-	defer func() { _ = file.Close() }()
+	defer func() { _ = file.Close() }() //nolint:errcheck // Best effort cleanup
 
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -253,7 +253,7 @@ func ValidateConfigFile(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %w", err)
 	}
-	defer func() { _ = file.Close() }()
+	defer func() { _ = file.Close() }() //nolint:errcheck // Best effort cleanup
 
 	var cfg config.Config
 	decoder := json.NewDecoder(file)

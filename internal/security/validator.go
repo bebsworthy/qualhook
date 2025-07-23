@@ -101,7 +101,7 @@ func (v *SecurityValidator) ValidatePath(path string) error {
 	}
 
 	// Check against banned paths
-	if err := v.checkBannedPaths(absPath, path); err != nil {
+	if err := v.checkBannedPaths(absPath); err != nil {
 		return err
 	}
 
@@ -368,7 +368,7 @@ func (v *SecurityValidator) validateBasicPath(path string) error {
 }
 
 // checkBannedPaths checks if the path matches any banned paths
-func (v *SecurityValidator) checkBannedPaths(absPath, originalPath string) error {
+func (v *SecurityValidator) checkBannedPaths(absPath string) error {
 	for _, banned := range v.bannedPaths {
 		// Normalize the banned path for comparison
 		normalizedBanned := filepath.Clean(banned)

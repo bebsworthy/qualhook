@@ -165,7 +165,7 @@ func (f *OutputFilter) StreamFilter(reader io.Reader, writer io.Writer) error {
 
 	bufWriter := bufio.NewWriter(writer)
 	defer func() {
-		_ = bufWriter.Flush()
+		_ = bufWriter.Flush() //nolint:errcheck // Best effort flush on defer
 	}()
 
 	var (
@@ -191,9 +191,9 @@ func (f *OutputFilter) StreamFilter(reader io.Reader, writer io.Writer) error {
 			// Write the line with context immediately
 			contextLines := f.getContextLines(buffer, len(buffer)-1, f.rules.ContextLines)
 			for _, contextLine := range contextLines {
-				_, _ = fmt.Fprintln(bufWriter, contextLine)
+				_, _ = fmt.Fprintln(bufWriter, contextLine) //nolint:errcheck // Best effort output
 			}
-			_ = bufWriter.Flush()
+			_ = bufWriter.Flush() //nolint:errcheck // Best effort flush for immediate output
 		}
 		mu.Unlock()
 	}
