@@ -139,16 +139,17 @@ func ClassifyError(err error, command string, args []string) *ExecError {
 	
 	// Check error message for common patterns
 	errStr := strings.ToLower(err.Error())
-	if strings.Contains(errStr, "permission denied") {
+	switch {
+	case strings.Contains(errStr, "permission denied"):
 		execErr.Type = ErrorTypePermissionDenied
-	} else if strings.Contains(errStr, "not found") {
+	case strings.Contains(errStr, "not found"):
 		execErr.Type = ErrorTypeCommandNotFound
-	} else if strings.Contains(errStr, "timeout") || strings.Contains(errStr, "deadline exceeded") {
+	case strings.Contains(errStr, "timeout") || strings.Contains(errStr, "deadline exceeded"):
 		execErr.Type = ErrorTypeTimeout
-	} else if strings.Contains(errStr, "working directory") || strings.Contains(errStr, "chdir") {
+	case strings.Contains(errStr, "working directory") || strings.Contains(errStr, "chdir"):
 		execErr.Type = ErrorTypeWorkingDirectory
 		execErr.Details = err.Error()
-	} else {
+	default:
 		execErr.Type = ErrorTypeExecution
 	}
 	

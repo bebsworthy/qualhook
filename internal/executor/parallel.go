@@ -222,11 +222,12 @@ func (ar *AggregatedResult) GetFailureSummary() string {
 	summary := fmt.Sprintf("Failed commands (%d/%d):\n", ar.FailureCount, len(ar.Order))
 	for _, id := range ar.FailedCommands {
 		if result, ok := ar.Results[id]; ok {
-			if result.TimedOut {
+			switch {
+			case result.TimedOut:
 				summary += fmt.Sprintf("  - %s: timed out\n", id)
-			} else if result.Error != nil {
+			case result.Error != nil:
 				summary += fmt.Sprintf("  - %s: %v\n", id, result.Error)
-			} else {
+			default:
 				summary += fmt.Sprintf("  - %s: exit code %d\n", id, result.ExitCode)
 			}
 		}

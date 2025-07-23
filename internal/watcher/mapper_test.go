@@ -298,11 +298,12 @@ func TestCalculateSpecificity(t *testing.T) {
 			spec2 := calculateSpecificity(tt.pattern2)
 
 			var got string
-			if spec1 > spec2 {
+			switch {
+			case spec1 > spec2:
 				got = ">"
-			} else if spec1 < spec2 {
+			case spec1 < spec2:
 				got = "<"
-			} else {
+			default:
 				got = "="
 			}
 

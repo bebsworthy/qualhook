@@ -166,11 +166,8 @@ func (l *Loader) mergeConfigs(root *config.Config, pathConfig *config.PathConfig
 	}
 
 	// Handle extends functionality
-	if pathConfig.Extends != "" && pathConfig.Extends != "." {
-		// If extending another path config, we'd need to resolve it
-		// For now, we'll just use the path-specific overrides
-		// This could be enhanced in the future
-	}
+	// TODO: Implement extends functionality to resolve and merge extended path configs
+	// For now, we just use the path-specific overrides as-is
 
 	return merged
 }

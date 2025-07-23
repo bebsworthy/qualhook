@@ -256,7 +256,7 @@ func (v *Validator) validatePathPattern(pattern string) error {
 	}
 	
 	// Also check for Windows-style absolute paths on non-Windows systems
-	if runtime.GOOS != "windows" && len(pattern) >= 3 && 
+	if runtime.GOOS != osWindows && len(pattern) >= 3 && 
 		pattern[1] == ':' && (pattern[2] == '\\' || pattern[2] == '/') {
 		return fmt.Errorf("absolute paths are not allowed in patterns")
 	}
@@ -344,13 +344,14 @@ func (v *Validator) SuggestFixes(err error) []string {
 		)
 		
 		// Specific suggestions for common commands
-		if strings.Contains(errStr, "npm") {
+		switch {
+		case strings.Contains(errStr, "npm"):
 			suggestions = append(suggestions, "Install Node.js from https://nodejs.org/")
-		} else if strings.Contains(errStr, "go") {
+		case strings.Contains(errStr, "go"):
 			suggestions = append(suggestions, "Install Go from https://golang.org/")
-		} else if strings.Contains(errStr, "cargo") {
+		case strings.Contains(errStr, "cargo"):
 			suggestions = append(suggestions, "Install Rust from https://rustup.rs/")
-		} else if strings.Contains(errStr, "python") {
+		case strings.Contains(errStr, "python"):
 			suggestions = append(suggestions, "Install Python from https://python.org/")
 		}
 	}

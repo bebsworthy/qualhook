@@ -221,5 +221,6 @@ func (bm *BatchMatcher) GetBuffer() []byte {
 // PutBuffer returns a buffer to the pool
 func (bm *BatchMatcher) PutBuffer(buf []byte) {
 	buf = buf[:0] // Reset slice
+	//nolint:staticcheck // SA6002: slices are already reference types, reusing backing array
 	bm.bufferPool.Put(buf)
 }

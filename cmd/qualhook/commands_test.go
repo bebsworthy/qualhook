@@ -120,6 +120,7 @@ func TestConfigCommandFlags(t *testing.T) {
 	validateFlag := configCmd.Flags().Lookup("validate")
 	if validateFlag == nil {
 		t.Error("Config command should have --validate flag")
+		return
 	}
 	if validateFlag.DefValue != "false" {
 		t.Errorf("--validate flag default should be false, got %s", validateFlag.DefValue)

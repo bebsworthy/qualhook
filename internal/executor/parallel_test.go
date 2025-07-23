@@ -55,11 +55,11 @@ func TestParallelExecute_Basic(t *testing.T) {
 	for i := 0; i < 3; i++ {
 		var cmd string
 		var args []string
-		if runtime.GOOS == "windows" {
-			cmd = "cmd"
-			args = []string{"/c", "echo", fmt.Sprintf("test%d", i)}
+		if runtime.GOOS == osWindows {
+			cmd = cmdCommand
+			args = []string{cmdArgC, echoCommand, fmt.Sprintf("test%d", i)}
 		} else {
-			cmd = "echo"
+			cmd = echoCommand
 			args = []string{fmt.Sprintf("test%d", i)}
 		}
 		
@@ -127,11 +127,11 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		var cmd string
 		var args []string
-		if runtime.GOOS == "windows" {
-			cmd = "cmd"
-			args = []string{"/c", "echo", "test"}
+		if runtime.GOOS == osWindows {
+			cmd = cmdCommand
+			args = []string{cmdArgC, echoCommand, "test"}
 		} else {
-			cmd = "echo"
+			cmd = echoCommand
 			args = []string{"test"}
 		}
 		
@@ -499,70 +499,70 @@ func TestParallelExecutorPool(t *testing.T) {
 
 // Helper functions for cross-platform commands
 func getEchoCommand() string {
-	if runtime.GOOS == "windows" {
-		return "cmd"
+	if runtime.GOOS == osWindows {
+		return cmdCommand
 	}
-	return "echo"
+	return echoCommand
 }
 
 func getEchoArgs(message string) []string {
-	if runtime.GOOS == "windows" {
-		return []string{"/c", "echo", message}
+	if runtime.GOOS == osWindows {
+		return []string{cmdArgC, echoCommand, message}
 	}
 	return []string{message}
 }
 
 func getExitCommand() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return "cmd"
 	}
 	return "sh"
 }
 
 func getExitArgs(code int) []string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return []string{"/c", "exit", fmt.Sprintf("%d", code)}
 	}
 	return []string{"-c", fmt.Sprintf("exit %d", code)}
 }
 
 func getSleepCommand() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return "cmd"
 	}
 	return "sleep"
 }
 
 func getSleepArgs(seconds int) []string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return []string{"/c", "timeout", "/t", fmt.Sprintf("%d", seconds), "/nobreak"}
 	}
 	return []string{fmt.Sprintf("%d", seconds)}
 }
 
 func getStderrCommand() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return "cmd"
 	}
 	return "sh"
 }
 
 func getStderrArgs(message string) []string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return []string{"/c", "echo", message, "1>&2"}
 	}
 	return []string{"-c", fmt.Sprintf("echo '%s' >&2", message)}
 }
 
 func getBothOutputCommand() string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return "cmd"
 	}
 	return "sh"
 }
 
 func getBothOutputArgs(stdout, stderr string) []string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == osWindows {
 		return []string{"/c", fmt.Sprintf("echo %s && echo %s 1>&2", stdout, stderr)}
 	}
 	return []string{"-c", fmt.Sprintf("echo '%s' && echo '%s' >&2", stdout, stderr)}

@@ -332,11 +332,11 @@ func TestDefaultConfigs_CloneIsolation(t *testing.T) {
 	}
 
 	// Modify cfg1
-	cfg1.Version = "modified"
+	cfg1.Version = testModifiedValue
 	cfg1.Commands["lint"].Command = "modified-linter"
 
 	// Verify cfg2 is not affected
-	if cfg2.Version == "modified" {
+	if cfg2.Version == testModifiedValue {
 		t.Error("Config 2 should not be modified when config 1 is changed")
 	}
 
@@ -350,7 +350,7 @@ func TestDefaultConfigs_CloneIsolation(t *testing.T) {
 		t.Fatalf("Failed to get config 3: %v", err)
 	}
 
-	if cfg3.Version == "modified" {
+	if cfg3.Version == testModifiedValue {
 		t.Error("Original config should not be modified")
 	}
 }

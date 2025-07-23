@@ -177,6 +177,7 @@ func BenchmarkBatchMatching(b *testing.B) {
 		}
 		
 		b.ResetTimer()
+		var matchCount int
 		for i := 0; i < b.N; i++ {
 			matches := make([]int, 0)
 			for lineNum, line := range lines {
@@ -187,7 +188,9 @@ func BenchmarkBatchMatching(b *testing.B) {
 					}
 				}
 			}
+			matchCount = len(matches) // Prevent compiler optimization
 		}
+		_ = matchCount
 	})
 	
 	b.Run("BatchMatching", func(b *testing.B) {
