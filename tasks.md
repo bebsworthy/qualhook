@@ -1,183 +1,201 @@
-# Linting Issue Resolution Tasks
+# Linting Issue Resolution Tasks - Comprehensive Plan
 
-## Overview
-This document outlines the tasks required to resolve all 78 linting issues identified in the qualhook codebase. The issues span multiple categories including code duplication, error handling, security, complexity, and code quality.
+## Current Status
+- **Initial Issues**: 78
+- **Fixed Issues**: 24 (Phases 1-3 completed)
+- **Remaining Issues**: 54
+- **Last Updated**: 2025-07-23
 
-## Issue Summary
-- **Total Issues**: 78
-- **Duplication**: 4 issues (command files with repeated code)
-- **Error Handling**: 29 issues (unchecked errors)
-- **Security**: 11 issues (file permissions, path validation)
-- **Complexity**: 8 issues (functions exceeding cyclomatic complexity of 15)
-- **Constants**: 6 issues (repeated strings)
-- **Misspellings**: 5 issues ("cancelled" vs "canceled")
-- **Other**: 15 issues (static checks, unused code, etc.)
+## Issue Breakdown
 
-## Parallel Execution Strategy
+### Summary by Category
+1. **Code Duplication** (dupl): 4 issues - Command files with identical structure
+2. **Error Checking** (errcheck): 26 issues - Mix of false positives and genuine unchecked errors
+3. **Constants** (goconst): 6 issues - Repeated string literals
+4. **Code Style** (gocritic): 4 issues - If-else chains that should be switches
+5. **Complexity** (gocyclo): 8 issues - Functions exceeding cyclomatic complexity of 15
+6. **Static Analysis** (staticcheck): 6 issues - Deprecated APIs, nil checks, performance
 
-Tasks are organized into tracks that can be executed concurrently:
-- **Track A**: Quick Fixes (Tasks 1-5) - Simple replacements and deletions
-- **Track B**: Security Fixes (Tasks 6-8) - Permission and validation fixes
-- **Track C**: Error Handling (Tasks 9-13) - Adding error checks
-- **Track D**: Refactoring (Tasks 14-17) - Reducing duplication and complexity
-- **Track E**: Code Quality (Tasks 18-21) - Constants and API updates
+## Completed Phases
 
-## Tasks
+### ✅ Phase 1: Quick Fixes (Completed)
+- [x] 1. Fixed spelling errors (5 instances of "cancelled" → "canceled")
+- [x] 2. Fixed package comment format in test_helpers.go
+- [x] 3. Removed unused progressChan field and progressUpdate type
+- [x] 4. Fixed ineffectual assignment in main.go
+- [x] 5. Fixed unparam issue in scanWorkspaces function
 
-### Phase 1: Quick Fixes (Low Risk, High Impact)
+### ✅ Phase 2: Security Fixes (Completed)
+- [x] 6. Fixed directory permissions (0755 → 0750) in 3 locations
+- [x] 7. Fixed file permissions (0644 → 0600) in 3 locations
+- [x] 8. Added #nosec comments for validated file paths (5 locations)
 
-- [ ] 1. **Fix spelling errors**
-  - Replace "cancelled" with "canceled" in 5 locations
-  - Files: `internal/executor/command.go` (lines 129, 239)
-  - Files: `internal/executor/parallel_test.go` (lines 275, 284)
-  - Files: `internal/wizard/config.go` (line 60)
-  - _Effort: 5 minutes_
+### ✅ Phase 3: Error Handling (Completed)
+- [x] 9. Added error checks for UI operations
+- [x] 10. Added error checks for completion generation
+- [x] 11. Added error checks for file operations
+- [x] 12. Fixed command error handling
+- [x] 13. Fixed remaining error checks
 
-- [ ] 2. **Fix package comment format**
-  - Update package comment in `internal/executor/test_helpers.go`
-  - Change from `// test_helpers.go` to `// Package executor provides test helpers...`
-  - _Effort: 2 minutes_
+## Remaining Tasks
 
-- [ ] 3. **Remove unused code**
-  - Delete unused `progressChan` field in `internal/executor/parallel.go:46`
-  - Delete unused `progressUpdate` type in `internal/executor/parallel.go:49`
-  - _Effort: 5 minutes_
+### Phase 4: Code Duplication Refactoring (4 issues)
 
-- [ ] 4. **Fix ineffectual assignment**
-  - Fix or remove unused error assignment in `cmd/qualhook/main.go:196`
-  - Either handle the error or remove the assignment
-  - _Effort: 5 minutes_
+- [ ] 14. **Create base command structure**
+  - Extract common command logic into `cmd/qualhook/base_command.go`
+  - Create `baseCommand` struct with common fields
+  - Implement `createCommand(name, configKey string)` factory function
+  - _Effort: 2 hours_
+  - _Impact: Reduces ~300 lines of duplicate code_
 
-- [ ] 5. **Fix unparam issue**
-  - Update `(*ProjectDetector).scanWorkspaces` in `internal/detector/project.go:320`
-  - Either return meaningful errors or change return type
-  - _Effort: 10 minutes_
+- [ ] 15. **Refactor format, lint, test, typecheck commands**
+  - Update each command to use the base structure
+  - Keep command-specific descriptions and examples
+  - Test each command still works correctly
+  - _Effort: 1 hour_
+  - _Dependencies: Task 14_
 
-### Phase 2: Security Fixes (Critical Priority)
+### Phase 5: Error Checking Refinement (26 issues)
 
-- [ ] 6. **Fix directory permissions (G301)**
-  - Change from 0755 to 0750 in 3 locations:
-  - `cmd/qualhook/man.go:52`
-  - `internal/config/templates.go:66`
-  - `internal/security/config.go:161`
-  - _Requirement: Security compliance_
+- [ ] 16. **Analyze errcheck false positives**
+  - Review why errcheck still reports issues for `_, _ = fmt.Fprintln`
+  - Consider adding `//nolint:errcheck` directives where appropriate
+  - Or configure errcheck to ignore specific patterns
+  - _Effort: 30 minutes_
 
-- [ ] 7. **Fix file permissions (G306)**
-  - Change from 0644 to 0600 in 3 locations:
-  - `cmd/qualhook/template.go:209`
-  - `internal/config/templates.go:77`
-  - `internal/wizard/config.go:198`
-  - _Requirement: Security compliance_
+- [ ] 17. **Fix genuine unchecked errors**
+  - `internal/filter/optimizations.go:218` - Check bufferPool.Get() type assertion
+  - `internal/filter/output.go:395` - Handle NewPatternCache error
+  - `internal/filter/patterns.go:138,303` - Handle NewPatternCache errors
+  - `internal/security/validator.go:330` - Check regexp.MatchString error
+  - _Effort: 30 minutes_
 
-- [ ] 8. **Add path validation for file operations (G304)**
-  - Add validation or #nosec comments for 5 locations:
-  - `internal/config/loader.go:121, 253`
-  - `internal/config/templates.go:101, 149`
-  - `internal/detector/project.go:310`
-  - Consider creating a common path validation function
-  - _Requirement: Prevent directory traversal attacks_
-
-### Phase 3: Error Handling (Reliability)
-
-- [ ] 9. **Add error checks for UI operations**
-  - Handle errors from `fmt.Fprintln`, `fmt.Fprintf` operations
-  - Files: `cmd/qualhook/execute.go:236`, `cmd/qualhook/template.go:252,253,272`
-  - Can use `_ = fmt.Fprintln(...)` if errors can be safely ignored
-  - _Effort: 15 minutes_
-
-- [ ] 10. **Add error checks for completion generation**
-  - Handle errors in `cmd/qualhook/completion.go` lines 62, 64, 66, 68
-  - Add error returns or log errors appropriately
-  - _Effort: 10 minutes_
-
-- [ ] 11. **Add error checks for file operations**
-  - Add deferred error checks for `file.Close()` operations
-  - Files: `internal/config/loader.go:126, 257`
-  - Use pattern: `defer func() { _ = file.Close() }()`
-  - _Effort: 10 minutes_
-
-- [ ] 12. **Fix command error handling**
-  - Add error checks in `internal/executor/command.go:134, 244`
-  - Add error check for `cmd.Process.Wait()` in `internal/executor/errors.go:174`
-  - _Effort: 15 minutes_
-
-- [ ] 13. **Fix remaining error checks**
-  - Add missing error checks in test helpers and other locations
-  - Total of ~10 remaining errcheck issues
+- [ ] 18. **Configure golangci-lint for error handling**
+  - Add errcheck exclusions for UI output functions
+  - Configure to ignore `_, _ =` pattern for specific functions
+  - Update `.golangci.yml` with appropriate rules
   - _Effort: 20 minutes_
 
-### Phase 4: Code Refactoring (Maintainability)
+### Phase 6: Extract Constants (6 issues)
 
-- [ ] 14. **Extract common command logic**
-  - Reduce duplication in command files (format.go, lint.go, test.go, typecheck.go)
-  - Create base command helper function or struct
-  - Extract common initialization and execution logic
+- [ ] 19. **Create constants for test strings**
+  - Extract "modified" (7 occurrences) to `testModifiedValue`
+  - Extract "windows" (25 occurrences) to `osWindows`
+  - Extract "echo" (7 occurrences) to `echoCommand`
+  - Extract "cmd" (17 occurrences) to `cmdCommand`
+  - Create appropriate const blocks in relevant packages
+  - _Effort: 45 minutes_
+
+### Phase 7: Code Style Improvements (4 issues)
+
+- [ ] 20. **Convert if-else chains to switch statements**
+  - `internal/config/validator.go:347` - Error type detection
+  - `internal/executor/errors.go:142` - Error classification
+  - `internal/executor/parallel.go:225` - Result type handling
+  - `internal/watcher/mapper_test.go:301` - Comparison logic
+  - _Effort: 30 minutes_
+
+### Phase 8: Reduce Cyclomatic Complexity (8 issues)
+
+- [ ] 21. **Refactor executeCommand (complexity: 26)**
+  - File: `cmd/qualhook/execute.go:23`
+  - Extract validation logic into `validateExecution()`
+  - Extract file-aware logic into `handleFileAwareExecution()`
+  - Extract result processing into `processExecutionResults()`
   - _Effort: 2 hours_
-  - _Blocked by: None_
 
-- [ ] 15. **Reduce executeCommand complexity**
-  - Break down `executeCommand` in `cmd/qualhook/execute.go` (complexity: 26)
-  - Extract sub-functions for different command types
-  - Simplify control flow with early returns
-  - _Effort: 1 hour_
+- [ ] 22. **Refactor ConfigWizard.Run (complexity: 33)**
+  - File: `internal/wizard/config.go:37`
+  - Extract project detection into `detectAndSelectProject()`
+  - Extract configuration creation into separate methods
+  - Split validation and writing logic
+  - _Effort: 2 hours_
 
-- [ ] 16. **Reduce ConfigWizard.Run complexity**
-  - Refactor `(*ConfigWizard).Run` in `internal/wizard/config.go` (complexity: 33)
-  - Extract configuration steps into separate methods
-  - Simplify the main flow
+- [ ] 23. **Refactor FileAwareExecutor.ExecuteForEditedFiles (complexity: 21)**
+  - File: `internal/executor/file_aware.go:58`
+  - Extract file mapping logic
+  - Create `executeComponentCommands()` method
+  - Simplify error aggregation
   - _Effort: 1.5 hours_
 
-- [ ] 17. **Reduce other high complexity functions**
-  - Refactor 5 remaining functions with complexity > 15
-  - Files: `internal/config/validator.go`, `internal/executor/file_aware.go`, 
-    `internal/security/validator.go` (2 functions), `internal/wizard/config.go`
+- [ ] 24. **Refactor SecurityValidator.ValidatePath (complexity: 21)**
+  - File: `internal/security/validator.go:83`
+  - Extract path checks into separate validation functions
+  - Create path validation pipeline
+  - _Effort: 1 hour_
+
+- [ ] 25. **Refactor remaining complex functions**
+  - `internal/config/validator.go:70` (complexity: 16)
+  - `internal/executor/errors.go:98` (complexity: 16)
+  - `internal/security/validator.go:254` (complexity: 19)
+  - `internal/wizard/config.go:233` (complexity: 19)
   - _Effort: 2 hours total_
 
-### Phase 5: Code Quality Improvements
+### Phase 9: Static Analysis Fixes (6 issues)
 
-- [ ] 18. **Extract string constants**
-  - Create constants for repeated strings (6 goconst issues)
-  - Common error messages, configuration keys, etc.
-  - Add to appropriate const blocks
-  - _Effort: 30 minutes_
-
-- [ ] 19. **Update deprecated APIs**
-  - Replace `cobra.ExactValidArgs` with `MatchAll(ExactArgs(n), OnlyValidArgs)`
-  - File: `cmd/qualhook/completion.go:58`
+- [ ] 26. **Fix nil pointer dereference**
+  - File: `cmd/qualhook/commands_test.go:121-124`
+  - Add proper nil check before accessing validateFlag
   - _Effort: 10 minutes_
 
-- [ ] 20. **Fix static analysis issues**
-  - Fix nil pointer dereference in `cmd/qualhook/commands_test.go:124`
-  - Fix empty branch in `internal/config/loader.go:168`
-  - Fix memory allocation issue in `internal/filter/optimizations.go:224`
-  - Fix unused append in `internal/filter/optimizations_bench_test.go:185`
+- [ ] 27. **Update deprecated cobra API**
+  - File: `cmd/qualhook/completion.go:58`
+  - Replace `cobra.ExactValidArgs(1)` with `cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs)`
+  - _Effort: 10 minutes_
+
+- [ ] 28. **Remove empty branch**
+  - File: `internal/config/loader.go:169`
+  - Either implement the branch logic or remove the condition
+  - _Effort: 15 minutes_
+
+- [ ] 29. **Fix memory allocation issue**
+  - File: `internal/filter/optimizations.go:224`
+  - Change buffer pool to use pointer type
+  - Update Get/Put operations accordingly
   - _Effort: 30 minutes_
 
-- [ ] 21. **Fix remaining code quality issues**
-  - Address remaining gocritic suggestions
-  - Fix `fmt.Sscanf` error handling in `internal/wizard/config.go:319`
-  - Fix `w.Flush()` error handling in `cmd/qualhook/template.go:275`
-  - Update `exportCmd.MarkFlagRequired` error handling
-  - _Effort: 20 minutes_
+- [ ] 30. **Fix unused append result**
+  - File: `internal/filter/optimizations_bench_test.go:185`
+  - Either use the append result or remove the operation
+  - _Effort: 10 minutes_
 
-## Validation
+## Implementation Strategy
 
-After completing all tasks:
-1. Run `make lint` to ensure all issues are resolved
+### Priority Order
+1. **Phase 9** (Static Analysis) - Quick fixes for potential bugs
+2. **Phase 6** (Constants) - Easy wins for code quality
+3. **Phase 7** (Code Style) - Simple refactoring
+4. **Phase 5** (Error Checking) - Configure linter properly
+5. **Phase 4** (Duplication) - Significant refactoring
+6. **Phase 8** (Complexity) - Most time-consuming
+
+### Parallel Execution Opportunities
+- **Track A**: Phase 9 + Phase 6 (can be done immediately)
+- **Track B**: Phase 7 + Phase 5 (independent changes)
+- **Track C**: Phase 4 (requires careful design)
+- **Track D**: Phase 8 (requires deep understanding)
+
+### Testing Strategy
+1. Run `make lint` after each phase completion
 2. Run `make test` to ensure no regressions
-3. Update CI to fail on lint errors to prevent future issues
-4. Consider adding pre-commit hooks for automated checking
+3. Test individual commands manually
+4. Verify Claude Code integration still works
 
-## Dependencies
+## Success Metrics
+- [ ] All 54 remaining issues resolved
+- [ ] `make lint` passes with no errors
+- [ ] No regression in functionality
+- [ ] Code coverage maintained or improved
+- [ ] Cyclomatic complexity reduced below 15 for all functions
 
-- No external dependencies required
-- All fixes can be done with standard Go tooling
-- Consider using `gofumpt` for consistent formatting
+## Long-term Improvements
+1. **Pre-commit hooks**: Add linting to prevent future issues
+2. **CI enforcement**: Make lint checks required for PR merges
+3. **Code review guidelines**: Document patterns to avoid
+4. **Refactoring guidelines**: Create standards for function complexity
 
-## Success Criteria
-
-- [ ] All 78 linting issues resolved
-- [ ] CI pipeline passes all checks
-- [ ] No new issues introduced
-- [ ] Code maintainability improved
-- [ ] Security posture enhanced
+## Notes
+- Some errcheck issues appear to be false positives from the linter
+- Consider upgrading golangci-lint version if false positives persist
+- The duplication in command files is the most significant technical debt
+- Complexity reduction will improve maintainability significantly
