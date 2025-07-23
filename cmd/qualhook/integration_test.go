@@ -231,19 +231,22 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 	}
 	
 	// Create hook input with edited files
+	inputData, err := json.Marshal(map[string]interface{}{
+		"command":      "str_replace",
+		"path":         frontendFile,
+		"old_str":      "console.log('frontend')",
+		"new_str":      "console.log('updated frontend')",
+	})
+	require.NoError(t, err)
+
 	hookInput := &hook.HookInput{
 		SessionID:      "test-session",
 		TranscriptPath: "/tmp/transcript",
 		CWD:            tempDir,
 		HookEventName:  "post_command",
 		ToolUse: &hook.ToolUse{
-			Name: "str_replace_editor",
-			Input: map[string]interface{}{
-				"command":      "str_replace",
-				"path":         frontendFile,
-				"old_str":      "console.log('frontend')",
-				"new_str":      "console.log('updated frontend')",
-			},
+			Name:  "str_replace_editor",
+			Input: json.RawMessage(inputData),
 		},
 	}
 	
