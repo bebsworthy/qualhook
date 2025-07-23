@@ -74,8 +74,8 @@ func (v *Validator) validateCommand(name string, cmd *config.CommandConfig) erro
 	}
 
 	// Check if command is in allowed list (backward compatibility)
-	if len(v.AllowedCommands) > 0 && !v.isCommandAllowed(cmd.Command) {
-		return fmt.Errorf("command %q is not in allowed list", cmd.Command)
+	if err := v.checkAllowedCommand(cmd.Command); err != nil {
+		return err
 	}
 
 	// Check if command exists in PATH
@@ -85,35 +85,14 @@ func (v *Validator) validateCommand(name string, cmd *config.CommandConfig) erro
 		}
 	}
 
-	// Validate regex patterns
-	if cmd.ErrorDetection != nil {
-		for i, pattern := range cmd.ErrorDetection.Patterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("error detection pattern %d: %w", i, err)
-			}
-		}
-	}
-
-	if cmd.OutputFilter != nil {
-		for i, pattern := range cmd.OutputFilter.ErrorPatterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("error pattern %d: %w", i, err)
-			}
-		}
-
-		for i, pattern := range cmd.OutputFilter.IncludePatterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("include pattern %d: %w", i, err)
-			}
-		}
+	// Validate all regex patterns
+	if err := v.validateCommandPatterns(cmd); err != nil {
+		return err
 	}
 
 	// Validate timeout using security validator
-	if cmd.Timeout > 0 {
-		timeoutDuration := time.Duration(cmd.Timeout) * time.Millisecond
-		if err := v.securityValidator.ValidateTimeout(timeoutDuration); err != nil {
-			return fmt.Errorf("timeout validation failed: %w", err)
-		}
+	if err := v.validateCommandTimeout(cmd); err != nil {
+		return err
 	}
 
 	return nil
@@ -383,4 +362,54 @@ func (v *Validator) SuggestFixes(err error) []string {
 	}
 
 	return suggestions
+}
+
+// checkAllowedCommand checks if command is in allowed list
+func (v *Validator) checkAllowedCommand(command string) error {
+	if len(v.AllowedCommands) > 0 && !v.isCommandAllowed(command) {
+		return fmt.Errorf("command %q is not in allowed list", command)
+	}
+	return nil
+}
+
+// validateCommandPatterns validates all regex patterns in a command
+func (v *Validator) validateCommandPatterns(cmd *config.CommandConfig) error {
+	// Validate error detection patterns
+	if cmd.ErrorDetection != nil {
+		for i, pattern := range cmd.ErrorDetection.Patterns {
+			if err := v.validateRegexPattern(pattern); err != nil {
+				return fmt.Errorf("error detection pattern %d: %w", i, err)
+			}
+		}
+	}
+
+	// Validate output filter patterns
+	if cmd.OutputFilter != nil {
+		// Validate error patterns
+		for i, pattern := range cmd.OutputFilter.ErrorPatterns {
+			if err := v.validateRegexPattern(pattern); err != nil {
+				return fmt.Errorf("error pattern %d: %w", i, err)
+			}
+		}
+
+		// Validate include patterns
+		for i, pattern := range cmd.OutputFilter.IncludePatterns {
+			if err := v.validateRegexPattern(pattern); err != nil {
+				return fmt.Errorf("include pattern %d: %w", i, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateCommandTimeout validates command timeout
+func (v *Validator) validateCommandTimeout(cmd *config.CommandConfig) error {
+	if cmd.Timeout > 0 {
+		timeoutDuration := time.Duration(cmd.Timeout) * time.Millisecond
+		if err := v.securityValidator.ValidateTimeout(timeoutDuration); err != nil {
+			return fmt.Errorf("timeout validation failed: %w", err)
+		}
+	}
+	return nil
 }
