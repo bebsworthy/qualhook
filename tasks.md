@@ -78,7 +78,7 @@
 
 ### Phase 6: Extract Constants (6 issues)
 
-- [ ] 19. **Create constants for test strings**
+- [x] 19. **Create constants for test strings**
   - Extract "modified" (7 occurrences) to `testModifiedValue`
   - Extract "windows" (25 occurrences) to `osWindows`
   - Extract "echo" (7 occurrences) to `echoCommand`
@@ -88,7 +88,7 @@
 
 ### Phase 7: Code Style Improvements (4 issues)
 
-- [ ] 20. **Convert if-else chains to switch statements**
+- [x] 20. **Convert if-else chains to switch statements**
   - `internal/config/validator.go:347` - Error type detection
   - `internal/executor/errors.go:142` - Error classification
   - `internal/executor/parallel.go:225` - Result type handling
@@ -133,28 +133,28 @@
 
 ### Phase 9: Static Analysis Fixes (6 issues)
 
-- [ ] 26. **Fix nil pointer dereference**
+- [x] 26. **Fix nil pointer dereference**
   - File: `cmd/qualhook/commands_test.go:121-124`
   - Add proper nil check before accessing validateFlag
   - _Effort: 10 minutes_
 
-- [ ] 27. **Update deprecated cobra API**
+- [x] 27. **Update deprecated cobra API**
   - File: `cmd/qualhook/completion.go:58`
   - Replace `cobra.ExactValidArgs(1)` with `cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs)`
   - _Effort: 10 minutes_
 
-- [ ] 28. **Remove empty branch**
+- [x] 28. **Remove empty branch**
   - File: `internal/config/loader.go:169`
   - Either implement the branch logic or remove the condition
   - _Effort: 15 minutes_
 
-- [ ] 29. **Fix memory allocation issue**
+- [x] 29. **Fix memory allocation issue**
   - File: `internal/filter/optimizations.go:224`
   - Change buffer pool to use pointer type
   - Update Get/Put operations accordingly
   - _Effort: 30 minutes_
 
-- [ ] 30. **Fix unused append result**
+- [x] 30. **Fix unused append result**
   - File: `internal/filter/optimizations_bench_test.go:185`
   - Either use the append result or remove the operation
   - _Effort: 10 minutes_
