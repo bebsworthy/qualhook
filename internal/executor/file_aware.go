@@ -68,28 +68,7 @@ func (e *FileAwareExecutor) ExecuteForEditedFiles(hookInput *hook.HookInput, com
 
 	// If no files were edited, run command on root
 	if len(editedFiles) == 0 {
-		// Get root configuration
-		groups, err := e.mapper.MapFilesToComponents([]string{"dummy.txt"})
-		if err != nil {
-			return nil, fmt.Errorf("failed to get root configuration: %w", err)
-		}
-		
-		if len(groups) > 0 && groups[0].Path == "." {
-			cmdConfig, exists := groups[0].Config[commandName]
-			if !exists {
-				// No command configured
-				return []ComponentExecResult{}, nil
-			}
-			
-			result, err := e.executeForComponent(".", nil, cmdConfig, commandName, extraArgs)
-			if err != nil {
-				return nil, err
-			}
-			return []ComponentExecResult{result}, nil
-		}
-		
-		// Fallback
-		return []ComponentExecResult{}, nil
+		return e.executeForRootComponent(commandName, extraArgs)
 	}
 
 	// Map files to components
@@ -98,51 +77,16 @@ func (e *FileAwareExecutor) ExecuteForEditedFiles(hookInput *hook.HookInput, com
 		return nil, fmt.Errorf("failed to map files to components: %w", err)
 	}
 
-	if e.debugMode {
-		fmt.Printf("[DEBUG] Component groups:\n")
-		for _, group := range componentGroups {
-			fmt.Printf("  - %s: %v\n", group.Path, group.Files)
-		}
-	}
+	e.debugLogComponentGroups(componentGroups)
 
 	// Execute commands for each component
-	var results []ComponentExecResult
-
-	for _, group := range componentGroups {
-		// Check if this component has the requested command
-		cmdConfig, exists := group.Config[commandName]
-		if !exists {
-			if e.debugMode {
-				fmt.Printf("[DEBUG] Skipping component %s - command %q not configured\n", group.Path, commandName)
-			}
-			continue
-		}
-
-		// Execute the command for this component
-		result, err := e.executeForComponent(group.Path, group.Files, cmdConfig, commandName, extraArgs)
-		if err != nil {
-			return nil, fmt.Errorf("failed to execute command for component %s: %w", group.Path, err)
-		}
-
-		results = append(results, result)
-
-		// If any component has errors, we stop here (fail fast)
-		if result.ExecResult != nil && result.ExecResult.ExitCode != 0 {
-			break
-		}
+	results, err := e.executeForComponents(componentGroups, commandName, extraArgs)
+	if err != nil {
+		return nil, err
 	}
 
-	// Report which checks ran for which files
-	if e.debugMode && len(results) > 0 {
-		fmt.Printf("\n[DEBUG] Execution summary:\n")
-		for _, result := range results {
-			fmt.Printf("  - Component %s: %s command %s (files: %v)\n", 
-				result.Path, 
-				commandName,
-				getStatusText(result.FilteredOutput),
-				result.Files)
-		}
-	}
+	// Report execution summary
+	e.debugLogExecutionSummary(results, commandName)
 
 	return results, nil
 }
@@ -256,4 +200,89 @@ func getStatusText(output *filter.FilteredOutput) string {
 		return "✓ passed"
 	}
 	return "✗ failed"
+}
+
+// executeForRootComponent executes command on root when no files were edited
+func (e *FileAwareExecutor) executeForRootComponent(commandName string, extraArgs []string) ([]ComponentExecResult, error) {
+	// Get root configuration
+	groups, err := e.mapper.MapFilesToComponents([]string{"dummy.txt"})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get root configuration: %w", err)
+	}
+	
+	if len(groups) > 0 && groups[0].Path == "." {
+		cmdConfig, exists := groups[0].Config[commandName]
+		if !exists {
+			// No command configured
+			return []ComponentExecResult{}, nil
+		}
+		
+		result, err := e.executeForComponent(".", nil, cmdConfig, commandName, extraArgs)
+		if err != nil {
+			return nil, err
+		}
+		return []ComponentExecResult{result}, nil
+	}
+	
+	// Fallback
+	return []ComponentExecResult{}, nil
+}
+
+// debugLogComponentGroups logs component groups in debug mode
+func (e *FileAwareExecutor) debugLogComponentGroups(componentGroups []watcher.ComponentGroup) {
+	if !e.debugMode {
+		return
+	}
+	
+	fmt.Printf("[DEBUG] Component groups:\n")
+	for _, group := range componentGroups {
+		fmt.Printf("  - %s: %v\n", group.Path, group.Files)
+	}
+}
+
+// executeForComponents executes commands for all component groups
+func (e *FileAwareExecutor) executeForComponents(componentGroups []watcher.ComponentGroup, commandName string, extraArgs []string) ([]ComponentExecResult, error) {
+	var results []ComponentExecResult
+
+	for _, group := range componentGroups {
+		// Check if this component has the requested command
+		cmdConfig, exists := group.Config[commandName]
+		if !exists {
+			if e.debugMode {
+				fmt.Printf("[DEBUG] Skipping component %s - command %q not configured\n", group.Path, commandName)
+			}
+			continue
+		}
+
+		// Execute the command for this component
+		result, err := e.executeForComponent(group.Path, group.Files, cmdConfig, commandName, extraArgs)
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute command for component %s: %w", group.Path, err)
+		}
+
+		results = append(results, result)
+
+		// If any component has errors, we stop here (fail fast)
+		if result.ExecResult != nil && result.ExecResult.ExitCode != 0 {
+			break
+		}
+	}
+
+	return results, nil
+}
+
+// debugLogExecutionSummary logs execution summary in debug mode
+func (e *FileAwareExecutor) debugLogExecutionSummary(results []ComponentExecResult, commandName string) {
+	if !e.debugMode || len(results) == 0 {
+		return
+	}
+	
+	fmt.Printf("\n[DEBUG] Execution summary:\n")
+	for _, result := range results {
+		fmt.Printf("  - Component %s: %s command %s (files: %v)\n", 
+			result.Path, 
+			commandName,
+			getStatusText(result.FilteredOutput),
+			result.Files)
+	}
 }
