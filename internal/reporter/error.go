@@ -8,7 +8,6 @@ import (
 	"github.com/bebsworthy/qualhook/internal/executor"
 )
 
-
 // ErrorReporter formats and reports errors for LLM consumption
 type ErrorReporter struct {
 	// Default prompt to use if not specified in config
@@ -129,8 +128,8 @@ func (r *ErrorReporter) formatExecutionError(result executor.ComponentExecResult
 // hasErrors checks if a component result contains errors
 func (r *ErrorReporter) hasErrors(result executor.ComponentExecResult) bool {
 	// Check exit code
-	if result.CommandConfig != nil && result.CommandConfig.ErrorDetection != nil {
-		for _, code := range result.CommandConfig.ErrorDetection.ExitCodes {
+	if result.CommandConfig != nil && len(result.CommandConfig.ExitCodes) > 0 {
+		for _, code := range result.CommandConfig.ExitCodes {
 			if result.ExecResult.ExitCode == code {
 				return true
 			}
@@ -143,7 +142,7 @@ func (r *ErrorReporter) hasErrors(result executor.ComponentExecResult) bool {
 	}
 
 	// If no error detection configured, assume non-zero exit code is an error
-	if result.CommandConfig == nil || result.CommandConfig.ErrorDetection == nil {
+	if result.CommandConfig == nil || len(result.CommandConfig.ExitCodes) == 0 {
 		return result.ExecResult.ExitCode != 0
 	}
 
@@ -181,7 +180,7 @@ func (r *ErrorReporter) formatErrors(errorComponents []executor.ComponentExecRes
 				}
 
 				if component.FilteredOutput.Truncated {
-					output.WriteString(fmt.Sprintf("\n[Output truncated - %d total lines]\n", 
+					output.WriteString(fmt.Sprintf("\n[Output truncated - %d total lines]\n",
 						component.FilteredOutput.TotalLines))
 				}
 			} else if component.ExecResult != nil {
@@ -210,11 +209,11 @@ func (r *ErrorReporter) formatErrors(errorComponents []executor.ComponentExecRes
 // groupByCommand groups components by their command type
 func (r *ErrorReporter) groupByCommand(components []executor.ComponentExecResult) map[string][]executor.ComponentExecResult {
 	groups := make(map[string][]executor.ComponentExecResult)
-	
+
 	for _, component := range components {
 		groups[component.Command] = append(groups[component.Command], component)
 	}
-	
+
 	return groups
 }
 
@@ -245,18 +244,18 @@ func (r *ErrorReporter) getPrompt(command string, components []executor.Componen
 // ReportSingleError creates a report for a single error message
 func (r *ErrorReporter) ReportSingleError(errorType string, message string, details ...string) *ReportResult {
 	var stderr strings.Builder
-	
+
 	stderr.WriteString(fmt.Sprintf("[QUALHOOK ERROR] %s: %s\n", errorType, message))
-	
+
 	if len(details) > 0 {
 		stderr.WriteString("\nDetails:\n")
 		for _, detail := range details {
 			stderr.WriteString(fmt.Sprintf("- %s\n", detail))
 		}
 	}
-	
+
 	stderr.WriteString("\nDebug with: qualhook --debug <command>")
-	
+
 	return &ReportResult{
 		ExitCode: 1,
 		Stderr:   stderr.String(),

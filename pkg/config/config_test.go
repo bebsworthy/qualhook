@@ -21,13 +21,9 @@ func TestConfig_Validate(t *testing.T) {
 					"lint": {
 						Command: "npm",
 						Args:    []string{"run", "lint"},
-						ErrorDetection: &ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &FilterConfig{
-							ErrorPatterns: []*RegexPattern{
-								{Pattern: "error"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*RegexPattern{
+							{Pattern: "error"},
 						},
 					},
 				},
@@ -139,47 +135,36 @@ func TestCommandConfig_Validate(t *testing.T) {
 			errMsg:  "timeout must be non-negative",
 		},
 		{
-			name: "invalid error detection",
+			name: "invalid error pattern",
 			config: &CommandConfig{
 				Command: "npm",
-				ErrorDetection: &ErrorDetection{
-					Patterns: []*RegexPattern{
-						{Pattern: "[invalid"},
-					},
+				ErrorPatterns: []*RegexPattern{
+					{Pattern: "[invalid"},
 				},
 			},
 			wantErr: true,
-			errMsg:  "error detection",
+			errMsg:  "error pattern 0",
 		},
 		{
-			name: "invalid output filter",
+			name: "negative context lines",
 			config: &CommandConfig{
 				Command: "npm",
-				OutputFilter: &FilterConfig{
-					ErrorPatterns: []*RegexPattern{},
-				},
+				ContextLines: -1,
 			},
 			wantErr: true,
-			errMsg:  "output filter",
+			errMsg:  "context lines must be non-negative",
 		},
 		{
 			name: "valid with all fields",
 			config: &CommandConfig{
 				Command: "npm",
 				Args:    []string{"run", "lint"},
-				ErrorDetection: &ErrorDetection{
-					ExitCodes: []int{1},
-					Patterns: []*RegexPattern{
-						{Pattern: "error"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &FilterConfig{
-					ErrorPatterns: []*RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-					ContextLines: 2,
-					MaxOutput:    100,
-				},
+				ContextLines: 2,
+				MaxOutput:    100,
 				Prompt:  "Fix the errors:",
 				Timeout: 60000,
 			},
@@ -264,145 +249,6 @@ func TestPathConfig_Validate(t *testing.T) {
 	}
 }
 
-func TestErrorDetection_Validate(t *testing.T) {
-	tests := []struct {
-		name    string
-		config  *ErrorDetection
-		wantErr bool
-		errMsg  string
-	}{
-		{
-			name: "valid with exit codes",
-			config: &ErrorDetection{
-				ExitCodes: []int{1, 2},
-			},
-			wantErr: false,
-		},
-		{
-			name: "valid with patterns",
-			config: &ErrorDetection{
-				Patterns: []*RegexPattern{
-					{Pattern: "error"},
-					{Pattern: "fail", Flags: "i"},
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "invalid pattern",
-			config: &ErrorDetection{
-				Patterns: []*RegexPattern{
-					{Pattern: "[invalid"},
-				},
-			},
-			wantErr: true,
-			errMsg:  "pattern 0: invalid regex pattern",
-		},
-		{
-			name:    "empty is valid",
-			config:  &ErrorDetection{},
-			wantErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.config.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ErrorDetection.Validate() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
-				t.Errorf("ErrorDetection.Validate() error = %v, want error containing %q", err, tt.errMsg)
-			}
-		})
-	}
-}
-
-func TestFilterConfig_Validate(t *testing.T) {
-	tests := []struct {
-		name    string
-		config  *FilterConfig
-		wantErr bool
-		errMsg  string
-	}{
-		{
-			name: "valid filter config",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "error"},
-				},
-				ContextLines: 2,
-				MaxOutput:    100,
-			},
-			wantErr: false,
-		},
-		{
-			name: "no error patterns",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{},
-			},
-			wantErr: true,
-			errMsg:  "at least one error pattern is required",
-		},
-		{
-			name: "invalid error pattern",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "[invalid"},
-				},
-			},
-			wantErr: true,
-			errMsg:  "error pattern 0",
-		},
-		{
-			name: "invalid include pattern",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "error"},
-				},
-				IncludePatterns: []*RegexPattern{
-					{Pattern: "[invalid"},
-				},
-			},
-			wantErr: true,
-			errMsg:  "include pattern 0",
-		},
-		{
-			name: "negative context lines",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "error"},
-				},
-				ContextLines: -1,
-			},
-			wantErr: true,
-			errMsg:  "context lines must be non-negative",
-		},
-		{
-			name: "negative max output",
-			config: &FilterConfig{
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "error"},
-				},
-				MaxOutput: -1,
-			},
-			wantErr: true,
-			errMsg:  "max output must be non-negative",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.config.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("FilterConfig.Validate() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
-				t.Errorf("FilterConfig.Validate() error = %v, want error containing %q", err, tt.errMsg)
-			}
-		})
-	}
-}
 
 func TestRegexPattern_Validate(t *testing.T) {
 	tests := []struct {
@@ -510,15 +356,11 @@ func TestLoadConfig(t *testing.T) {
 					"lint": {
 						"command": "npm",
 						"args": ["run", "lint"],
-						"errorDetection": {
-							"exitCodes": [1]
-						},
-						"outputFilter": {
-							"errorPatterns": [
-								{"pattern": "error", "flags": "i"}
-							],
-							"maxOutput": 100
-						}
+						"exitCodes": [1],
+						"errorPatterns": [
+							{"pattern": "error", "flags": "i"}
+						],
+						"maxOutput": 100
 					}
 				}
 			}`,
@@ -631,19 +473,15 @@ func TestCommandConfig_Clone(t *testing.T) {
 	original := &CommandConfig{
 		Command: "npm",
 		Args:    []string{"run", "lint"},
-		ErrorDetection: &ErrorDetection{
-			ExitCodes: []int{1, 2},
-			Patterns: []*RegexPattern{
-				{Pattern: "error", Flags: "i"},
-			},
+		ExitCodes: []int{1, 2},
+		ErrorPatterns: []*RegexPattern{
+			{Pattern: "error", Flags: "i"},
 		},
-		OutputFilter: &FilterConfig{
-			ErrorPatterns: []*RegexPattern{
-				{Pattern: "error"},
-			},
-			ContextLines: 2,
-			MaxOutput:    100,
+		IncludePatterns: []*RegexPattern{
+			{Pattern: "warning"},
 		},
+		ContextLines: 2,
+		MaxOutput:    100,
 		Prompt:  "Fix errors:",
 		Timeout: 60000,
 	}
@@ -663,6 +501,12 @@ func TestCommandConfig_Clone(t *testing.T) {
 	if clone.Timeout != original.Timeout {
 		t.Error("Timeout not cloned correctly")
 	}
+	if clone.ContextLines != original.ContextLines {
+		t.Error("ContextLines not cloned correctly")
+	}
+	if clone.MaxOutput != original.MaxOutput {
+		t.Error("MaxOutput not cloned correctly")
+	}
 
 	// Verify deep copy - modifying clone should not affect original
 	clone.Args[0] = "test"
@@ -670,9 +514,14 @@ func TestCommandConfig_Clone(t *testing.T) {
 		t.Error("Args not deep copied")
 	}
 
-	clone.ErrorDetection.ExitCodes[0] = 99
-	if original.ErrorDetection.ExitCodes[0] == 99 {
-		t.Error("ErrorDetection not deep copied")
+	clone.ExitCodes[0] = 99
+	if original.ExitCodes[0] == 99 {
+		t.Error("ExitCodes not deep copied")
+	}
+
+	clone.ErrorPatterns[0].Pattern = "modified"
+	if original.ErrorPatterns[0].Pattern == "modified" {
+		t.Error("ErrorPatterns not deep copied")
 	}
 
 	// Test nil clone
@@ -682,84 +531,6 @@ func TestCommandConfig_Clone(t *testing.T) {
 	}
 }
 
-func TestErrorDetection_Clone(t *testing.T) {
-	original := &ErrorDetection{
-		ExitCodes: []int{1, 2, 3},
-		Patterns: []*RegexPattern{
-			{Pattern: "error", Flags: "i"},
-			{Pattern: "fail"},
-		},
-	}
-
-	clone := original.Clone()
-
-	// Verify deep copy
-	if !reflect.DeepEqual(clone.ExitCodes, original.ExitCodes) {
-		t.Error("ExitCodes not cloned correctly")
-	}
-	if len(clone.Patterns) != len(original.Patterns) {
-		t.Error("Patterns not cloned correctly")
-	}
-
-	// Modify clone and verify original is unchanged
-	clone.ExitCodes[0] = 99
-	if original.ExitCodes[0] == 99 {
-		t.Error("ExitCodes not deep copied")
-	}
-
-	clone.Patterns[0].Pattern = testModifiedValue
-	if original.Patterns[0].Pattern == testModifiedValue {
-		t.Error("Patterns not deep copied")
-	}
-
-	// Test nil clone
-	var nilED *ErrorDetection
-	if nilED.Clone() != nil {
-		t.Error("Clone of nil should return nil")
-	}
-}
-
-func TestFilterConfig_Clone(t *testing.T) {
-	original := &FilterConfig{
-		ErrorPatterns: []*RegexPattern{
-			{Pattern: "error", Flags: "i"},
-			{Pattern: "fail"},
-		},
-		IncludePatterns: []*RegexPattern{
-			{Pattern: "include"},
-		},
-		ContextLines: 5,
-		MaxOutput:    200,
-	}
-
-	clone := original.Clone()
-
-	// Verify all fields are copied
-	if clone.ContextLines != original.ContextLines {
-		t.Error("ContextLines not cloned correctly")
-	}
-	if clone.MaxOutput != original.MaxOutput {
-		t.Error("MaxOutput not cloned correctly")
-	}
-	if len(clone.ErrorPatterns) != len(original.ErrorPatterns) {
-		t.Error("ErrorPatterns not cloned correctly")
-	}
-	if len(clone.IncludePatterns) != len(original.IncludePatterns) {
-		t.Error("IncludePatterns not cloned correctly")
-	}
-
-	// Verify deep copy
-	clone.ErrorPatterns[0].Pattern = "modified"
-	if original.ErrorPatterns[0].Pattern == "modified" {
-		t.Error("ErrorPatterns not deep copied")
-	}
-
-	// Test nil clone
-	var nilFC *FilterConfig
-	if nilFC.Clone() != nil {
-		t.Error("Clone of nil should return nil")
-	}
-}
 
 func TestConfig_ComplexValidation(t *testing.T) {
 	// Test a complex monorepo configuration
@@ -770,15 +541,11 @@ func TestConfig_ComplexValidation(t *testing.T) {
 			"format": {
 				Command: "prettier",
 				Args:    []string{"--check", "."},
-				ErrorDetection: &ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*RegexPattern{
+					{Pattern: "\\[error\\]", Flags: "i"},
 				},
-				OutputFilter: &FilterConfig{
-					ErrorPatterns: []*RegexPattern{
-						{Pattern: "\\[error\\]", Flags: "i"},
-					},
-					MaxOutput: 50,
-				},
+				MaxOutput: 50,
 				Prompt: "Fix the formatting issues below:",
 			},
 		},
@@ -790,20 +557,13 @@ func TestConfig_ComplexValidation(t *testing.T) {
 					"lint": {
 						Command: "npm",
 						Args:    []string{"run", "lint", "--prefix", "frontend"},
-						ErrorDetection: &ErrorDetection{
-							ExitCodes: []int{1},
-							Patterns: []*RegexPattern{
-								{Pattern: "\\d+ errors?"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*RegexPattern{
+							{Pattern: "error", Flags: "i"},
+							{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
 						},
-						OutputFilter: &FilterConfig{
-							ErrorPatterns: []*RegexPattern{
-								{Pattern: "error", Flags: "i"},
-								{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
-							},
-							ContextLines: 2,
-							MaxOutput:    100,
-						},
+						ContextLines: 2,
+						MaxOutput:    100,
 					},
 				},
 			},
@@ -813,13 +573,9 @@ func TestConfig_ComplexValidation(t *testing.T) {
 					"lint": {
 						Command: "go",
 						Args:    []string{"vet", "./..."},
-						ErrorDetection: &ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &FilterConfig{
-							ErrorPatterns: []*RegexPattern{
-								{Pattern: ".*"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*RegexPattern{
+							{Pattern: ".*"},
 						},
 					},
 				},

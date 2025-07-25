@@ -21,15 +21,11 @@ func TestLoader_Load(t *testing.T) {
 			"lint": {
 				Command: "npm",
 				Args:    []string{"run", "lint"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-					MaxOutput: 100,
-				},
+				MaxOutput: 100,
 			},
 		},
 	}
@@ -74,14 +70,11 @@ func TestLoader_LoadFromEnv(t *testing.T) {
 			"format": {
 				Command: "prettier",
 				Args:    []string{"--write", "."},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-				},
+				MaxOutput: 100,
 			},
 		},
 	}
@@ -127,14 +120,11 @@ func TestLoader_LoadForMonorepo(t *testing.T) {
 			"lint": {
 				Command: "npm",
 				Args:    []string{"run", "lint"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-				},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -144,14 +134,11 @@ func TestLoader_LoadForMonorepo(t *testing.T) {
 					"lint": {
 						Command: "npm",
 						Args:    []string{"run", "lint", "--prefix", "frontend"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "eslint", Flags: "i"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "eslint", Flags: "i"},
-							},
-						},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -161,14 +148,11 @@ func TestLoader_LoadForMonorepo(t *testing.T) {
 					"lint": {
 						Command: "go",
 						Args:    []string{"vet", "./..."},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "vet:", Flags: ""},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "vet:", Flags: ""},
-							},
-						},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -264,7 +248,7 @@ func TestLoader_LoadErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tempDir := t.TempDir()
 			configPath := filepath.Join(tempDir, ConfigFileName)
-			
+
 			if err := os.WriteFile(configPath, []byte(tt.content), 0644); err != nil {
 				t.Fatalf("Failed to write test config: %v", err)
 			}
@@ -304,24 +288,24 @@ func TestLoader_NoConfigFound(t *testing.T) {
 
 func TestMatchesPath(t *testing.T) {
 	tests := []struct {
-		relPath     string
-		pattern     string
-		wantMatch   bool
+		relPath      string
+		pattern      string
+		wantMatch    bool
 		wantMatchLen int
 	}{
 		// Exact matches
 		{"frontend", "frontend", true, 8},
 		{"backend", "backend", true, 7},
-		
+
 		// Directory matches
 		{"frontend", "frontend/", true, 9},
 		{"frontend/src", "frontend/", true, 9},
-		
+
 		// Recursive matches
 		{"frontend", "frontend/**", true, 8},
 		{"frontend/src", "frontend/**", true, 8},
 		{"frontend/src/components", "frontend/**", true, 8},
-		
+
 		// Non-matches
 		{"backend", "frontend", false, 0},
 		{"src", "frontend/", false, 0},
@@ -351,14 +335,11 @@ func TestValidateConfigFile(t *testing.T) {
 			"lint": {
 				Command: "npm",
 				Args:    []string{"run", "lint"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-				},
+				MaxOutput: 100,
 			},
 		},
 	}

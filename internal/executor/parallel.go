@@ -118,7 +118,7 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 
 			// Execute command
 			execResult, err := pe.executor.Execute(pc.Command, pc.Args, pc.Options)
-			
+
 			if err != nil {
 				// The Execute method may return both a result and an error
 				// Preserve any partial output or diagnostic information

@@ -13,13 +13,13 @@ import (
 var (
 	// ErrCommandNotFound indicates the command was not found in PATH
 	ErrCommandNotFound = errors.New("command not found")
-	
+
 	// ErrPermissionDenied indicates the command cannot be executed due to permissions
 	ErrPermissionDenied = errors.New("permission denied")
-	
+
 	// ErrTimeout indicates the command timed out
 	ErrTimeout = errors.New("command timed out")
-	
+
 	// ErrInvalidWorkingDirectory indicates the working directory is invalid
 	ErrInvalidWorkingDirectory = errors.New("invalid working directory")
 )
@@ -57,7 +57,7 @@ func (e *ExecError) Error() string {
 	if len(e.Args) > 0 {
 		cmd = fmt.Sprintf("%s %s", e.Command, strings.Join(e.Args, " "))
 	}
-	
+
 	switch e.Type {
 	case ErrorTypeCommandNotFound:
 		return fmt.Sprintf("command not found: %s", e.Command)
@@ -99,26 +99,26 @@ func ClassifyError(err error, command string, args []string) *ExecError {
 	if err == nil {
 		return nil
 	}
-	
+
 	execErr := &ExecError{
 		Type:    ErrorTypeUnknown,
 		Command: command,
 		Args:    args,
 		Err:     err,
 	}
-	
+
 	// Check for timeout
 	if errors.Is(err, context.DeadlineExceeded) {
 		execErr.Type = ErrorTypeTimeout
 		return execErr
 	}
-	
+
 	// Check for exec.Error which indicates command not found or permission issues
 	if errType := classifyExecError(err); errType != ErrorTypeUnknown {
 		execErr.Type = errType
 		return execErr
 	}
-	
+
 	// Check for exit error (command ran but returned non-zero)
 	var exitError *exec.ExitError
 	if errors.As(err, &exitError) {
@@ -126,13 +126,13 @@ func ClassifyError(err error, command string, args []string) *ExecError {
 		execErr.Type = ErrorTypeExecution
 		return execErr
 	}
-	
+
 	// Check error message for common patterns
 	execErr.Type = classifyByErrorMessage(err.Error())
 	if execErr.Type == ErrorTypeWorkingDirectory {
 		execErr.Details = err.Error()
 	}
-	
+
 	return execErr
 }
 
@@ -141,7 +141,7 @@ func HandleTimeoutCleanup(cmd *exec.Cmd) error {
 	if cmd == nil || cmd.Process == nil {
 		return nil
 	}
-	
+
 	// Try to kill the process
 	if err := cmd.Process.Kill(); err != nil {
 		// Process might have already exited
@@ -149,11 +149,11 @@ func HandleTimeoutCleanup(cmd *exec.Cmd) error {
 			return fmt.Errorf("failed to kill timed out process: %w", err)
 		}
 	}
-	
+
 	// Wait for the process to actually exit
 	// This prevents zombie processes
 	_, _ = cmd.Process.Wait() //nolint:errcheck // Best effort wait to prevent zombies
-	
+
 	return nil
 }
 
@@ -163,27 +163,27 @@ func classifyExecError(err error) ErrorType {
 	if !errors.As(err, &execError) {
 		return ErrorTypeUnknown
 	}
-	
+
 	errStr := strings.ToLower(execError.Error())
-	
+
 	if strings.Contains(errStr, "executable file not found") ||
 		strings.Contains(errStr, "command not found") ||
 		strings.Contains(errStr, "no such file or directory") {
 		return ErrorTypeCommandNotFound
 	}
-	
+
 	if strings.Contains(errStr, "permission denied") ||
 		strings.Contains(errStr, "operation not permitted") {
 		return ErrorTypePermissionDenied
 	}
-	
+
 	return ErrorTypeUnknown
 }
 
 // classifyByErrorMessage classifies errors by their message content
 func classifyByErrorMessage(errorMessage string) ErrorType {
 	errStr := strings.ToLower(errorMessage)
-	
+
 	switch {
 	case strings.Contains(errStr, "permission denied"):
 		return ErrorTypePermissionDenied

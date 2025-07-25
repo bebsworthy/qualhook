@@ -102,14 +102,11 @@ func (dc *DefaultConfigs) GetCommonErrorPatterns(projectType ProjectType) ([]*co
 	}
 
 	patterns := []*config.RegexPattern{}
-	
+
 	// Collect error patterns from all commands
 	for _, cmd := range cfg.Commands {
-		if cmd.OutputFilter != nil && cmd.OutputFilter.ErrorPatterns != nil {
-			patterns = append(patterns, cmd.OutputFilter.ErrorPatterns...)
-		}
-		if cmd.ErrorDetection != nil && cmd.ErrorDetection.Patterns != nil {
-			patterns = append(patterns, cmd.ErrorDetection.Patterns...)
+		if cmd.ErrorPatterns != nil {
+			patterns = append(patterns, cmd.ErrorPatterns...)
 		}
 	}
 

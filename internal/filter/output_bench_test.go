@@ -13,7 +13,7 @@ import (
 func generateOutput(lines int, errorRate float64) string {
 	var builder strings.Builder
 	errorInterval := int(1.0 / errorRate)
-	
+
 	for i := 0; i < lines; i++ {
 		if errorRate > 0 && i%errorInterval == 0 {
 			builder.WriteString(fmt.Sprintf("file.go:%d:10: error: undefined variable 'x'\n", i+1))
@@ -21,24 +21,24 @@ func generateOutput(lines int, errorRate float64) string {
 			builder.WriteString(fmt.Sprintf("INFO [%05d] Processing item successfully\n", i))
 		}
 	}
-	
+
 	return builder.String()
 }
 
 // BenchmarkOutputFiltering measures filtering performance with various output sizes
 func BenchmarkOutputFiltering(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 			{Pattern: `\d+:\d+:`, Flags: ""},
 			{Pattern: `failed|failure`, Flags: "i"},
 		},
-		IncludePatterns: []*config.RegexPattern{
+		ContextPatterns: []*config.RegexPattern{
 			{Pattern: `warning:`, Flags: "i"},
 			{Pattern: `WARN`, Flags: ""},
 		},
 		ContextLines: 2,
-		MaxOutput:    100,
+		MaxLines:    100,
 	}
 
 	testCases := []struct {
@@ -60,7 +60,7 @@ func BenchmarkOutputFiltering(b *testing.B) {
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
 			output := generateOutput(tc.lines, tc.errorRate)
-			filter, err := NewOutputFilter(filterConfig)
+			filter, err := NewOutputFilter(filterRules)
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -76,13 +76,13 @@ func BenchmarkOutputFiltering(b *testing.B) {
 
 // BenchmarkStreamFiltering measures streaming filter performance
 func BenchmarkStreamFiltering(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 			{Pattern: `\d+:\d+:`, Flags: ""},
 		},
 		ContextLines: 2,
-		MaxOutput:    1000,
+		MaxLines:    1000,
 	}
 
 	testCases := []struct {
@@ -97,7 +97,7 @@ func BenchmarkStreamFiltering(b *testing.B) {
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
 			output := generateOutput(tc.lines, 0.1)
-			filter, _ := NewOutputFilter(filterConfig)
+			filter, _ := NewOutputFilter(filterRules)
 
 			b.ResetTimer()
 			b.ReportAllocs()
@@ -142,7 +142,7 @@ func BenchmarkContextExtraction(b *testing.B) {
 			}
 
 			filter := &OutputFilter{
-				rules: &config.FilterConfig{
+				rules: &FilterRules{
 					ContextLines: tc.contextLines,
 				},
 			}
@@ -174,11 +174,11 @@ func BenchmarkIntelligentTruncation(b *testing.B) {
 			// Generate lines
 			lines := make([]string, tc.lines)
 			matches := make([]lineMatch, tc.errors)
-			
+
 			for i := range lines {
 				lines[i] = fmt.Sprintf("Line %d content", i)
 			}
-			
+
 			for i := range matches {
 				matches[i] = lineMatch{
 					lineNum: i * (tc.lines / tc.errors),
@@ -188,8 +188,8 @@ func BenchmarkIntelligentTruncation(b *testing.B) {
 			}
 
 			filter := &OutputFilter{
-				rules: &config.FilterConfig{
-					MaxOutput: tc.maxOutput,
+				rules: &FilterRules{
+					MaxLines: tc.maxOutput,
 				},
 			}
 
@@ -204,13 +204,13 @@ func BenchmarkIntelligentTruncation(b *testing.B) {
 
 // BenchmarkFilterBoth measures performance of filtering both stdout and stderr
 func BenchmarkFilterBoth(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 			{Pattern: `failed`, Flags: "i"},
 		},
 		ContextLines: 2,
-		MaxOutput:    200,
+		MaxLines:    200,
 	}
 
 	testCases := []struct {
@@ -229,8 +229,8 @@ func BenchmarkFilterBoth(b *testing.B) {
 		b.Run(tc.name, func(b *testing.B) {
 			stdout := generateOutput(tc.stdoutLines, 0.05)
 			stderr := generateOutput(tc.stderrLines, 0.3)
-			
-			filter, _ := NewOutputFilter(filterConfig)
+
+			filter, _ := NewOutputFilter(filterRules)
 
 			b.ResetTimer()
 			b.ReportAllocs()
@@ -243,18 +243,18 @@ func BenchmarkFilterBoth(b *testing.B) {
 
 // BenchmarkMemoryUsageFiltering measures memory allocation during filtering
 func BenchmarkMemoryUsageFiltering(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 		},
 		ContextLines: 5,
-		MaxOutput:    500,
+		MaxLines:    500,
 	}
 
 	b.Run("SmallOutput", func(b *testing.B) {
 		output := generateOutput(100, 0.1)
-		filter, _ := NewOutputFilter(filterConfig)
-		
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -264,8 +264,8 @@ func BenchmarkMemoryUsageFiltering(b *testing.B) {
 
 	b.Run("LargeOutput", func(b *testing.B) {
 		output := generateOutput(10000, 0.01)
-		filter, _ := NewOutputFilter(filterConfig)
-		
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -275,8 +275,8 @@ func BenchmarkMemoryUsageFiltering(b *testing.B) {
 
 	b.Run("Streaming", func(b *testing.B) {
 		output := generateOutput(10000, 0.01)
-		filter, _ := NewOutputFilter(filterConfig)
-		
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -295,17 +295,17 @@ func BenchmarkWorstCaseScenarios(b *testing.B) {
 			builder.WriteString(fmt.Sprintf("ERROR: Line %d failed\n", i))
 		}
 		output := builder.String()
-		
-		filterConfig := &config.FilterConfig{
+
+		filterRules := &FilterRules{
 			ErrorPatterns: []*config.RegexPattern{
 				{Pattern: `ERROR:`, Flags: ""},
 			},
 			ContextLines: 5,
-			MaxOutput:    100,
+			MaxLines:    100,
 		}
-		
-		filter, _ := NewOutputFilter(filterConfig)
-		
+
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
@@ -315,20 +315,20 @@ func BenchmarkWorstCaseScenarios(b *testing.B) {
 
 	b.Run("ComplexPatterns", func(b *testing.B) {
 		output := generateOutput(1000, 0.1)
-		
+
 		// Use complex patterns that may be slow
-		filterConfig := &config.FilterConfig{
+		filterRules := &FilterRules{
 			ErrorPatterns: []*config.RegexPattern{
 				{Pattern: `.*error.*`, Flags: "i"},
 				{Pattern: `(.*)\s+(\d+):(\d+):\s+(.*)`, Flags: ""},
 				{Pattern: `(?:error|warning|fatal|panic).*(?:failed|failure|exception)`, Flags: "i"},
 			},
 			ContextLines: 3,
-			MaxOutput:    200,
+			MaxLines:    200,
 		}
-		
-		filter, _ := NewOutputFilter(filterConfig)
-		
+
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {

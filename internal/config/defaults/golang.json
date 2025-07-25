@@ -5,98 +5,71 @@
     "format": {
       "command": "go",
       "args": ["fmt", "./..."],
-      "errorDetection": {
-        "exitCodes": [1]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^.+\\.go$", "flags": "m" }
-        ],
-        "contextLines": 0,
-        "maxOutput": 50
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "^.+\\.go$", "flags": "m" }
+      ],
+      "contextLines": 0,
+      "maxOutput": 50,
       "prompt": "Format the following Go files:",
       "timeout": 10000
     },
     "lint": {
       "command": "golangci-lint",
       "args": ["run"],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "\\d+ issues?", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
-          { "pattern": "^\\s*(Error|Warning):", "flags": "mi" }
-        ],
-        "contextLines": 2,
-        "maxOutput": 200
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+        { "pattern": "^\\s*(Error|Warning):", "flags": "mi" }
+      ],
+      "contextLines": 2,
+      "maxOutput": 200,
       "prompt": "Fix the linting issues below:",
       "timeout": 120000
     },
     "typecheck": {
       "command": "go",
       "args": ["build", "-o", "/dev/null", "./..."],
-      "errorDetection": {
-        "exitCodes": [1, 2]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
-          { "pattern": "cannot use", "flags": "" },
-          { "pattern": "undefined:", "flags": "" },
-          { "pattern": "cannot find package", "flags": "" },
-          { "pattern": "imported and not used", "flags": "" }
-        ],
-        "contextLines": 3,
-        "maxOutput": 150
-      },
+      "exitCodes": [1, 2],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+        { "pattern": "cannot use", "flags": "" },
+        { "pattern": "undefined:", "flags": "" },
+        { "pattern": "cannot find package", "flags": "" },
+        { "pattern": "imported and not used", "flags": "" }
+      ],
+      "contextLines": 3,
+      "maxOutput": 150,
       "prompt": "Fix the Go compilation errors below:",
       "timeout": 60000
     },
     "test": {
       "command": "go",
       "args": ["test", "./...", "-v"],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "FAIL", "flags": "" },
-          { "pattern": "--- FAIL:", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "--- FAIL:", "flags": "" },
-          { "pattern": "\\s+Error:", "flags": "" },
-          { "pattern": "\\s+Error Trace:", "flags": "" },
-          { "pattern": "\\s+Test:", "flags": "" },
-          { "pattern": "panic:", "flags": "" },
-          { "pattern": "goroutine \\d+", "flags": "" }
-        ],
-        "contextLines": 10,
-        "maxOutput": 300
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "--- FAIL:", "flags": "" },
+        { "pattern": "\\s+Error:", "flags": "" },
+        { "pattern": "\\s+Error Trace:", "flags": "" },
+        { "pattern": "\\s+Test:", "flags": "" },
+        { "pattern": "panic:", "flags": "" },
+        { "pattern": "goroutine \\d+", "flags": "" }
+      ],
+      "contextLines": 10,
+      "maxOutput": 300,
       "prompt": "Fix the failing Go tests below:",
       "timeout": 300000
     },
     "vet": {
       "command": "go",
       "args": ["vet", "./..."],
-      "errorDetection": {
-        "exitCodes": [1]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
-          { "pattern": "vet:", "flags": "" }
-        ],
-        "contextLines": 2,
-        "maxOutput": 100
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+        { "pattern": "vet:", "flags": "" }
+      ],
+      "contextLines": 2,
+      "maxOutput": 100,
       "prompt": "Fix the go vet issues below:",
       "timeout": 30000
     }

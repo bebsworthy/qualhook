@@ -95,7 +95,7 @@ func TestDefaultConfigs_NodeJSConfig(t *testing.T) {
 	}
 
 	// Check error patterns
-	if lintCmd.OutputFilter == nil || len(lintCmd.OutputFilter.ErrorPatterns) == 0 {
+	if lintCmd.ErrorPatterns == nil || len(lintCmd.ErrorPatterns) == 0 {
 		t.Error("Lint command should have error patterns")
 	}
 }
@@ -182,20 +182,16 @@ func TestDefaultConfigs_MergeWithDefaults(t *testing.T) {
 			"lint": {
 				Command: "custom-linter",
 				Args:    []string{"--strict"},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "CUSTOM_ERROR", Flags: ""},
-					},
-					MaxOutput: 50,
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "CUSTOM_ERROR", Flags: ""},
 				},
+				MaxOutput: 50,
 			},
 			"custom": {
 				Command: "my-tool",
 				Args:    []string{"check"},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "problem", Flags: "i"},
-					},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "problem", Flags: "i"},
 				},
 			},
 		},

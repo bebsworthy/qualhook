@@ -189,8 +189,8 @@ func TestMergeEnvironment(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "simple merge",
-			base: []string{"VAR1=base1", "VAR2=base2"},
+			name:   "simple merge",
+			base:   []string{"VAR1=base1", "VAR2=base2"},
 			custom: []string{"VAR2=custom2", "VAR3=custom3"},
 			want: map[string]string{
 				"VAR1": "base1",
@@ -283,7 +283,7 @@ func ExampleSanitizeEnvironment() {
 	}
 
 	sanitized := SanitizeEnvironment(env, true)
-	
+
 	// The sanitized environment will exclude sensitive variables
 	for _, e := range sanitized {
 		if strings.Contains(e, "SECRET") || strings.Contains(e, "TOKEN") {

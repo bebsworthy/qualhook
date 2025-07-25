@@ -34,14 +34,14 @@ func ExampleParser_Parse() {
 	fmt.Printf("Session ID: %s\n", hookInput.SessionID)
 	fmt.Printf("Working Directory: %s\n", hookInput.CWD)
 	fmt.Printf("Hook Event: %s\n", hookInput.HookEventName)
-	
+
 	// Extract edited files
 	files, err := parser.ExtractEditedFiles(hookInput)
 	if err != nil {
 		fmt.Printf("Error extracting files: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("Edited files: %v\n", files)
 	// Output:
 	// Session ID: abc123

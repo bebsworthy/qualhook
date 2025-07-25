@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bmatcuk/doublestar/v4"
 	"github.com/bebsworthy/qualhook/pkg/config"
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 // ComponentGroup represents a group of files mapped to a component with its configuration
@@ -58,7 +58,7 @@ func (m *FileMapper) MapFilesToComponents(files []string) ([]ComponentGroup, err
 	for _, file := range files {
 		// Clean and normalize the file path
 		cleanFile := filepath.Clean(file)
-		
+
 		// Find the most specific matching path config
 		var bestMatch *config.PathConfig
 		var bestPattern string
@@ -109,7 +109,7 @@ func (m *FileMapper) MapFilesToComponents(files []string) ([]ComponentGroup, err
 	for pattern, files := range componentFiles {
 		pathConfig := componentConfigs[pattern]
 		mergedConfig := m.mergeConfigs(pathConfig)
-		
+
 		groups = append(groups, ComponentGroup{
 			Path:   pattern,
 			Files:  files,

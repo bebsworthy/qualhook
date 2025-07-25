@@ -7,21 +7,21 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bebsworthy/qualhook/pkg/config"
 	"encoding/json"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestNewRootCmd(t *testing.T) {
 	cmd := newRootCmd()
-	
+
 	if cmd == nil {
 		t.Fatal("newRootCmd() returned nil")
 	}
-	
+
 	if cmd.Use != "qualhook" {
 		t.Errorf("Expected Use to be 'qualhook', got %s", cmd.Use)
 	}
-	
+
 	if cmd.Version != Version {
 		t.Errorf("Expected Version to be %s, got %s", Version, cmd.Version)
 	}
@@ -59,24 +59,24 @@ func TestParseGlobalFlags(t *testing.T) {
 			expectedConfig: "custom.json",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Reset global flags
 			debugFlag = false
 			configPath = ""
-			
+
 			// Set os.Args temporarily
 			oldArgs := os.Args
 			os.Args = tt.args
 			defer func() { os.Args = oldArgs }()
-			
+
 			parseGlobalFlags()
-			
+
 			if debugFlag != tt.expectedDebug {
 				t.Errorf("Expected debugFlag to be %v, got %v", tt.expectedDebug, debugFlag)
 			}
-			
+
 			if configPath != tt.expectedConfig {
 				t.Errorf("Expected configPath to be %q, got %q", tt.expectedConfig, configPath)
 			}
@@ -111,16 +111,16 @@ func TestExtractNonFlagArgs(t *testing.T) {
 			expected: []string{"arg1"},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := extractNonFlagArgs(tt.args)
-			
+
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d args, got %d", len(tt.expected), len(result))
 				return
 			}
-			
+
 			for i, arg := range result {
 				if arg != tt.expected[i] {
 					t.Errorf("Expected arg[%d] to be %q, got %q", i, tt.expected[i], arg)
@@ -133,39 +133,36 @@ func TestExtractNonFlagArgs(t *testing.T) {
 func TestTryCustomCommand(t *testing.T) {
 	// Create temp directory with config
 	tempDir := t.TempDir()
-	
+
 	cfg := &config.Config{
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"custom-cmd": {
 				Command: "echo",
 				Args:    []string{"custom command executed"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error"},
-					},
-				},
+				MaxOutput: 100,
 			},
 		},
 	}
-	
+
 	configData, _ := json.Marshal(cfg)
 	configFile := filepath.Join(tempDir, ".qualhook.json")
 	os.WriteFile(configFile, configData, 0644)
-	
+
 	// Change to temp directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Reset global config path
 	oldConfigPath := configPath
 	configPath = ""
 	defer func() { configPath = oldConfigPath }()
-	
+
 	tests := []struct {
 		name        string
 		cmdName     string
@@ -185,15 +182,15 @@ func TestTryCustomCommand(t *testing.T) {
 			shouldError: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tryCustomCommand(tt.cmdName, tt.args)
-			
+
 			if tt.shouldError && err == nil {
 				t.Error("Expected error but got none")
 			}
-			
+
 			if !tt.shouldError && err != nil {
 				t.Errorf("Expected no error but got: %v", err)
 			}
@@ -239,26 +236,26 @@ func TestRootCommand(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := newRootCmd()
 			cmd.SetArgs(tt.args)
-			
+
 			var stdout, stderr bytes.Buffer
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
-			
+
 			err := cmd.Execute()
-			
+
 			if tt.shouldError && err == nil {
 				t.Error("Expected error but got none")
 			}
-			
+
 			if !tt.shouldError && err != nil {
 				t.Errorf("Expected no error but got: %v", err)
 			}
-			
+
 			if tt.checkOutput != nil {
 				tt.checkOutput(t, stdout.String(), stderr.String())
 			}

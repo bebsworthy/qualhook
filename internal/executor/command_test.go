@@ -14,23 +14,23 @@ import (
 
 func TestNewCommandExecutor(t *testing.T) {
 	tests := []struct {
-		name           string
-		timeout        time.Duration
+		name            string
+		timeout         time.Duration
 		expectedTimeout time.Duration
 	}{
 		{
-			name:           "with valid timeout",
-			timeout:        5 * time.Second,
+			name:            "with valid timeout",
+			timeout:         5 * time.Second,
 			expectedTimeout: 5 * time.Second,
 		},
 		{
-			name:           "with zero timeout",
-			timeout:        0,
+			name:            "with zero timeout",
+			timeout:         0,
 			expectedTimeout: 2 * time.Minute,
 		},
 		{
-			name:           "with negative timeout",
-			timeout:        -1 * time.Second,
+			name:            "with negative timeout",
+			timeout:         -1 * time.Second,
 			expectedTimeout: 2 * time.Minute,
 		},
 	}
@@ -201,7 +201,7 @@ func TestExecute_WorkingDirectory(t *testing.T) {
 	// Normalize paths for comparison
 	expectedPath, _ := filepath.Abs(tmpDir)
 	actualPath := strings.TrimSpace(result.Stdout)
-	
+
 	if !strings.Contains(actualPath, filepath.Base(expectedPath)) {
 		t.Errorf("expected working directory %q in output, got %q", expectedPath, actualPath)
 	}
@@ -237,7 +237,7 @@ func TestExecute_Environment(t *testing.T) {
 	var args []string
 	testVar := "QUALHOOK_TEST_VAR"
 	testValue := "test-value-12345"
-	
+
 	if runtime.GOOS == osWindows {
 		cmd = cmdCommand
 		args = []string{"/c", "echo", "%" + testVar + "%"}
@@ -317,87 +317,87 @@ func TestPrepareEnvironment(t *testing.T) {
 	t.Skip("prepareEnvironment now uses security sanitization - testing through integration tests")
 	/*
 
-	tests := []struct {
-		name        string
-		options     ExecOptions
-		checkEnv    map[string]string
-		shouldExist map[string]bool
-	}{
-		{
-			name: "no inherit, custom vars only",
-			options: ExecOptions{
-				InheritEnv: false,
-				Environment: []string{
-					"FOO=bar",
-					"BAZ=qux",
+		tests := []struct {
+			name        string
+			options     ExecOptions
+			checkEnv    map[string]string
+			shouldExist map[string]bool
+		}{
+			{
+				name: "no inherit, custom vars only",
+				options: ExecOptions{
+					InheritEnv: false,
+					Environment: []string{
+						"FOO=bar",
+						"BAZ=qux",
+					},
+				},
+				checkEnv: map[string]string{
+					"FOO": "bar",
+					"BAZ": "qux",
+				},
+				shouldExist: map[string]bool{
+					"PATH": false, // Should not inherit PATH
 				},
 			},
-			checkEnv: map[string]string{
-				"FOO": "bar",
-				"BAZ": "qux",
-			},
-			shouldExist: map[string]bool{
-				"PATH": false, // Should not inherit PATH
-			},
-		},
-		{
-			name: "inherit with override",
-			options: ExecOptions{
-				InheritEnv: true,
-				Environment: []string{
-					"PATH=/custom/path",
-					"NEW_VAR=value",
+			{
+				name: "inherit with override",
+				options: ExecOptions{
+					InheritEnv: true,
+					Environment: []string{
+						"PATH=/custom/path",
+						"NEW_VAR=value",
+					},
+				},
+				checkEnv: map[string]string{
+					"PATH":    "/custom/path",
+					"NEW_VAR": "value",
 				},
 			},
-			checkEnv: map[string]string{
-				"PATH":    "/custom/path",
-				"NEW_VAR": "value",
-			},
-		},
-		{
-			name: "malformed env vars ignored",
-			options: ExecOptions{
-				Environment: []string{
-					"GOOD=value",
-					"BAD_NO_EQUALS",
-					"ALSO_GOOD=has=equals",
+			{
+				name: "malformed env vars ignored",
+				options: ExecOptions{
+					Environment: []string{
+						"GOOD=value",
+						"BAD_NO_EQUALS",
+						"ALSO_GOOD=has=equals",
+					},
+				},
+				checkEnv: map[string]string{
+					"GOOD":      "value",
+					"ALSO_GOOD": "has=equals",
 				},
 			},
-			checkEnv: map[string]string{
-				"GOOD":      "value",
-				"ALSO_GOOD": "has=equals",
-			},
-		},
-	}
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			env := executor.prepareEnvironment(tt.options)
-			envMap := make(map[string]string)
-			
-			for _, e := range env {
-				parts := strings.SplitN(e, "=", 2)
-				if len(parts) == 2 {
-					envMap[parts[0]] = parts[1]
-				}
-			}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				env := executor.prepareEnvironment(tt.options)
+				envMap := make(map[string]string)
 
-			// Check expected values
-			for k, v := range tt.checkEnv {
-				if envMap[k] != v {
-					t.Errorf("expected %s=%s, got %s", k, v, envMap[k])
+				for _, e := range env {
+					parts := strings.SplitN(e, "=", 2)
+					if len(parts) == 2 {
+						envMap[parts[0]] = parts[1]
+					}
 				}
-			}
 
-			// Check existence
-			for k, shouldExist := range tt.shouldExist {
-				_, exists := envMap[k]
-				if exists != shouldExist {
-					t.Errorf("expected %s existence to be %v", k, shouldExist)
+				// Check expected values
+				for k, v := range tt.checkEnv {
+					if envMap[k] != v {
+						t.Errorf("expected %s=%s, got %s", k, v, envMap[k])
+					}
 				}
-			}
-		})
-	}
+
+				// Check existence
+				for k, shouldExist := range tt.shouldExist {
+					_, exists := envMap[k]
+					if exists != shouldExist {
+						t.Errorf("expected %s existence to be %v", k, shouldExist)
+					}
+				}
+			})
+		}
 	*/
 }
 

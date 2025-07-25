@@ -12,7 +12,7 @@ import (
 func TestNewOutputFilter(t *testing.T) {
 	tests := []struct {
 		name    string
-		rules   *config.FilterConfig
+		rules   *FilterRules
 		wantErr bool
 	}{
 		{
@@ -22,17 +22,17 @@ func TestNewOutputFilter(t *testing.T) {
 		},
 		{
 			name: "valid rules",
-			rules: &config.FilterConfig{
+			rules: &FilterRules{
 				ErrorPatterns: []*config.RegexPattern{
 					{Pattern: "error", Flags: "i"},
 				},
-				MaxOutput: 100,
+				MaxLines: 100,
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid regex pattern",
-			rules: &config.FilterConfig{
+			rules: &FilterRules{
 				ErrorPatterns: []*config.RegexPattern{
 					{Pattern: "[invalid"},
 				},
@@ -52,13 +52,13 @@ func TestNewOutputFilter(t *testing.T) {
 }
 
 func TestOutputFilter_Filter(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "error", Flags: "i"},
 			{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
 		},
 		ContextLines: 2,
-		MaxOutput:    50,
+		MaxLines:    50,
 	})
 
 	tests := []struct {
@@ -120,11 +120,11 @@ end`,
 }
 
 func TestOutputFilter_FilterBoth(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "error", Flags: "i"},
 		},
-		MaxOutput: 10,
+		MaxLines: 10,
 	})
 
 	stdout := "stdout line 1\nstdout line 2"
@@ -147,12 +147,12 @@ func TestOutputFilter_FilterBoth(t *testing.T) {
 }
 
 func TestOutputFilter_IntelligentTruncate(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "ERROR", Flags: ""},
 		},
 		ContextLines: 0, // No context to make the test clearer
-		MaxOutput:    5,
+		MaxLines:    5,
 	})
 
 	input := `line 1
@@ -179,7 +179,7 @@ line 8`
 }
 
 func TestOutputFilter_StreamFilter(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "ERROR"},
 		},
@@ -207,12 +207,12 @@ line 5`
 }
 
 func TestOutputFilter_LargeOutput(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "ERROR"},
 		},
 		ContextLines: 1,
-		MaxOutput:    50, // Lower limit to ensure truncation
+		MaxLines:    50, // Lower limit to ensure truncation
 	})
 
 	// Generate large output with more errors
@@ -224,19 +224,19 @@ func TestOutputFilter_LargeOutput(t *testing.T) {
 			lines = append(lines, fmt.Sprintf("normal line %d", i))
 		}
 	}
-	
+
 	input := strings.Join(lines, "\n")
 	result := filter.Filter(input)
 
 	if !result.HasErrors {
 		t.Error("Should detect errors in large output")
 	}
-	
+
 	// The result should be truncated to approximately MaxOutput lines
 	if len(result.Lines) > 51 { // Allow for truncation message
 		t.Errorf("Should limit output to MaxOutput, got %d lines", len(result.Lines))
 	}
-	
+
 	// Should have truncation indicator
 	outputStr := strings.Join(result.Lines, "\n")
 	if !strings.Contains(outputStr, "truncated") {
@@ -245,12 +245,12 @@ func TestOutputFilter_LargeOutput(t *testing.T) {
 }
 
 func TestOutputFilter_EmptyPatterns(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "ERROR"}, // Changed to uppercase so it won't match
 		},
-		IncludePatterns: []*config.RegexPattern{},
-		MaxOutput:       50,
+		ContextPatterns: []*config.RegexPattern{},
+		MaxLines:       50,
 	})
 
 	input := "some output\nwith no errors\njust normal stuff"
@@ -265,12 +265,12 @@ func TestOutputFilter_EmptyPatterns(t *testing.T) {
 }
 
 func TestOutputFilter_ContextOverlap(t *testing.T) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "ERROR"},
 		},
 		ContextLines: 3,
-		MaxOutput:    100,
+		MaxLines:    100,
 	})
 
 	input := `line 1
@@ -292,14 +292,14 @@ line 9`
 }
 
 func BenchmarkOutputFilter_Filter(b *testing.B) {
-	filter, _ := NewOutputFilter(&config.FilterConfig{
+	filter, _ := NewOutputFilter(&FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: "error", Flags: "i"},
 			{Pattern: "warning", Flags: "i"},
 			{Pattern: "^\\s*\\d+:\\d+"},
 		},
 		ContextLines: 2,
-		MaxOutput:    100,
+		MaxLines:    100,
 	})
 
 	input := generateBenchmarkInput(1000)

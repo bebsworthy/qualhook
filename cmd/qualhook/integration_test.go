@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package main
@@ -20,7 +21,7 @@ import (
 func TestIntegration_FormatCommand(t *testing.T) {
 	// Create a test project directory
 	tempDir := t.TempDir()
-	
+
 	// Create a simple configuration
 	cfg := &config.Config{
 		Version: "1.0",
@@ -28,18 +29,14 @@ func TestIntegration_FormatCommand(t *testing.T) {
 			"format": {
 				Command: "echo",
 				Args:    []string{"Formatting completed"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error"},
 				},
 			},
 		},
 	}
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	configData, err := config.SaveConfig(cfg)
@@ -49,21 +46,21 @@ func TestIntegration_FormatCommand(t *testing.T) {
 	if err := os.WriteFile(configPath, configData, 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Execute format command
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"format"})
-	
+
 	// Capture output
 	var stdout, stderr bytes.Buffer
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
-	
+
 	// Also redirect the global output writers used by executeCommand
 	oldOutputWriter := outputWriter
 	oldErrorWriter := errorWriter
@@ -73,12 +70,12 @@ func TestIntegration_FormatCommand(t *testing.T) {
 		outputWriter = oldOutputWriter
 		errorWriter = oldErrorWriter
 	}()
-	
+
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
-	
+
 	// Verify output - the error reporter returns success message when no errors
 	stdoutStr := stdout.String()
 	if !strings.Contains(stdoutStr, "All quality checks passed successfully") {
@@ -90,7 +87,7 @@ func TestIntegration_FormatCommand(t *testing.T) {
 // TestIntegration_LintWithErrors tests the lint command with errors
 func TestIntegration_LintWithErrors(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create a script that exits with error
 	scriptPath := filepath.Join(tempDir, "lint.sh")
 	scriptContent := `#!/bin/bash
@@ -99,7 +96,7 @@ exit 1`
 	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0755); err != nil {
 		t.Fatalf("Failed to write script: %v", err)
 	}
-	
+
 	// Create configuration
 	cfg := &config.Config{
 		Version: "1.0",
@@ -107,21 +104,17 @@ exit 1`
 			"lint": {
 				Command: "bash",
 				Args:    []string{scriptPath},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error:", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error:", Flags: "i"},
-					},
-					ContextLines: 0,
-					MaxOutput:    10,
-				},
+				ContextLines: 0,
+				MaxOutput:    10,
 				Prompt: "Fix the linting errors below:",
 			},
 		},
 	}
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	configData, err := config.SaveConfig(cfg)
@@ -131,21 +124,21 @@ exit 1`
 	if err := os.WriteFile(configPath, configData, 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Execute lint command
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"lint"})
-	
+
 	// Capture output
 	var stdout, stderr bytes.Buffer
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
-	
+
 	// Also redirect the global output writers used by executeCommand
 	oldOutputWriter := outputWriter
 	oldErrorWriter := errorWriter
@@ -155,7 +148,7 @@ exit 1`
 		outputWriter = oldOutputWriter
 		errorWriter = oldErrorWriter
 	}()
-	
+
 	// Replace os.Exit temporarily to capture exit code
 	oldExit := osExit
 	exitCode := 0
@@ -163,20 +156,20 @@ exit 1`
 		exitCode = code
 	}
 	defer func() { osExit = oldExit }()
-	
+
 	// Execute the command
 	err = rootCmd.Execute()
-	
+
 	// Verify exit code 2 for errors
 	if exitCode != 2 {
 		t.Errorf("Expected exit code 2, got %d", exitCode)
 	}
-	
+
 	// Verify output contains the error (error reporter outputs to stderr)
 	stdoutStr := stdout.String()
 	stderrStr := stderr.String()
 	combinedOutput := stdoutStr + stderrStr
-	
+
 	if !strings.Contains(combinedOutput, "Fix the linting errors below:") {
 		t.Errorf("Expected prompt not found. Stdout: %s, Stderr: %s", stdoutStr, stderrStr)
 	}
@@ -188,19 +181,19 @@ exit 1`
 // TestIntegration_MonorepoFileAware tests file-aware execution in a monorepo
 func TestIntegration_MonorepoFileAware(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create monorepo structure
 	frontendDir := filepath.Join(tempDir, "frontend")
 	backendDir := filepath.Join(tempDir, "backend")
 	os.MkdirAll(frontendDir, 0755)
 	os.MkdirAll(backendDir, 0755)
-	
+
 	// Create test files
 	frontendFile := filepath.Join(frontendDir, "app.js")
 	backendFile := filepath.Join(backendDir, "server.go")
 	os.WriteFile(frontendFile, []byte("console.log('frontend')"), 0644)
 	os.WriteFile(backendFile, []byte("package main"), 0644)
-	
+
 	// Create configuration
 	cfg := &config.Config{
 		Version: "1.0",
@@ -208,13 +201,9 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 			"lint": {
 				Command: "echo",
 				Args:    []string{"No linting configured for root"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error"},
 				},
 			},
 		},
@@ -225,13 +214,9 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 					"lint": {
 						Command: "echo",
 						Args:    []string{"Linting frontend"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
 					},
 				},
@@ -242,20 +227,16 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 					"lint": {
 						Command: "echo",
 						Args:    []string{"Linting backend"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
 					},
 				},
 			},
 		},
 	}
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	configData, err := config.SaveConfig(cfg)
@@ -265,13 +246,13 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 	if err := os.WriteFile(configPath, configData, 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Create hook input with edited files
 	inputData, err := json.Marshal(map[string]interface{}{
-		"command":      "str_replace",
-		"path":         frontendFile,
-		"old_str":      "console.log('frontend')",
-		"new_str":      "console.log('updated frontend')",
+		"command": "str_replace",
+		"path":    frontendFile,
+		"old_str": "console.log('frontend')",
+		"new_str": "console.log('updated frontend')",
 	})
 	if err != nil {
 		t.Fatalf("Failed to marshal input data: %v", err)
@@ -287,30 +268,30 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 			Input: json.RawMessage(inputData),
 		},
 	}
-	
+
 	// Write hook input
 	hookInputPath := filepath.Join(tempDir, "hook_input.json")
 	hookInputData, _ := json.Marshal(hookInput)
 	os.WriteFile(hookInputPath, hookInputData, 0644)
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Set environment variable for hook input
 	os.Setenv("CLAUDE_CODE_HOOK_INPUT_FILE", hookInputPath)
 	defer os.Unsetenv("CLAUDE_CODE_HOOK_INPUT_FILE")
-	
+
 	// Execute lint command
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"lint"})
-	
+
 	// Capture output
 	var stdout, stderr bytes.Buffer
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
-	
+
 	// Also redirect the global output writers used by executeCommand
 	oldOutputWriter := outputWriter
 	oldErrorWriter := errorWriter
@@ -320,12 +301,12 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 		outputWriter = oldOutputWriter
 		errorWriter = oldErrorWriter
 	}()
-	
+
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
-	
+
 	// Verify command succeeded (file-aware execution happened)
 	stdoutStr := stdout.String()
 	if !strings.Contains(stdoutStr, "All quality checks passed successfully") {
@@ -338,7 +319,7 @@ func TestIntegration_MonorepoFileAware(t *testing.T) {
 // TestIntegration_CustomCommand tests custom command execution
 func TestIntegration_CustomCommand(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create configuration with custom command
 	cfg := &config.Config{
 		Version: "1.0",
@@ -346,18 +327,14 @@ func TestIntegration_CustomCommand(t *testing.T) {
 			"custom-check": {
 				Command: "echo",
 				Args:    []string{"Running custom check"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error"},
 				},
 			},
 		},
 	}
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	configData, err := config.SaveConfig(cfg)
@@ -367,12 +344,12 @@ func TestIntegration_CustomCommand(t *testing.T) {
 	if err := os.WriteFile(configPath, configData, 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Execute custom command using tryCustomCommand (custom commands aren't cobra subcommands)
 	// Capture stdout
 	oldStdout := os.Stdout
@@ -380,24 +357,24 @@ func TestIntegration_CustomCommand(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	outputWriter = w
-	
+
 	// tryCustomCommand will load config from current directory
 	// since we've already changed to tempDir
-	
+
 	err = tryCustomCommand("custom-check", []string{})
-	
+
 	w.Close()
 	os.Stdout = oldStdout
 	outputWriter = oldOutputWriter
-	
+
 	// Read captured output
 	var buf bytes.Buffer
 	io.Copy(&buf, r)
-	
+
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
-	
+
 	// Verify output - error reporter replaces actual output
 	if !strings.Contains(buf.String(), "All quality checks passed successfully") {
 		t.Errorf("Expected output not found: %s", buf.String())
@@ -407,45 +384,43 @@ func TestIntegration_CustomCommand(t *testing.T) {
 // TestIntegration_ConfigValidation tests config validation command
 func TestIntegration_ConfigValidation(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create invalid configuration
 	invalidConfig := `{
 		"version": "1.0",
 		"commands": {
 			"lint": {
-				"outputFilter": {
-					"errorPatterns": []
-				}
+				"errorPatterns": []
 			}
 		}
 	}`
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	if err := os.WriteFile(configPath, []byte(invalidConfig), 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Execute config validate command
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"config", "--validate"})
-	
+
 	// Capture output
 	var stdout, stderr bytes.Buffer
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
-	
+
 	// Expect validation to fail
 	err := rootCmd.Execute()
 	if err == nil {
 		t.Error("Expected validation to fail for invalid config")
 	}
-	
+
 	// Verify error message
 	output := stdout.String() + stderr.String()
 	if !strings.Contains(output, "command is required") {
@@ -456,7 +431,7 @@ func TestIntegration_ConfigValidation(t *testing.T) {
 // TestIntegration_DebugMode tests debug mode execution
 func TestIntegration_DebugMode(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create configuration
 	cfg := &config.Config{
 		Version: "1.0",
@@ -464,18 +439,14 @@ func TestIntegration_DebugMode(t *testing.T) {
 			"test": {
 				Command: "echo",
 				Args:    []string{"Running tests"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "fail"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "fail"},
 				},
 			},
 		},
 	}
-	
+
 	// Write configuration
 	configPath := filepath.Join(tempDir, ".qualhook.json")
 	configData, err := config.SaveConfig(cfg)
@@ -485,27 +456,27 @@ func TestIntegration_DebugMode(t *testing.T) {
 	if err := os.WriteFile(configPath, configData, 0644); err != nil {
 		t.Fatalf("Failed to write config file: %v", err)
 	}
-	
+
 	// Change to test directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Set up debug output capture
 	var debugBuf bytes.Buffer
 	debug.SetWriter(&debugBuf)
-	debug.Enable() // Enable debug mode for this test
+	debug.Enable()                   // Enable debug mode for this test
 	defer debug.SetWriter(os.Stderr) // Reset after test
-	
+
 	// Execute test command with debug flag
 	rootCmd := newRootCmd()
 	rootCmd.SetArgs([]string{"--debug", "test"})
-	
+
 	// Capture output
 	var stdout, stderr bytes.Buffer
 	rootCmd.SetOut(&stdout)
 	rootCmd.SetErr(&stderr)
-	
+
 	// Also redirect the global output writers used by executeCommand
 	oldOutputWriter := outputWriter
 	oldErrorWriter := errorWriter
@@ -515,15 +486,15 @@ func TestIntegration_DebugMode(t *testing.T) {
 		outputWriter = oldOutputWriter
 		errorWriter = oldErrorWriter
 	}()
-	
+
 	err = rootCmd.Execute()
 	if err != nil {
 		t.Errorf("Command failed: %v", err)
 	}
-	
+
 	// Get debug output
 	debugOutput := debugBuf.String()
-	
+
 	// Verify debug output
 	if !strings.Contains(debugOutput, "[DEBUG") {
 		t.Errorf("Expected debug output not found. Debug output: %s", debugOutput)
@@ -537,23 +508,23 @@ func TestIntegration_DebugMode(t *testing.T) {
 func captureOutput(f func() error) (string, string, error) {
 	oldStdout := os.Stdout
 	oldStderr := os.Stderr
-	
+
 	rOut, wOut, _ := os.Pipe()
 	rErr, wErr, _ := os.Pipe()
-	
+
 	os.Stdout = wOut
 	os.Stderr = wErr
-	
+
 	err := f()
-	
+
 	wOut.Close()
 	wErr.Close()
-	
+
 	stdout, _ := io.ReadAll(rOut)
 	stderr, _ := io.ReadAll(rErr)
-	
+
 	os.Stdout = oldStdout
 	os.Stderr = oldStderr
-	
+
 	return string(stdout), string(stderr), err
 }

@@ -31,8 +31,8 @@ type Validator struct {
 func NewValidator() *Validator {
 	secValidator := security.NewSecurityValidator()
 	return &Validator{
-		CheckCommands: true,
-		AllowedCommands: getDefaultAllowedCommands(),
+		CheckCommands:     true,
+		AllowedCommands:   getDefaultAllowedCommands(),
 		securityValidator: secValidator,
 	}
 }
@@ -149,11 +149,11 @@ func (v *Validator) validateRegexPattern(pattern *config.RegexPattern) error {
 func (v *Validator) checkDangerousRegex(pattern string) error {
 	// Check for catastrophic backtracking patterns
 	// Look for specific dangerous constructs
-	if strings.Contains(pattern, "(.*)*") || 
-	   strings.Contains(pattern, "(.+)*") ||
-	   strings.Contains(pattern, "(\\s*)*") ||
-	   regexp.MustCompile(`\([^)]*\+\)\+`).MatchString(pattern) || // (x+)+
-	   regexp.MustCompile(`\([^)]*\*\)\*`).MatchString(pattern) {   // (x*)*
+	if strings.Contains(pattern, "(.*)*") ||
+		strings.Contains(pattern, "(.+)*") ||
+		strings.Contains(pattern, "(\\s*)*") ||
+		regexp.MustCompile(`\([^)]*\+\)\+`).MatchString(pattern) || // (x+)+
+		regexp.MustCompile(`\([^)]*\*\)\*`).MatchString(pattern) { // (x*)*
 		return fmt.Errorf("pattern contains potential catastrophic backtracking")
 	}
 
@@ -223,7 +223,7 @@ func (v *Validator) validatePathPattern(pattern string) error {
 		// Path patterns have slightly different rules than full paths
 		// Check for the specific errors we care about for patterns
 		if strings.Contains(err.Error(), "directory traversal") ||
-		   strings.Contains(err.Error(), "null byte") {
+			strings.Contains(err.Error(), "null byte") {
 			return fmt.Errorf("security validation failed: %w", err)
 		}
 		// Ignore "outside project directory" errors for patterns as they're relative
@@ -233,9 +233,9 @@ func (v *Validator) validatePathPattern(pattern string) error {
 	if filepath.IsAbs(pattern) {
 		return fmt.Errorf("absolute paths are not allowed in patterns")
 	}
-	
+
 	// Also check for Windows-style absolute paths on non-Windows systems
-	if runtime.GOOS != osWindows && len(pattern) >= 3 && 
+	if runtime.GOOS != osWindows && len(pattern) >= 3 &&
 		pattern[1] == ':' && (pattern[2] == '\\' || pattern[2] == '/') {
 		return fmt.Errorf("absolute paths are not allowed in patterns")
 	}
@@ -294,7 +294,7 @@ func (v *Validator) checkCommandExists(command string) error {
 func (v *Validator) isCommandAllowed(command string) bool {
 	// Extract base command name (e.g., "npm" from "/usr/local/bin/npm")
 	baseCommand := filepath.Base(command)
-	
+
 	for _, allowed := range v.AllowedCommands {
 		if allowed == command || allowed == baseCommand {
 			return true
@@ -317,11 +317,11 @@ func (v *Validator) SuggestFixes(err error) []string {
 
 	// Command not found suggestions
 	if strings.Contains(errStr, "not found in PATH") {
-		suggestions = append(suggestions, 
+		suggestions = append(suggestions,
 			"Make sure the command is installed and available in your PATH",
 			"Try running 'which <command>' (Unix) or 'where <command>' (Windows) to verify",
 		)
-		
+
 		// Specific suggestions for common commands
 		switch {
 		case strings.Contains(errStr, "npm"):
@@ -374,29 +374,17 @@ func (v *Validator) checkAllowedCommand(command string) error {
 
 // validateCommandPatterns validates all regex patterns in a command
 func (v *Validator) validateCommandPatterns(cmd *config.CommandConfig) error {
-	// Validate error detection patterns
-	if cmd.ErrorDetection != nil {
-		for i, pattern := range cmd.ErrorDetection.Patterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("error detection pattern %d: %w", i, err)
-			}
+	// Validate error patterns
+	for i, pattern := range cmd.ErrorPatterns {
+		if err := v.validateRegexPattern(pattern); err != nil {
+			return fmt.Errorf("error pattern %d: %w", i, err)
 		}
 	}
 
-	// Validate output filter patterns
-	if cmd.OutputFilter != nil {
-		// Validate error patterns
-		for i, pattern := range cmd.OutputFilter.ErrorPatterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("error pattern %d: %w", i, err)
-			}
-		}
-
-		// Validate include patterns
-		for i, pattern := range cmd.OutputFilter.IncludePatterns {
-			if err := v.validateRegexPattern(pattern); err != nil {
-				return fmt.Errorf("include pattern %d: %w", i, err)
-			}
+	// Validate include patterns
+	for i, pattern := range cmd.IncludePatterns {
+		if err := v.validateRegexPattern(pattern); err != nil {
+			return fmt.Errorf("include pattern %d: %w", i, err)
 		}
 	}
 

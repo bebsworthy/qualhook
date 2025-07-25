@@ -52,10 +52,10 @@ func BenchmarkPatternCompilation(b *testing.B) {
 func BenchmarkPatternCacheHit(b *testing.B) {
 	cache, _ := NewPatternCache()
 	pattern := &config.RegexPattern{Pattern: `error|warning|fatal`, Flags: "i"}
-	
+
 	// Pre-populate cache
 	_, _ = cache.GetOrCompile(pattern)
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := cache.GetOrCompile(pattern)
@@ -68,7 +68,7 @@ func BenchmarkPatternCacheHit(b *testing.B) {
 // BenchmarkPatternCacheMiss measures cache miss performance
 func BenchmarkPatternCacheMiss(b *testing.B) {
 	cache, _ := NewPatternCache()
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		pattern := &config.RegexPattern{Pattern: fmt.Sprintf(`pattern_%d`, i), Flags: ""}
@@ -114,7 +114,7 @@ func BenchmarkPatternMatching(b *testing.B) {
 // BenchmarkPatternSet measures performance of matching against multiple patterns
 func BenchmarkPatternSet(b *testing.B) {
 	cache, _ := NewPatternCache()
-	
+
 	testCases := []struct {
 		name     string
 		patterns []*config.RegexPattern
@@ -149,9 +149,9 @@ func BenchmarkPatternFindAll(b *testing.B) {
 		{Pattern: `(error|warning)`, Flags: "i"},
 		{Pattern: `\S+\.(go|js|ts|py)`, Flags: ""},
 	}
-	
+
 	ps, _ := NewPatternSet(patterns, cache)
-	
+
 	// Input with multiple matches
 	input := `
 main.go:15:8: error: undefined variable
@@ -170,10 +170,10 @@ test.ts:23:11: warning: deprecated function
 func BenchmarkConcurrentPatternMatching(b *testing.B) {
 	cache, _ := NewPatternCache()
 	pattern := &config.RegexPattern{Pattern: `error|warning|fatal`, Flags: "i"}
-	
+
 	// Pre-compile pattern
 	re, _ := cache.GetOrCompile(pattern)
-	
+
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			_ = re.MatchString(mediumInput)
@@ -194,7 +194,7 @@ func BenchmarkMemoryUsage(b *testing.B) {
 	b.Run("PatternCaching", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		pattern := &config.RegexPattern{Pattern: `cached\s+pattern`, Flags: ""}
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -205,7 +205,7 @@ func BenchmarkMemoryUsage(b *testing.B) {
 	b.Run("PatternMatching", func(b *testing.B) {
 		pattern := &config.RegexPattern{Pattern: `\berror\b`, Flags: "i"}
 		re, _ := pattern.Compile()
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {

@@ -70,7 +70,7 @@ func runGenerateMan(cmd *cobra.Command, args []string) error {
 	// List generated files
 	fmt.Printf("✅ Man pages generated successfully in: %s\n\n", manDir)
 	fmt.Println("Generated files:")
-	
+
 	files, err := filepath.Glob(filepath.Join(manDir, "*.1"))
 	if err != nil {
 		return fmt.Errorf("failed to list generated files: %w", err)

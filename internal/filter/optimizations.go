@@ -4,7 +4,7 @@ package filter
 import (
 	"regexp"
 	"sync"
-	
+
 	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
@@ -32,13 +32,13 @@ func NewOptimizedPatternSet(patterns []*config.RegexPattern) (*OptimizedPatternS
 		patterns: make([]*regexp.Regexp, 0),
 		configs:  patterns,
 	}
-	
+
 	for _, pattern := range patterns {
 		if err := ops.addPattern(pattern); err != nil {
 			return nil, err
 		}
 	}
-	
+
 	return ops, nil
 }
 
@@ -49,26 +49,26 @@ func (ops *OptimizedPatternSet) addPattern(pattern *config.RegexPattern) error {
 		ops.literals[pattern.Pattern] = true
 		return nil
 	}
-	
+
 	// Check if it's a simple prefix pattern
 	if prefix, ok := isSimplePrefix(pattern.Pattern); ok {
 		ops.prefixes = append(ops.prefixes, prefix)
 		return nil
 	}
-	
+
 	// Check if it's a simple suffix pattern
 	if suffix, ok := isSimpleSuffix(pattern.Pattern); ok {
 		ops.suffixes = append(ops.suffixes, suffix)
 		return nil
 	}
-	
+
 	// Fall back to regex compilation
 	compiled, err := pattern.Compile()
 	if err != nil {
 		return err
 	}
 	ops.patterns = append(ops.patterns, compiled)
-	
+
 	return nil
 }
 
@@ -76,33 +76,33 @@ func (ops *OptimizedPatternSet) addPattern(pattern *config.RegexPattern) error {
 func (ops *OptimizedPatternSet) MatchAnyOptimized(input string) bool {
 	ops.mu.RLock()
 	defer ops.mu.RUnlock()
-	
+
 	// First check literals (O(1) lookup)
 	if ops.literals[input] {
 		return true
 	}
-	
+
 	// Check prefixes (optimized string operations)
 	for _, prefix := range ops.prefixes {
 		if len(input) >= len(prefix) && input[:len(prefix)] == prefix {
 			return true
 		}
 	}
-	
+
 	// Check suffixes (optimized string operations)
 	for _, suffix := range ops.suffixes {
 		if len(input) >= len(suffix) && input[len(input)-len(suffix):] == suffix {
 			return true
 		}
 	}
-	
+
 	// Fall back to regex matching for complex patterns
 	for _, re := range ops.patterns {
 		if re.MatchString(input) {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -127,14 +127,14 @@ func isSimplePrefix(pattern string) (string, bool) {
 			return rest, true
 		}
 	}
-	
+
 	if len(pattern) > 2 && pattern[len(pattern)-2:] == ".*" {
 		prefix := pattern[:len(pattern)-2]
 		if isLiteral(prefix) {
 			return prefix, true
 		}
 	}
-	
+
 	return "", false
 }
 
@@ -146,14 +146,14 @@ func isSimpleSuffix(pattern string) (string, bool) {
 			return rest, true
 		}
 	}
-	
+
 	if len(pattern) > 2 && pattern[:2] == ".*" {
 		suffix := pattern[2:]
 		if isLiteral(suffix) {
 			return suffix, true
 		}
 	}
-	
+
 	return "", false
 }
 
@@ -197,10 +197,10 @@ func (bm *BatchMatcher) MatchLines(lines []string, patterns []*config.RegexPatte
 		}
 		compiled[i] = re
 	}
-	
+
 	// Match lines
 	matches := make([]int, 0, len(lines)/10) // Preallocate for ~10% match rate
-	
+
 	for lineNum, line := range lines {
 		for _, re := range compiled {
 			if re != nil && re.MatchString(line) {
@@ -209,7 +209,7 @@ func (bm *BatchMatcher) MatchLines(lines []string, patterns []*config.RegexPatte
 			}
 		}
 	}
-	
+
 	return matches
 }
 

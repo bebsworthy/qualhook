@@ -43,16 +43,16 @@ func Log(format string, args ...interface{}) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	elapsed := time.Since(globalLogger.start)
 	prefix := fmt.Sprintf("[DEBUG %s] ", formatDuration(elapsed))
 	message := fmt.Sprintf(format, args...)
-	
+
 	// Ensure message ends with newline
 	if !strings.HasSuffix(message, "\n") {
 		message += "\n"
 	}
-	
+
 	_, _ = fmt.Fprint(globalLogger.writer, prefix+message) //nolint:errcheck // Debug output is best effort
 }
 
@@ -61,7 +61,7 @@ func LogSection(title string) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	Log("=== %s ===", title)
 }
 
@@ -70,7 +70,7 @@ func LogCommand(command string, args []string, workingDir string) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	LogSection("Command Execution")
 	Log("Command: %s", command)
 	if len(args) > 0 {
@@ -86,7 +86,7 @@ func LogTiming(operation string, duration time.Duration) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	Log("Timing: %s took %s", operation, formatDuration(duration))
 }
 
@@ -95,12 +95,12 @@ func LogPatternMatch(pattern, input string, matched bool) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	status := "no match"
 	if matched {
 		status = "matched"
 	}
-	
+
 	Log("Pattern: %q against %q - %s", pattern, truncate(input, 80), status)
 }
 
@@ -109,7 +109,7 @@ func LogFilterProcess(totalLines, matchedLines, outputLines int) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	Log("Filter: %d total lines -> %d matched -> %d output", totalLines, matchedLines, outputLines)
 }
 
@@ -118,7 +118,7 @@ func LogError(err error, context string) {
 	if !globalLogger.enabled {
 		return
 	}
-	
+
 	Log("Error in %s: %v", context, err)
 }
 

@@ -11,17 +11,17 @@ import (
 
 // BenchmarkOptimizedFiltering compares original vs optimized filtering
 func BenchmarkOptimizedFiltering(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 			{Pattern: `\d+:\d+:`, Flags: ""},
 			{Pattern: `failed|failure`, Flags: "i"},
 		},
-		IncludePatterns: []*config.RegexPattern{
+		ContextPatterns: []*config.RegexPattern{
 			{Pattern: `warning:`, Flags: "i"},
 		},
 		ContextLines: 2,
-		MaxOutput:    1000,
+		MaxLines:    1000,
 	}
 
 	testCases := []struct {
@@ -37,20 +37,20 @@ func BenchmarkOptimizedFiltering(b *testing.B) {
 
 	for _, tc := range testCases {
 		output := generateOutput(tc.lines, tc.errorRate)
-		
+
 		b.Run(tc.name+"_Original", func(b *testing.B) {
-			filter, _ := NewOutputFilter(filterConfig)
-			
+			filter, _ := NewOutputFilter(filterRules)
+
 			b.ResetTimer()
 			b.ReportAllocs()
 			for i := 0; i < b.N; i++ {
 				_ = filter.Filter(output)
 			}
 		})
-		
+
 		b.Run(tc.name+"_Optimized", func(b *testing.B) {
-			filter, _ := NewOptimizedOutputFilter(filterConfig)
-			
+			filter, _ := NewOptimizedOutputFilter(filterRules)
+
 			b.ResetTimer()
 			b.ReportAllocs()
 			for i := 0; i < b.N; i++ {
@@ -62,12 +62,12 @@ func BenchmarkOptimizedFiltering(b *testing.B) {
 
 // BenchmarkStreamingComparison compares streaming implementations
 func BenchmarkStreamingComparison(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error:`, Flags: "i"},
 		},
 		ContextLines: 2,
-		MaxOutput:    500,
+		MaxLines:    500,
 	}
 
 	// Generate 1MB of output
@@ -82,8 +82,8 @@ func BenchmarkStreamingComparison(b *testing.B) {
 	output := builder.String()
 
 	b.Run("Original_Streaming", func(b *testing.B) {
-		filter, _ := NewOutputFilter(filterConfig)
-		
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
@@ -91,10 +91,10 @@ func BenchmarkStreamingComparison(b *testing.B) {
 			_ = filter.FilterReader(reader)
 		}
 	})
-	
+
 	b.Run("Optimized_Streaming", func(b *testing.B) {
-		filter, _ := NewOptimizedOutputFilter(filterConfig)
-		
+		filter, _ := NewOptimizedOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
@@ -112,28 +112,28 @@ func BenchmarkWorstCaseOptimized(b *testing.B) {
 		builder.WriteString(fmt.Sprintf("ERROR: Line %d failed with error\n", i))
 	}
 	output := builder.String()
-	
-	filterConfig := &config.FilterConfig{
+
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `ERROR:`, Flags: ""},
 		},
 		ContextLines: 5,
-		MaxOutput:    100, // Much smaller than input
+		MaxLines:    100, // Much smaller than input
 	}
-	
+
 	b.Run("Original_AllMatch", func(b *testing.B) {
-		filter, _ := NewOutputFilter(filterConfig)
-		
+		filter, _ := NewOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			_ = filter.Filter(output)
 		}
 	})
-	
+
 	b.Run("Optimized_AllMatch", func(b *testing.B) {
-		filter, _ := NewOptimizedOutputFilter(filterConfig)
-		
+		filter, _ := NewOptimizedOutputFilter(filterRules)
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
@@ -144,32 +144,32 @@ func BenchmarkWorstCaseOptimized(b *testing.B) {
 
 // BenchmarkMemoryScaling tests how memory scales with input size
 func BenchmarkMemoryScaling(b *testing.B) {
-	filterConfig := &config.FilterConfig{
+	filterRules := &FilterRules{
 		ErrorPatterns: []*config.RegexPattern{
 			{Pattern: `error`, Flags: "i"},
 		},
 		ContextLines: 2,
-		MaxOutput:    100,
+		MaxLines:    100,
 	}
 
 	sizes := []int{100, 1000, 10000, 100000}
-	
+
 	for _, size := range sizes {
 		output := generateOutput(size, 0.01)
-		
+
 		b.Run(fmt.Sprintf("Original_%dLines", size), func(b *testing.B) {
-			filter, _ := NewOutputFilter(filterConfig)
-			
+			filter, _ := NewOutputFilter(filterRules)
+
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				_ = filter.Filter(output)
 			}
 		})
-		
+
 		b.Run(fmt.Sprintf("Optimized_%dLines", size), func(b *testing.B) {
-			filter, _ := NewOptimizedOutputFilter(filterConfig)
-			
+			filter, _ := NewOptimizedOutputFilter(filterRules)
+
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {

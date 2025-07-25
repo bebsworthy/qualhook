@@ -339,7 +339,7 @@ func TestExecute_DangerousCommands(t *testing.T) {
 // TestExecute_CommandWhitelist tests that command whitelisting works correctly
 func TestExecute_CommandWhitelist(t *testing.T) {
 	executor := NewCommandExecutor(10 * time.Second)
-	
+
 	// Configure the security validator with a whitelist
 	executor.securityValidator.SetAllowedCommands([]string{"echo", "npm", "go"})
 
@@ -523,7 +523,7 @@ func TestExecute_ConcurrentSecurity(t *testing.T) {
 	}
 
 	executor := NewCommandExecutor(10 * time.Second)
-	
+
 	// Number of concurrent executions
 	concurrency := 10
 	done := make(chan bool, concurrency)
@@ -545,7 +545,7 @@ func TestExecute_ConcurrentSecurity(t *testing.T) {
 
 			attempt := injectionAttempts[n%len(injectionAttempts)]
 			_, err := executor.Execute(attempt.cmd, attempt.args, ExecOptions{})
-			
+
 			if err == nil || !strings.Contains(err.Error(), "injection") {
 				t.Errorf("concurrent test %d: expected injection error, got %v", n, err)
 			}

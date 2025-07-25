@@ -14,7 +14,7 @@ import (
 
 // OutputFilter processes command output according to configured rules
 type OutputFilter struct {
-	rules         *config.FilterConfig
+	rules         *FilterRules
 	patternCache  *PatternCache
 	maxBufferSize int
 }
@@ -28,7 +28,7 @@ type FilteredOutput struct {
 }
 
 // NewOutputFilter creates a new output filter with the given rules
-func NewOutputFilter(rules *config.FilterConfig) (*OutputFilter, error) {
+func NewOutputFilter(rules *FilterRules) (*OutputFilter, error) {
 	if rules == nil {
 		return nil, fmt.Errorf("filter rules cannot be nil")
 	}
@@ -45,9 +45,9 @@ func NewOutputFilter(rules *config.FilterConfig) (*OutputFilter, error) {
 		}
 	}
 
-	for _, pattern := range rules.IncludePatterns {
+	for _, pattern := range rules.ContextPatterns {
 		if _, err := cache.GetOrCompile(pattern); err != nil {
-			return nil, fmt.Errorf("failed to compile include pattern %q: %w", pattern.Pattern, err)
+			return nil, fmt.Errorf("failed to compile context pattern %q: %w", pattern.Pattern, err)
 		}
 	}
 
@@ -90,7 +90,7 @@ func (f *OutputFilter) FilterReader(reader io.Reader) *FilteredOutput {
 				line:    line,
 				isError: true,
 			})
-		} else if f.matchesAnyPattern(line, f.rules.IncludePatterns) {
+		} else if f.matchesAnyPattern(line, f.rules.ContextPatterns) {
 			debug.LogPatternMatch("include patterns", line, true)
 			matchedLines = append(matchedLines, lineMatch{
 				lineNum: lineNum - 1,
@@ -105,7 +105,7 @@ func (f *OutputFilter) FilterReader(reader io.Reader) *FilteredOutput {
 
 	// Apply truncation if needed
 	truncated := false
-	if f.rules.MaxOutput > 0 && len(extractedLines) > f.rules.MaxOutput {
+	if f.rules.MaxLines > 0 && len(extractedLines) > f.rules.MaxLines {
 		// Re-map matched lines to their positions in extractedLines
 		remappedMatches := f.remapMatches(allLines, extractedLines, matchedLines)
 		extractedLines = f.intelligentTruncate(extractedLines, remappedMatches)
@@ -149,9 +149,9 @@ func (f *OutputFilter) FilterBoth(stdout, stderr string) *FilteredOutput {
 	}
 
 	// Re-apply truncation to combined output
-	if f.rules.MaxOutput > 0 && len(combined.Lines) > f.rules.MaxOutput {
-		combined.Lines = combined.Lines[:f.rules.MaxOutput]
-		combined.Lines = append(combined.Lines, fmt.Sprintf("\n... truncated %d lines ...", len(combined.Lines)-f.rules.MaxOutput))
+	if f.rules.MaxLines > 0 && len(combined.Lines) > f.rules.MaxLines {
+		combined.Lines = combined.Lines[:f.rules.MaxLines]
+		combined.Lines = append(combined.Lines, fmt.Sprintf("\n... truncated %d lines ...", len(combined.Lines)-f.rules.MaxLines))
 		combined.Truncated = true
 	}
 
@@ -230,7 +230,7 @@ func (f *OutputFilter) matchesAnyPattern(line string, patterns []*config.RegexPa
 func (f *OutputFilter) extractLinesWithContext(allLines []string, matches []lineMatch) []string {
 	if len(matches) == 0 {
 		// No matches, return all lines if MaxOutput not set or small enough
-		if f.rules.MaxOutput <= 0 || len(allLines) <= f.rules.MaxOutput {
+		if f.rules.MaxLines <= 0 || len(allLines) <= f.rules.MaxLines {
 			return allLines
 		}
 		// Otherwise return a sample
@@ -305,7 +305,7 @@ func (f *OutputFilter) remapMatches(allLines, extractedLines []string, originalM
 }
 
 func (f *OutputFilter) intelligentTruncate(lines []string, matches []lineMatch) []string {
-	if len(lines) <= f.rules.MaxOutput {
+	if len(lines) <= f.rules.MaxLines {
 		return lines
 	}
 
@@ -324,7 +324,7 @@ func (f *OutputFilter) intelligentTruncate(lines []string, matches []lineMatch) 
 
 	// First pass: include all error lines
 	for i, line := range lines {
-		if errorIndices[i] && len(result) < f.rules.MaxOutput-1 { // Reserve space for truncation message
+		if errorIndices[i] && len(result) < f.rules.MaxLines-1 { // Reserve space for truncation message
 			result = append(result, line)
 			includedIndices[i] = true
 			errorCount++
@@ -332,7 +332,7 @@ func (f *OutputFilter) intelligentTruncate(lines []string, matches []lineMatch) 
 	}
 
 	// Second pass: fill remaining space with other lines
-	remaining := f.rules.MaxOutput - len(result) - 1 // Reserve space for truncation message
+	remaining := f.rules.MaxLines - len(result) - 1 // Reserve space for truncation message
 	for i, line := range lines {
 		if remaining <= 0 {
 			break
@@ -407,15 +407,10 @@ func NewSimpleOutputFilter() *OutputFilter {
 func (o *OutputFilter) FilterWithRules(output string, rules *FilterRules) *FilteredOutput {
 	// Create a temporary filter with the rules
 	filter := &OutputFilter{
-		rules: &config.FilterConfig{
-			ErrorPatterns:   rules.ErrorPatterns,
-			IncludePatterns: rules.ContextPatterns,
-			MaxOutput:       rules.MaxLines,
-			ContextLines:    rules.ContextLines,
-		},
+		rules:         rules,
 		patternCache:  o.patternCache,
 		maxBufferSize: o.maxBufferSize,
 	}
-	
+
 	return filter.Filter(output)
 }

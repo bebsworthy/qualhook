@@ -22,7 +22,7 @@ func TestNewErrorReporter(t *testing.T) {
 
 func TestReport_NoErrors(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Path:    ".",
@@ -32,15 +32,13 @@ func TestReport_NoErrors(t *testing.T) {
 				Stdout:   "All checks passed",
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	if report.ExitCode != 0 {
 		t.Errorf("expected exit code 0, got %d", report.ExitCode)
 	}
@@ -54,7 +52,7 @@ func TestReport_NoErrors(t *testing.T) {
 
 func TestReport_WithErrors(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Path:    ".",
@@ -68,16 +66,14 @@ func TestReport_WithErrors(t *testing.T) {
 				HasErrors: true,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 				Prompt: "Fix the linting errors below:",
 			},
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	if report.ExitCode != 2 {
 		t.Errorf("expected exit code 2 for LLM errors, got %d", report.ExitCode)
 	}
@@ -94,13 +90,13 @@ func TestReport_WithErrors(t *testing.T) {
 
 func TestReport_ExecutionError(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	execErr := &executor.ExecError{
 		Type:    executor.ErrorTypeCommandNotFound,
 		Command: "eslint",
 		Err:     errors.New("command not found"),
 	}
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Path:           ".",
@@ -108,9 +104,9 @@ func TestReport_ExecutionError(t *testing.T) {
 			ExecutionError: execErr,
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	if report.ExitCode != 1 {
 		t.Errorf("expected exit code 1 for execution errors, got %d", report.ExitCode)
 	}
@@ -127,7 +123,7 @@ func TestReport_ExecutionError(t *testing.T) {
 
 func TestReport_MonorepoMultipleComponents(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Path:    "frontend",
@@ -141,9 +137,7 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 				HasErrors: true,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 		{
@@ -158,15 +152,13 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 				HasErrors: true,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	if report.ExitCode != 2 {
 		t.Errorf("expected exit code 2, got %d", report.ExitCode)
 	}
@@ -183,7 +175,7 @@ func TestReport_MonorepoMultipleComponents(t *testing.T) {
 
 func TestReport_TruncatedOutput(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Path:    ".",
@@ -198,15 +190,13 @@ func TestReport_TruncatedOutput(t *testing.T) {
 				TotalLines: 500,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	if !strings.Contains(report.Stderr, "Output truncated") {
 		t.Errorf("expected truncation message, got %q", report.Stderr)
 	}
@@ -217,7 +207,7 @@ func TestReport_TruncatedOutput(t *testing.T) {
 
 func TestHasErrors(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	tests := []struct {
 		name     string
 		result   executor.ComponentExecResult
@@ -228,9 +218,7 @@ func TestHasErrors(t *testing.T) {
 			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 1},
 				CommandConfig: &config.CommandConfig{
-					ErrorDetection: &config.ErrorDetection{
-						ExitCodes: []int{1, 2},
-					},
+					ExitCodes: []int{1, 2},
 				},
 			},
 			expected: true,
@@ -240,9 +228,7 @@ func TestHasErrors(t *testing.T) {
 			result: executor.ComponentExecResult{
 				ExecResult: &executor.ExecResult{ExitCode: 0},
 				CommandConfig: &config.CommandConfig{
-					ErrorDetection: &config.ErrorDetection{
-						ExitCodes: []int{1, 2},
-					},
+					ExitCodes: []int{1, 2},
 				},
 			},
 			expected: false,
@@ -270,7 +256,7 @@ func TestHasErrors(t *testing.T) {
 			expected: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := reporter.hasErrors(tt.result)
@@ -283,7 +269,7 @@ func TestHasErrors(t *testing.T) {
 
 func TestGetPrompt(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	tests := []struct {
 		name       string
 		command    string
@@ -329,7 +315,7 @@ func TestGetPrompt(t *testing.T) {
 			expected:   "Fix the following errors:",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := reporter.getPrompt(tt.command, tt.components)
@@ -342,14 +328,14 @@ func TestGetPrompt(t *testing.T) {
 
 func TestReportSingleError(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	report := reporter.ReportSingleError(
 		"Configuration Error",
 		"Invalid JSON syntax",
 		"Check line 10 of qualhook.json",
 		"Ensure proper comma placement",
 	)
-	
+
 	if report.ExitCode != 1 {
 		t.Errorf("expected exit code 1, got %d", report.ExitCode)
 	}
@@ -375,7 +361,7 @@ func TestReportSingleError(t *testing.T) {
 
 func TestFormatExecutionError(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	tests := []struct {
 		name     string
 		result   executor.ComponentExecResult
@@ -441,7 +427,7 @@ func TestFormatExecutionError(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			msg := reporter.formatExecutionError(tt.result, tt.execErr)
@@ -456,28 +442,28 @@ func TestFormatExecutionError(t *testing.T) {
 
 func TestGroupByCommand(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	components := []executor.ComponentExecResult{
 		{Command: "lint", Path: "frontend"},
 		{Command: "test", Path: "backend"},
 		{Command: "lint", Path: "backend"},
 		{Command: "format", Path: "shared"},
 	}
-	
+
 	groups := reporter.groupByCommand(components)
-	
+
 	if len(groups) != 3 {
 		t.Errorf("expected 3 groups, got %d", len(groups))
 	}
-	
+
 	if len(groups["lint"]) != 2 {
 		t.Errorf("expected 2 lint components, got %d", len(groups["lint"]))
 	}
-	
+
 	if len(groups["test"]) != 1 {
 		t.Errorf("expected 1 test component, got %d", len(groups["test"]))
 	}
-	
+
 	if len(groups["format"]) != 1 {
 		t.Errorf("expected 1 format component, got %d", len(groups["format"]))
 	}
@@ -485,7 +471,7 @@ func TestGroupByCommand(t *testing.T) {
 
 func TestReport_FallbackToRawOutput(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	tests := []struct {
 		name     string
 		result   executor.ComponentExecResult
@@ -500,9 +486,7 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 					Stderr:   "Error on line 10",
 				},
 				CommandConfig: &config.CommandConfig{
-					ErrorDetection: &config.ErrorDetection{
-						ExitCodes: []int{1},
-					},
+					ExitCodes: []int{1},
 				},
 			},
 			expected: "Error on line 10",
@@ -516,15 +500,13 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 					Stdout:   "Test failed: assertion error",
 				},
 				CommandConfig: &config.CommandConfig{
-					ErrorDetection: &config.ErrorDetection{
-						ExitCodes: []int{1},
-					},
+					ExitCodes: []int{1},
 				},
 			},
 			expected: "Test failed: assertion error",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			report := reporter.Report([]executor.ComponentExecResult{tt.result})
@@ -537,7 +519,7 @@ func TestReport_FallbackToRawOutput(t *testing.T) {
 
 func TestReport_MixedResults(t *testing.T) {
 	reporter := NewErrorReporter()
-	
+
 	results := []executor.ComponentExecResult{
 		{
 			Command: "lint",
@@ -545,9 +527,7 @@ func TestReport_MixedResults(t *testing.T) {
 				ExitCode: 0,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 		{
@@ -561,15 +541,13 @@ func TestReport_MixedResults(t *testing.T) {
 				HasErrors: true,
 			},
 			CommandConfig: &config.CommandConfig{
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 		},
 	}
-	
+
 	report := reporter.Report(results)
-	
+
 	// Should report errors despite one success
 	if report.ExitCode != 2 {
 		t.Errorf("expected exit code 2, got %d", report.ExitCode)

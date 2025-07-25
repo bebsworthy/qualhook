@@ -29,7 +29,7 @@ func TestRun_ExistingConfig(t *testing.T) {
 	// Create temp directory with existing config
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "qualhook.json")
-	
+
 	existingConfig := &pkgconfig.Config{
 		Version: "1.0",
 		Commands: map[string]*pkgconfig.CommandConfig{
@@ -38,12 +38,12 @@ func TestRun_ExistingConfig(t *testing.T) {
 	}
 	configData, _ := pkgconfig.SaveConfig(existingConfig)
 	os.WriteFile(configPath, configData, 0644)
-	
+
 	wizard, err := NewConfigWizard()
 	if err != nil {
 		t.Fatalf("NewConfigWizard() failed: %v", err)
 	}
-	
+
 	// Run without force flag
 	err = wizard.Run(configPath, false)
 	if err == nil {
@@ -70,13 +70,9 @@ func TestValidateConfig(t *testing.T) {
 					"lint": {
 						Command: "npm",
 						Args:    []string{"run", "lint"},
-						ErrorDetection: &pkgconfig.ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &pkgconfig.FilterConfig{
-							ErrorPatterns: []*pkgconfig.RegexPattern{
-								{Pattern: "error"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*pkgconfig.RegexPattern{
+							{Pattern: "error"},
 						},
 					},
 				},
@@ -100,7 +96,7 @@ func TestValidateConfig(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.config.Validate()

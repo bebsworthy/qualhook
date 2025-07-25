@@ -1,38 +1,141 @@
 {
   "version": "1.0",
+  "projectType": "go",
   "commands": {
     "format": {
-      "command": "npm",
-      "args": ["run", "format"],
-      "errorDetection": {
-        "exitCodes": [1]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "error", "flags": "i" }
-        ],
-        "maxOutput": 50
-      },
-      "prompt": "Fix the formatting issues below:"
+      "command": "go",
+      "args": [
+        "fmt",
+        "./..."
+      ],
+      "prompt": "Format the following Go files:",
+      "timeout": 10000,
+      "exitCodes": [
+        1
+      ],
+      "errorPatterns": [
+        {
+          "pattern": "^.+\\.go$",
+          "flags": "m"
+        }
+      ],
+      "maxOutput": 50
     },
     "lint": {
-      "command": "npm",
-      "args": ["run", "lint"],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "\\d+ errors?", "flags": "i" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "error", "flags": "i" },
-          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
-        ],
-        "contextLines": 2,
-        "maxOutput": 100
-      },
-      "prompt": "Fix the linting errors below:"
+      "command": "golangci-lint",
+      "args": [
+        "run"
+      ],
+      "prompt": "Fix the linting issues below:",
+      "timeout": 120000,
+      "exitCodes": [
+        1
+      ],
+      "errorPatterns": [
+        {
+          "pattern": "^[^:]+:\\d+:\\d+:",
+          "flags": "m"
+        },
+        {
+          "pattern": "^\\s*(Error|Warning):",
+          "flags": "mi"
+        }
+      ],
+      "contextLines": 2,
+      "maxOutput": 200
+    },
+    "test": {
+      "command": "go",
+      "args": [
+        "test",
+        "./...",
+        "-v"
+      ],
+      "prompt": "Fix the failing Go tests below:",
+      "timeout": 300000,
+      "exitCodes": [
+        1
+      ],
+      "errorPatterns": [
+        {
+          "pattern": "--- FAIL:"
+        },
+        {
+          "pattern": "\\s+Error:"
+        },
+        {
+          "pattern": "\\s+Error Trace:"
+        },
+        {
+          "pattern": "\\s+Test:"
+        },
+        {
+          "pattern": "panic:"
+        },
+        {
+          "pattern": "goroutine \\d+"
+        }
+      ],
+      "contextLines": 10,
+      "maxOutput": 300
+    },
+    "typecheck": {
+      "command": "go",
+      "args": [
+        "build",
+        "-o",
+        "/dev/null",
+        "./..."
+      ],
+      "prompt": "Fix the Go compilation errors below:",
+      "timeout": 60000,
+      "exitCodes": [
+        1,
+        2
+      ],
+      "errorPatterns": [
+        {
+          "pattern": "^[^:]+:\\d+:\\d+:",
+          "flags": "m"
+        },
+        {
+          "pattern": "cannot use"
+        },
+        {
+          "pattern": "undefined:"
+        },
+        {
+          "pattern": "cannot find package"
+        },
+        {
+          "pattern": "imported and not used"
+        }
+      ],
+      "contextLines": 3,
+      "maxOutput": 150
+    },
+    "vet": {
+      "command": "go",
+      "args": [
+        "vet",
+        "./..."
+      ],
+      "prompt": "Fix the go vet issues below:",
+      "timeout": 30000,
+      "exitCodes": [
+        1
+      ],
+      "errorPatterns": [
+        {
+          "pattern": "^[^:]+:\\d+:\\d+:",
+          "flags": "m"
+        },
+        {
+          "pattern": "vet:"
+        }
+      ],
+      "contextLines": 2,
+      "maxOutput": 100
     }
   }
 }

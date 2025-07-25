@@ -15,7 +15,7 @@ func TestPatternCache_ReDoSPrevention(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create pattern cache: %v", err)
 	}
-	
+
 	secValidator := security.NewSecurityValidator()
 
 	tests := []struct {
@@ -182,7 +182,7 @@ func TestPatternCache_SafePatterns(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create pattern cache: %v", err)
 	}
-	
+
 	secValidator := security.NewSecurityValidator()
 
 	safePatterns := []struct {
@@ -253,7 +253,7 @@ func TestPatternCache_ConcurrentAccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create pattern cache: %v", err)
 	}
-	
+
 	patterns := []*config.RegexPattern{
 		{Pattern: `error:\s*(.+)`},
 		{Pattern: `warning:\s*(.+)`},

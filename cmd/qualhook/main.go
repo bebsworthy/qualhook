@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/bebsworthy/qualhook/internal/config"
 	"github.com/bebsworthy/qualhook/internal/debug"
 	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
+	"github.com/spf13/cobra"
 )
 
 // Version is set at build time via ldflags
@@ -86,17 +86,17 @@ For more information, see: https://github.com/bebsworthy/qualhook`,
   # CI/CD integration
   qualhook lint || exit 2`,
 	}
-	
+
 	// Global flags
 	cmd.PersistentFlags().BoolVar(&debugFlag, "debug", false, "Enable debug output")
 	cmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to configuration file")
 
 	// Disable the default completion command
 	cmd.CompletionOptions.DisableDefaultCmd = true
-	
+
 	// Allow interspersed args for custom commands
 	cmd.Flags().SetInterspersed(false)
-	
+
 	// Add subcommands
 	cmd.AddCommand(formatCmd)
 	cmd.AddCommand(lintCmd)
@@ -104,7 +104,7 @@ For more information, see: https://github.com/bebsworthy/qualhook`,
 	cmd.AddCommand(testCmd)
 	cmd.AddCommand(configCmd)
 	cmd.AddCommand(templateCmd)
-	
+
 	return cmd
 }
 
@@ -119,7 +119,7 @@ func main() {
 			break
 		}
 	}
-	
+
 	// Check if the first argument might be a custom command
 	if len(os.Args) > 1 && !strings.HasPrefix(os.Args[1], "-") {
 		// Check if it's a known command
@@ -132,18 +132,18 @@ func main() {
 				break
 			}
 		}
-		
+
 		// If not a known command, try to execute as custom command
 		if !isKnown {
 			// Extract global flags first
 			parseGlobalFlags()
-			
+
 			if err := tryCustomCommand(cmdName, extractNonFlagArgs(os.Args[2:])); err == nil {
 				return
 			}
 		}
 	}
-	
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

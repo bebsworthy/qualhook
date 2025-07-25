@@ -140,7 +140,7 @@ func TestProjectDetector_Detect(t *testing.T) {
 			foundTypes := make(map[string]bool)
 			for _, result := range results {
 				foundTypes[result.Name] = true
-				
+
 				// Check confidence
 				if result.Confidence < tt.minConfidence {
 					t.Errorf("Project type %s has confidence %f, expected at least %f",
@@ -232,7 +232,7 @@ func TestProjectDetector_DetectInvalidPath(t *testing.T) {
 
 func TestProjectDetector_ConfidenceScoring(t *testing.T) {
 	detector := New()
-	
+
 	tests := []struct {
 		name               string
 		files              []string
@@ -475,13 +475,13 @@ func TestProjectDetector_NestedProjects(t *testing.T) {
 	// scripts/: Python
 
 	files := map[string]string{
-		"package.json":                     `{"name": "root"}`,
-		"frontend/package.json":            `{"name": "frontend"}`,
-		"frontend/tsconfig.json":           `{}`,
-		"backend/go.mod":                   `module backend`,
-		"backend/go.sum":                   ``,
-		"scripts/requirements.txt":         `requests==2.28.0`,
-		"scripts/setup.py":                 ``,
+		"package.json":             `{"name": "root"}`,
+		"frontend/package.json":    `{"name": "frontend"}`,
+		"frontend/tsconfig.json":   `{}`,
+		"backend/go.mod":           `module backend`,
+		"backend/go.sum":           ``,
+		"scripts/requirements.txt": `requests==2.28.0`,
+		"scripts/setup.py":         ``,
 	}
 
 	for path, content := range files {
@@ -553,14 +553,14 @@ func TestProjectDetector_MonorepoSubProjects(t *testing.T) {
 
 	// Create a lerna monorepo with different project types
 	files := map[string]string{
-		"lerna.json":                       `{"version": "1.0.0"}`,
-		"package.json":                     `{"name": "monorepo"}`,
-		"packages/web/package.json":        `{"name": "web"}`,
-		"packages/web/tsconfig.json":       `{}`,
-		"packages/api/go.mod":              `module api`,
-		"packages/api/go.sum":              ``,
-		"packages/cli/Cargo.toml":          `[package]\nname = "cli"`,
-		"packages/scripts/pyproject.toml":  `[tool.poetry]\nname = "scripts"`,
+		"lerna.json":                      `{"version": "1.0.0"}`,
+		"package.json":                    `{"name": "monorepo"}`,
+		"packages/web/package.json":       `{"name": "web"}`,
+		"packages/web/tsconfig.json":      `{}`,
+		"packages/api/go.mod":             `module api`,
+		"packages/api/go.sum":             ``,
+		"packages/cli/Cargo.toml":         `[package]\nname = "cli"`,
+		"packages/scripts/pyproject.toml": `[tool.poetry]\nname = "scripts"`,
 	}
 
 	for path, content := range files {

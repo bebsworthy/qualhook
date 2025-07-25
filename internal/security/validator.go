@@ -372,8 +372,8 @@ func (v *SecurityValidator) checkBannedPaths(absPath string) error {
 	for _, banned := range v.bannedPaths {
 		// Normalize the banned path for comparison
 		normalizedBanned := filepath.Clean(banned)
-		if strings.HasPrefix(absPath, normalizedBanned) || 
-		   strings.HasPrefix(strings.ToLower(absPath), strings.ToLower(normalizedBanned)) {
+		if strings.HasPrefix(absPath, normalizedBanned) ||
+			strings.HasPrefix(strings.ToLower(absPath), strings.ToLower(normalizedBanned)) {
 			return fmt.Errorf("access to path '%s' is forbidden", banned)
 		}
 	}
@@ -441,13 +441,13 @@ func isDangerousCommand(baseCmd string) bool {
 func (v *SecurityValidator) validateRemoveCommand(baseCmd string, args []string) error {
 	hasRecursive := false
 	hasForce := false
-	
+
 	for _, arg := range args {
 		// Check for combined flags
 		if arg == "-rf" || arg == "-fr" {
 			return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
 		}
-		
+
 		// Check individual flags
 		if arg == "-r" || arg == "-R" || arg == "--recursive" {
 			hasRecursive = true
@@ -456,11 +456,11 @@ func (v *SecurityValidator) validateRemoveCommand(baseCmd string, args []string)
 			hasForce = true
 		}
 	}
-	
+
 	if hasRecursive && hasForce {
 		return fmt.Errorf("dangerous %s command with force/recursive flags", baseCmd)
 	}
-	
+
 	return nil
 }
 

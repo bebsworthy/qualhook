@@ -350,7 +350,7 @@ func TestValidateResourceLimits(t *testing.T) {
 	}{
 		{
 			name:        "valid limits",
-			outputSize:  1024 * 1024, // 1MB
+			outputSize:  1024 * 1024,       // 1MB
 			memoryLimit: 256 * 1024 * 1024, // 256MB
 			wantErr:     false,
 		},

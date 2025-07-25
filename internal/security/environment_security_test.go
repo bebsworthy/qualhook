@@ -492,7 +492,7 @@ func TestEnvironmentSanitization_RealWorldScenarios(t *testing.T) {
 
 			for _, forbidden := range scenario.checkNotIn {
 				if strings.Contains(sanitizedStr, forbidden) {
-					t.Errorf("Scenario %q: Found forbidden string %q in sanitized environment", 
+					t.Errorf("Scenario %q: Found forbidden string %q in sanitized environment",
 						scenario.name, forbidden)
 				}
 			}
@@ -503,7 +503,7 @@ func TestEnvironmentSanitization_RealWorldScenarios(t *testing.T) {
 
 			for _, forbidden := range scenario.checkNotIn {
 				if strings.Contains(minimalStr, forbidden) {
-					t.Errorf("Scenario %q (minimal): Found forbidden string %q in sanitized environment", 
+					t.Errorf("Scenario %q (minimal): Found forbidden string %q in sanitized environment",
 						scenario.name, forbidden)
 				}
 			}

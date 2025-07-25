@@ -4,13 +4,13 @@ package executor
 const (
 	// Operating system constants
 	osWindows = "windows"
-	
+
 	// Command constants
 	echoCommand = "echo"
 	cmdCommand  = "cmd"
 	shCommand   = "sh"
-	
+
 	// Command arguments
-	cmdArgC     = "/C"
-	shArgC      = "-c"
+	cmdArgC = "/C"
+	shArgC  = "-c"
 )

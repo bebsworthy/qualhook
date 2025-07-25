@@ -12,14 +12,14 @@ import (
 
 // OptimizedOutputFilter provides memory-efficient output filtering
 type OptimizedOutputFilter struct {
-	rules         *config.FilterConfig
+	rules         *FilterRules
 	patternCache  *PatternCache
 	bufferPool    *sync.Pool
 	maxBufferSize int
 }
 
 // NewOptimizedOutputFilter creates a new optimized output filter
-func NewOptimizedOutputFilter(rules *config.FilterConfig) (*OptimizedOutputFilter, error) {
+func NewOptimizedOutputFilter(rules *FilterRules) (*OptimizedOutputFilter, error) {
 	cache, err := NewPatternCache()
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func NewOptimizedOutputFilter(rules *config.FilterConfig) (*OptimizedOutputFilte
 		}
 	}
 
-	for _, pattern := range rules.IncludePatterns {
+	for _, pattern := range rules.ContextPatterns {
 		if _, err := cache.GetOrCompile(pattern); err != nil {
 			return nil, err
 		}
@@ -63,8 +63,8 @@ func (f *OptimizedOutputFilter) FilterReaderOptimized(reader io.Reader) *Filtere
 	scanner.Buffer(buf, f.maxBufferSize)
 
 	// Use circular buffer for context lines
-	contextBuffer := NewCircularBuffer(f.rules.ContextLines * 2 + 1)
-	
+	contextBuffer := NewCircularBuffer(f.rules.ContextLines*2 + 1)
+
 	result := &FilteredOutput{
 		Lines:     make([]string, 0, 100), // Pre-allocate reasonable size
 		HasErrors: false,
@@ -86,7 +86,7 @@ func (f *OptimizedOutputFilter) FilterReaderOptimized(reader io.Reader) *Filtere
 
 		// Check if line matches patterns
 		isError := f.matchesAnyPattern(line, f.rules.ErrorPatterns)
-		isInclude := !isError && f.matchesAnyPattern(line, f.rules.IncludePatterns)
+		isInclude := !isError && f.matchesAnyPattern(line, f.rules.ContextPatterns)
 
 		if isError || isInclude {
 			result.HasErrors = result.HasErrors || isError
@@ -94,7 +94,7 @@ func (f *OptimizedOutputFilter) FilterReaderOptimized(reader io.Reader) *Filtere
 			// Add context lines before the match
 			contextLines := contextBuffer.GetContext(f.rules.ContextLines)
 			for _, contextLine := range contextLines {
-				if capturedLines < f.rules.MaxOutput {
+				if capturedLines < f.rules.MaxLines {
 					result.Lines = append(result.Lines, contextLine)
 					capturedLines++
 				}
@@ -104,7 +104,7 @@ func (f *OptimizedOutputFilter) FilterReaderOptimized(reader io.Reader) *Filtere
 			pendingContext = f.rules.ContextLines
 		} else if pendingContext > 0 {
 			// Capture context lines after a match
-			if capturedLines < f.rules.MaxOutput {
+			if capturedLines < f.rules.MaxLines {
 				result.Lines = append(result.Lines, line)
 				capturedLines++
 			}
@@ -112,7 +112,7 @@ func (f *OptimizedOutputFilter) FilterReaderOptimized(reader io.Reader) *Filtere
 		}
 
 		// Check if we've hit the output limit
-		if capturedLines >= f.rules.MaxOutput {
+		if capturedLines >= f.rules.MaxLines {
 			result.Truncated = true
 			// Continue scanning to count total lines but don't store
 		}
@@ -152,17 +152,17 @@ func (cb *CircularBuffer) GetContext(n int) []string {
 	if n > cb.count {
 		n = cb.count
 	}
-	
+
 	result := make([]string, 0, n)
 	start := (cb.head - n + cb.size) % cb.size
-	
+
 	for i := 0; i < n; i++ {
 		idx := (start + i) % cb.size
 		if cb.buffer[idx] != "" {
 			result = append(result, cb.buffer[idx])
 		}
 	}
-	
+
 	return result
 }
 

@@ -28,18 +28,11 @@ func TestValidator_Validate(t *testing.T) {
 					"lint": {
 						Command: "npm",
 						Args:    []string{"run", "lint"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
-							Patterns: []*config.RegexPattern{
-								{Pattern: "error:", Flags: "i"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "\\d+:\\d+\\s+error", Flags: ""},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "\\d+:\\d+\\s+error", Flags: ""},
-							},
-							MaxOutput: 100,
-						},
+						MaxOutput: 100,
 						Timeout: 5000,
 					},
 				},
@@ -55,10 +48,8 @@ func TestValidator_Validate(t *testing.T) {
 						Command: "npm",
 						Args:    []string{"test"},
 						Timeout: 50, // Too short
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "fail", Flags: "i"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "fail", Flags: "i"},
 						},
 					},
 				},
@@ -75,10 +66,8 @@ func TestValidator_Validate(t *testing.T) {
 						Command: "npm",
 						Args:    []string{"test"},
 						Timeout: 3700000, // More than 1 hour
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "fail", Flags: "i"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "fail", Flags: "i"},
 						},
 					},
 				},
@@ -93,15 +82,8 @@ func TestValidator_Validate(t *testing.T) {
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
 						Command: "eslint",
-						ErrorDetection: &config.ErrorDetection{
-							Patterns: []*config.RegexPattern{
-								{Pattern: "(.*)*", Flags: ""}, // Catastrophic backtracking
-							},
-						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error", Flags: "i"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "(.*)*", Flags: ""}, // Catastrophic backtracking
 						},
 					},
 				},
@@ -116,10 +98,8 @@ func TestValidator_Validate(t *testing.T) {
 				Commands: map[string]*config.CommandConfig{
 					"build": {
 						Command: "make",
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error", Flags: "i"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error", Flags: "i"},
 						},
 					},
 				},
@@ -130,10 +110,8 @@ func TestValidator_Validate(t *testing.T) {
 							"build": {
 								Command: "make",
 								Args:    []string{"all"},
-								OutputFilter: &config.FilterConfig{
-									ErrorPatterns: []*config.RegexPattern{
-										{Pattern: "error", Flags: "i"},
-									},
+								ErrorPatterns: []*config.RegexPattern{
+									{Pattern: "error", Flags: "i"},
 								},
 							},
 						},
@@ -173,10 +151,8 @@ func TestValidator_ValidateCommand(t *testing.T) {
 			command: &config.CommandConfig{
 				Command: "npm",
 				Args:    []string{"run", "test"},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "FAIL", Flags: ""},
-					},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "FAIL", Flags: ""},
 				},
 			},
 			wantErr: false,
@@ -186,10 +162,8 @@ func TestValidator_ValidateCommand(t *testing.T) {
 			command: &config.CommandConfig{
 				Command: "rm", // Dangerous command
 				Args:    []string{"-rf", "/"},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
 			},
 			wantErr: true,
@@ -352,7 +326,7 @@ func TestValidator_SuggestFixes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.errMsg, func(t *testing.T) {
 			suggestions := validator.SuggestFixes(fmt.Errorf("%s", tt.errMsg))
-			
+
 			for _, want := range tt.wantSuggest {
 				found := false
 				for _, got := range suggestions {

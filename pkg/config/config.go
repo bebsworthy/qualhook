@@ -18,12 +18,15 @@ type Config struct {
 
 // CommandConfig defines configuration for a single command
 type CommandConfig struct {
-	Command        string          `json:"command"`
-	Args           []string        `json:"args,omitempty"`
-	ErrorDetection *ErrorDetection `json:"errorDetection"`
-	OutputFilter   *FilterConfig   `json:"outputFilter"`
-	Prompt         string          `json:"prompt,omitempty"`
-	Timeout        int             `json:"timeout,omitempty"` // milliseconds
+	Command         string           `json:"command"`
+	Args            []string         `json:"args,omitempty"`
+	Prompt          string           `json:"prompt,omitempty"`
+	Timeout         int              `json:"timeout,omitempty"` // milliseconds
+	ExitCodes       []int            `json:"exitCodes,omitempty"`
+	ErrorPatterns   []*RegexPattern  `json:"errorPatterns,omitempty"`
+	ContextLines    int              `json:"contextLines,omitempty"`
+	MaxOutput       int              `json:"maxOutput,omitempty"`
+	IncludePatterns []*RegexPattern  `json:"includePatterns,omitempty"`
 }
 
 // PathConfig defines path-specific configuration for monorepo support
@@ -33,19 +36,6 @@ type PathConfig struct {
 	Commands map[string]*CommandConfig `json:"commands"`
 }
 
-// ErrorDetection defines how to detect errors in command output
-type ErrorDetection struct {
-	ExitCodes []int           `json:"exitCodes,omitempty"`
-	Patterns  []*RegexPattern `json:"patterns,omitempty"`
-}
-
-// FilterConfig defines output filtering rules
-type FilterConfig struct {
-	ErrorPatterns   []*RegexPattern `json:"errorPatterns"`
-	ContextLines    int             `json:"contextLines,omitempty"`
-	MaxOutput       int             `json:"maxOutput,omitempty"`
-	IncludePatterns []*RegexPattern `json:"includePatterns,omitempty"`
-}
 
 // RegexPattern represents a regex pattern with optional flags
 type RegexPattern struct {
@@ -86,16 +76,26 @@ func (c *CommandConfig) Validate() error {
 		return fmt.Errorf("command is required")
 	}
 
-	if c.ErrorDetection != nil {
-		if err := c.ErrorDetection.Validate(); err != nil {
-			return fmt.Errorf("error detection: %w", err)
+	// Validate error patterns
+	for i, pattern := range c.ErrorPatterns {
+		if err := pattern.Validate(); err != nil {
+			return fmt.Errorf("error pattern %d: %w", i, err)
 		}
 	}
 
-	if c.OutputFilter != nil {
-		if err := c.OutputFilter.Validate(); err != nil {
-			return fmt.Errorf("output filter: %w", err)
+	// Validate include patterns
+	for i, pattern := range c.IncludePatterns {
+		if err := pattern.Validate(); err != nil {
+			return fmt.Errorf("include pattern %d: %w", i, err)
 		}
+	}
+
+	if c.ContextLines < 0 {
+		return fmt.Errorf("context lines must be non-negative")
+	}
+
+	if c.MaxOutput < 0 {
+		return fmt.Errorf("max output must be non-negative")
 	}
 
 	if c.Timeout < 0 {
@@ -120,45 +120,6 @@ func (p *PathConfig) Validate() error {
 	return nil
 }
 
-// Validate performs validation on the ErrorDetection
-func (e *ErrorDetection) Validate() error {
-	for i, pattern := range e.Patterns {
-		if err := pattern.Validate(); err != nil {
-			return fmt.Errorf("pattern %d: %w", i, err)
-		}
-	}
-
-	return nil
-}
-
-// Validate performs validation on the FilterConfig
-func (f *FilterConfig) Validate() error {
-	if len(f.ErrorPatterns) == 0 {
-		return fmt.Errorf("at least one error pattern is required")
-	}
-
-	for i, pattern := range f.ErrorPatterns {
-		if err := pattern.Validate(); err != nil {
-			return fmt.Errorf("error pattern %d: %w", i, err)
-		}
-	}
-
-	for i, pattern := range f.IncludePatterns {
-		if err := pattern.Validate(); err != nil {
-			return fmt.Errorf("include pattern %d: %w", i, err)
-		}
-	}
-
-	if f.ContextLines < 0 {
-		return fmt.Errorf("context lines must be non-negative")
-	}
-
-	if f.MaxOutput < 0 {
-		return fmt.Errorf("max output must be non-negative")
-	}
-
-	return nil
-}
 
 // Validate performs validation on the RegexPattern
 func (r *RegexPattern) Validate() error {
@@ -244,9 +205,11 @@ func (c *CommandConfig) Clone() *CommandConfig {
 	}
 
 	clone := &CommandConfig{
-		Command: c.Command,
-		Prompt:  c.Prompt,
-		Timeout: c.Timeout,
+		Command:      c.Command,
+		Prompt:       c.Prompt,
+		Timeout:      c.Timeout,
+		ContextLines: c.ContextLines,
+		MaxOutput:    c.MaxOutput,
 	}
 
 	if c.Args != nil {
@@ -254,59 +217,14 @@ func (c *CommandConfig) Clone() *CommandConfig {
 		copy(clone.Args, c.Args)
 	}
 
-	if c.ErrorDetection != nil {
-		clone.ErrorDetection = c.ErrorDetection.Clone()
+	if c.ExitCodes != nil {
+		clone.ExitCodes = make([]int, len(c.ExitCodes))
+		copy(clone.ExitCodes, c.ExitCodes)
 	}
 
-	if c.OutputFilter != nil {
-		clone.OutputFilter = c.OutputFilter.Clone()
-	}
-
-	return clone
-}
-
-// Clone creates a deep copy of the ErrorDetection
-func (e *ErrorDetection) Clone() *ErrorDetection {
-	if e == nil {
-		return nil
-	}
-
-	clone := &ErrorDetection{}
-
-	if e.ExitCodes != nil {
-		clone.ExitCodes = make([]int, len(e.ExitCodes))
-		copy(clone.ExitCodes, e.ExitCodes)
-	}
-
-	if e.Patterns != nil {
-		clone.Patterns = make([]*RegexPattern, len(e.Patterns))
-		for i, p := range e.Patterns {
-			if p != nil {
-				clone.Patterns[i] = &RegexPattern{
-					Pattern: p.Pattern,
-					Flags:   p.Flags,
-				}
-			}
-		}
-	}
-
-	return clone
-}
-
-// Clone creates a deep copy of the FilterConfig
-func (f *FilterConfig) Clone() *FilterConfig {
-	if f == nil {
-		return nil
-	}
-
-	clone := &FilterConfig{
-		ContextLines: f.ContextLines,
-		MaxOutput:    f.MaxOutput,
-	}
-
-	if f.ErrorPatterns != nil {
-		clone.ErrorPatterns = make([]*RegexPattern, len(f.ErrorPatterns))
-		for i, p := range f.ErrorPatterns {
+	if c.ErrorPatterns != nil {
+		clone.ErrorPatterns = make([]*RegexPattern, len(c.ErrorPatterns))
+		for i, p := range c.ErrorPatterns {
 			if p != nil {
 				clone.ErrorPatterns[i] = &RegexPattern{
 					Pattern: p.Pattern,
@@ -316,9 +234,9 @@ func (f *FilterConfig) Clone() *FilterConfig {
 		}
 	}
 
-	if f.IncludePatterns != nil {
-		clone.IncludePatterns = make([]*RegexPattern, len(f.IncludePatterns))
-		for i, p := range f.IncludePatterns {
+	if c.IncludePatterns != nil {
+		clone.IncludePatterns = make([]*RegexPattern, len(c.IncludePatterns))
+		for i, p := range c.IncludePatterns {
 			if p != nil {
 				clone.IncludePatterns[i] = &RegexPattern{
 					Pattern: p.Pattern,
@@ -330,3 +248,4 @@ func (f *FilterConfig) Clone() *FilterConfig {
 
 	return clone
 }
+

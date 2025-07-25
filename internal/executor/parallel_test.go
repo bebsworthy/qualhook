@@ -679,7 +679,7 @@ func TestParallelExecute_ErrorHandlingPreservesOutput(t *testing.T) {
 						execResult.Stderr)
 				}
 			}
-			
+
 			// For timeout tests, verify timeout message and flag
 			if tt.command.ID == "timeout-test" {
 				if !execResult.TimedOut {
@@ -692,7 +692,7 @@ func TestParallelExecute_ErrorHandlingPreservesOutput(t *testing.T) {
 					t.Errorf("expected stderr to contain timeout duration '100ms', got: %s", execResult.Stderr)
 				}
 			}
-			
+
 			// For format specifier test, verify args are properly escaped
 			if tt.command.ID == "format-specifier-test" {
 				// The error message should contain the literal format specifiers, not interpreted
@@ -710,7 +710,7 @@ func TestParallelExecute_ErrorHandlingPreservesOutput(t *testing.T) {
 			// Log the results for debugging
 			t.Logf("Command: %s %v", tt.command.Command, tt.command.Args)
 			t.Logf("ExitCode: %d", execResult.ExitCode)
-			t.Logf("Error: %v", execResult.Error)
+			t.Logf("Er_ror: %v", execResult.Error)
 			t.Logf("Stderr: %s", execResult.Stderr)
 			t.Logf("Stdout: %s", execResult.Stdout)
 		})

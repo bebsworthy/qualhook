@@ -23,7 +23,7 @@ type ResourceLimits struct {
 // DefaultLimits returns default resource limits
 func DefaultLimits() *ResourceLimits {
 	return &ResourceLimits{
-		MaxOutputSize:  10 * 1024 * 1024, // 10MB
+		MaxOutputSize:  10 * 1024 * 1024,   // 10MB
 		MaxMemory:      1024 * 1024 * 1024, // 1GB
 		MaxCPUTime:     5 * time.Minute,
 		MaxFileHandles: 100,
@@ -33,7 +33,7 @@ func DefaultLimits() *ResourceLimits {
 // StrictLimits returns strict resource limits
 func StrictLimits() *ResourceLimits {
 	return &ResourceLimits{
-		MaxOutputSize:  1 * 1024 * 1024, // 1MB
+		MaxOutputSize:  1 * 1024 * 1024,   // 1MB
 		MaxMemory:      256 * 1024 * 1024, // 256MB
 		MaxCPUTime:     1 * time.Minute,
 		MaxFileHandles: 10,
@@ -42,10 +42,10 @@ func StrictLimits() *ResourceLimits {
 
 // LimitedWriter wraps an io.Writer to enforce output size limits
 type LimitedWriter struct {
-	writer    io.Writer
-	limit     int64
-	written   int64
-	exceeded  atomic.Bool
+	writer   io.Writer
+	limit    int64
+	written  int64
+	exceeded atomic.Bool
 }
 
 // NewLimitedWriter creates a new limited writer
@@ -118,7 +118,7 @@ func NewRateLimiter(maxOpsPerSecond int) *RateLimiter {
 // Allow checks if an operation is allowed under the rate limit
 func (rl *RateLimiter) Allow() bool {
 	now := time.Now()
-	
+
 	// Check if we need to reset the window
 	if now.Sub(rl.windowStart) >= rl.window {
 		atomic.StoreInt64(&rl.operations, 0)

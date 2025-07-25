@@ -14,7 +14,7 @@ func TestExecuteCommand(t *testing.T) {
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	tests := []struct {
 		name           string
 		config         *config.Config
@@ -31,15 +31,11 @@ func TestExecuteCommand(t *testing.T) {
 					"test": {
 						Command: "echo",
 						Args:    []string{"Hello", "World"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
-							MaxOutput: 10,
-						},
+						MaxOutput: 10,
 					},
 				},
 			},
@@ -66,13 +62,9 @@ func TestExecuteCommand(t *testing.T) {
 					"echo": {
 						Command: "echo",
 						Args:    []string{"Base"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
-						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
 					},
 				},
@@ -91,14 +83,11 @@ func TestExecuteCommand(t *testing.T) {
 						Command: "echo",
 						Args:    []string{"Quick test"},
 						Timeout: 5000, // 5 seconds
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
-						},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -108,13 +97,13 @@ func TestExecuteCommand(t *testing.T) {
 			expectedOutput: "Quick test",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Note: executeCommand calls os.Exit on error, which we can't easily test
 			// In a real scenario, we'd refactor executeCommand to return an error
 			// instead of calling os.Exit directly
-			
+
 			// For now, we'll just verify the function exists and can be called
 			if tt.expectError && tt.commandName == "nonexistent" {
 				err := executeCommand(tt.config, tt.commandName, tt.extraArgs)
@@ -129,17 +118,17 @@ func TestExecuteCommand(t *testing.T) {
 func TestExecuteCommand_WithHookInput(t *testing.T) {
 	// Create temp directory with test files
 	tempDir := t.TempDir()
-	
+
 	// Create subdirectories
 	frontendDir := filepath.Join(tempDir, "frontend")
 	backendDir := filepath.Join(tempDir, "backend")
 	os.MkdirAll(frontendDir, 0755)
 	os.MkdirAll(backendDir, 0755)
-	
+
 	// Create test files
 	frontendFile := filepath.Join(frontendDir, "app.js")
 	os.WriteFile(frontendFile, []byte("console.log('test')"), 0644)
-	
+
 	// Create config with path-specific commands
 	_ = &config.Config{
 		Version: "1.0",
@@ -147,14 +136,11 @@ func TestExecuteCommand_WithHookInput(t *testing.T) {
 			"lint": {
 				Command: "echo",
 				Args:    []string{"Root lint"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error"},
-					},
-				},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -164,20 +150,17 @@ func TestExecuteCommand_WithHookInput(t *testing.T) {
 					"lint": {
 						Command: "echo",
 						Args:    []string{"Frontend lint"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error"},
-							},
-						},
+						MaxOutput: 100,
 					},
 				},
 			},
 		},
 	}
-	
+
 	// Set up hook input environment variable
 	hookInput := `{
 		"session_id": "test-session",
@@ -191,15 +174,15 @@ func TestExecuteCommand_WithHookInput(t *testing.T) {
 			}
 		}
 	}`
-	
+
 	os.Setenv("CLAUDE_HOOK_INPUT", hookInput)
 	defer os.Unsetenv("CLAUDE_HOOK_INPUT")
-	
+
 	// Change to temp directory
 	oldDir, _ := os.Getwd()
 	os.Chdir(tempDir)
 	defer os.Chdir(oldDir)
-	
+
 	// Test would execute the command, but since executeCommand calls os.Exit,
 	// we can't easily test the full flow without refactoring
 }

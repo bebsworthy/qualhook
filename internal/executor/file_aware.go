@@ -44,7 +44,7 @@ type FileAwareExecutor struct {
 func NewFileAwareExecutor(cfg *config.Config, debugMode bool) *FileAwareExecutor {
 	defaultTimeout := 2 * time.Minute
 	commandExecutor := NewCommandExecutor(defaultTimeout)
-	
+
 	return &FileAwareExecutor{
 		commandExecutor:  commandExecutor,
 		parallelExecutor: NewParallelExecutor(commandExecutor, 4), // Default max concurrent
@@ -139,16 +139,25 @@ func (e *FileAwareExecutor) executeForComponent(componentPath string, files []st
 	}
 	result.ExecResult = execResult
 
-	// Create output filter
-	outputFilter, err := filter.NewOutputFilter(cmdConfig.OutputFilter)
-	if err != nil {
-		result.ExecutionError = fmt.Errorf("failed to create output filter: %w", err)
-		return result, result.ExecutionError
+	// Filter the output if patterns are configured
+	if len(cmdConfig.ErrorPatterns) > 0 || len(cmdConfig.IncludePatterns) > 0 {
+		outputFilter := filter.NewSimpleOutputFilter()
+		filterRules := &filter.FilterRules{
+			ErrorPatterns:   cmdConfig.ErrorPatterns,
+			ContextPatterns: cmdConfig.IncludePatterns,
+			MaxLines:        cmdConfig.MaxOutput,
+			ContextLines:    cmdConfig.ContextLines,
+		}
+		// Combine stdout and stderr for filtering
+		combinedOutput := execResult.Stdout
+		if execResult.Stderr != "" {
+			if combinedOutput != "" {
+				combinedOutput += "\n"
+			}
+			combinedOutput += execResult.Stderr
+		}
+		result.FilteredOutput = outputFilter.FilterWithRules(combinedOutput, filterRules)
 	}
-
-	// Filter the output
-	filteredOutput := outputFilter.FilterBoth(execResult.Stdout, execResult.Stderr)
-	result.FilteredOutput = filteredOutput
 
 	return result, nil
 }
@@ -157,7 +166,7 @@ func (e *FileAwareExecutor) executeForComponent(componentPath string, files []st
 func (e *FileAwareExecutor) ExecuteForAllComponents(commandName string, extraArgs []string) ([]ComponentExecResult, error) {
 	// Get all components
 	allComponents := e.mapper.ListAllComponents()
-	
+
 	var allFiles []string
 	for _, component := range allComponents {
 		// Create a dummy file for each component to trigger execution
@@ -209,21 +218,21 @@ func (e *FileAwareExecutor) executeForRootComponent(commandName string, extraArg
 	if err != nil {
 		return nil, fmt.Errorf("failed to get root configuration: %w", err)
 	}
-	
+
 	if len(groups) > 0 && groups[0].Path == "." {
 		cmdConfig, exists := groups[0].Config[commandName]
 		if !exists {
 			// No command configured
 			return []ComponentExecResult{}, nil
 		}
-		
+
 		result, err := e.executeForComponent(".", nil, cmdConfig, commandName, extraArgs)
 		if err != nil {
 			return nil, err
 		}
 		return []ComponentExecResult{result}, nil
 	}
-	
+
 	// Fallback
 	return []ComponentExecResult{}, nil
 }
@@ -233,7 +242,7 @@ func (e *FileAwareExecutor) debugLogComponentGroups(componentGroups []watcher.Co
 	if !e.debugMode {
 		return
 	}
-	
+
 	fmt.Printf("[DEBUG] Component groups:\n")
 	for _, group := range componentGroups {
 		fmt.Printf("  - %s: %v\n", group.Path, group.Files)
@@ -276,11 +285,11 @@ func (e *FileAwareExecutor) debugLogExecutionSummary(results []ComponentExecResu
 	if !e.debugMode || len(results) == 0 {
 		return
 	}
-	
+
 	fmt.Printf("\n[DEBUG] Execution summary:\n")
 	for _, result := range results {
-		fmt.Printf("  - Component %s: %s command %s (files: %v)\n", 
-			result.Path, 
+		fmt.Printf("  - Component %s: %s command %s (files: %v)\n",
+			result.Path,
 			commandName,
 			getStatusText(result.FilteredOutput),
 			result.Files)

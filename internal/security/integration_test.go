@@ -54,10 +54,10 @@ func TestSecurityIntegration_CommandExecution(t *testing.T) {
 			failureType: "traversal",
 		},
 		{
-			name:    "environment variable injection",
-			command: "echo",
-			args:    []string{"test"},
-			env:     []string{"MALICIOUS=$(rm -rf /)"},
+			name:       "environment variable injection",
+			command:    "echo",
+			args:       []string{"test"},
+			env:        []string{"MALICIOUS=$(rm -rf /)"},
 			shouldFail: false, // Environment should be sanitized, not fail
 		},
 		{
@@ -101,7 +101,7 @@ func TestSecurityIntegration_CommandExecution(t *testing.T) {
 			// Determine if we got expected result
 			failed := cmdErr != nil || dirErr != nil
 			if failed != scenario.shouldFail {
-				t.Errorf("Expected failure=%v, got cmdErr=%v, dirErr=%v", 
+				t.Errorf("Expected failure=%v, got cmdErr=%v, dirErr=%v",
 					scenario.shouldFail, cmdErr, dirErr)
 			}
 
@@ -162,10 +162,8 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 						Command: "prettier",
 						Args:    []string{"--write", "**/*.js"},
 						Timeout: 30000,
-						ErrorDetection: &config.ErrorDetection{
-							Patterns: []*config.RegexPattern{
-								{Pattern: "error:\\s+(.+)"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error:\\s+(.+)"},
 						},
 					},
 				},
@@ -193,10 +191,8 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 				Commands: map[string]*config.CommandConfig{
 					"test": {
 						Command: "echo",
-						ErrorDetection: &config.ErrorDetection{
-							Patterns: []*config.RegexPattern{
-								{Pattern: "(a+)+b"},
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "(a+)+b"},
 						},
 					},
 				},
@@ -260,8 +256,8 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 				}
 
 				// Validate patterns
-				if cmd.ErrorDetection != nil {
-					for _, pattern := range cmd.ErrorDetection.Patterns {
+				if cmd.ErrorPatterns != nil {
+					for _, pattern := range cmd.ErrorPatterns {
 						if err := validator.ValidateRegexPattern(pattern.Pattern); err != nil {
 							allErrors = append(allErrors, err.Error())
 						}
@@ -285,7 +281,7 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 			// Check results
 			failed := len(allErrors) > 0
 			if failed != tc.shouldFail {
-				t.Errorf("Expected failure=%v, got %d errors: %v", 
+				t.Errorf("Expected failure=%v, got %d errors: %v",
 					tc.shouldFail, len(allErrors), allErrors)
 			}
 
@@ -294,7 +290,7 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 				errorStr := strings.Join(allErrors, " ")
 				for _, issue := range tc.issues {
 					if !strings.Contains(strings.ToLower(errorStr), strings.ToLower(issue)) {
-						t.Errorf("Expected issue containing %q not found in errors: %v", 
+						t.Errorf("Expected issue containing %q not found in errors: %v",
 							issue, allErrors)
 					}
 				}
@@ -309,15 +305,15 @@ func TestSecurityIntegration_DefenseInDepth(t *testing.T) {
 
 	// Test that multiple security layers catch different attack vectors
 	attacks := []struct {
-		name          string
-		description   string
-		command       string
-		args          []string
-		env           []string
-		workingDir    string
-		regexPattern  string
-		timeout       time.Duration
-		blockedAt     []string // Which layers should block this
+		name         string
+		description  string
+		command      string
+		args         []string
+		env          []string
+		workingDir   string
+		regexPattern string
+		timeout      time.Duration
+		blockedAt    []string // Which layers should block this
 	}{
 		{
 			name:        "multi-vector attack 1",

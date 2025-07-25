@@ -5,110 +5,77 @@
     "format": {
       "command": "black",
       "args": ["."],
-      "errorDetection": {
-        "exitCodes": [1, 123]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "error:", "flags": "i" },
-          { "pattern": "reformatted", "flags": "" },
-          { "pattern": "would reformat", "flags": "" }
-        ],
-        "contextLines": 2,
-        "maxOutput": 100
-      },
+      "exitCodes": [1, 123],
+      "errorPatterns": [
+        { "pattern": "error:", "flags": "i" },
+        { "pattern": "reformatted", "flags": "" },
+        { "pattern": "would reformat", "flags": "" }
+      ],
+      "contextLines": 2,
+      "maxOutput": 100,
       "prompt": "Format the following Python files with Black:",
       "timeout": 30000
     },
     "lint": {
       "command": "flake8",
       "args": ["."],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": ":\\d+:\\d+:", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
-          { "pattern": " E\\d{3} ", "flags": "" },
-          { "pattern": " W\\d{3} ", "flags": "" },
-          { "pattern": " F\\d{3} ", "flags": "" }
-        ],
-        "contextLines": 0,
-        "maxOutput": 200
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+        { "pattern": " E\\d{3} ", "flags": "" },
+        { "pattern": " W\\d{3} ", "flags": "" },
+        { "pattern": " F\\d{3} ", "flags": "" }
+      ],
+      "contextLines": 0,
+      "maxOutput": 200,
       "prompt": "Fix the flake8 linting errors below:",
       "timeout": 60000
     },
     "typecheck": {
       "command": "mypy",
       "args": ["."],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "Found \\d+ errors?", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:", "flags": "m" },
-          { "pattern": "error:", "flags": "" },
-          { "pattern": "note:", "flags": "" },
-          { "pattern": "Incompatible", "flags": "" }
-        ],
-        "contextLines": 3,
-        "maxOutput": 200
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:", "flags": "m" },
+        { "pattern": "error:", "flags": "" },
+        { "pattern": "note:", "flags": "" },
+        { "pattern": "Incompatible", "flags": "" }
+      ],
+      "contextLines": 3,
+      "maxOutput": 200,
       "prompt": "Fix the mypy type errors below:",
       "timeout": 120000
     },
     "test": {
       "command": "pytest",
       "args": ["-v"],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "\\d+ failed", "flags": "" },
-          { "pattern": "FAILED", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "FAILED", "flags": "" },
-          { "pattern": "AssertionError", "flags": "" },
-          { "pattern": "assert ", "flags": "" },
-          { "pattern": ">\\s+", "flags": "" },
-          { "pattern": "E\\s+", "flags": "" },
-          { "pattern": "_+ .* _+", "flags": "" }
-        ],
-        "contextLines": 10,
-        "maxOutput": 300
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "FAILED", "flags": "" },
+        { "pattern": "AssertionError", "flags": "" },
+        { "pattern": "assert ", "flags": "" },
+        { "pattern": ">\\s+", "flags": "" },
+        { "pattern": "E\\s+", "flags": "" },
+        { "pattern": "_+ .* _+", "flags": "" }
+      ],
+      "contextLines": 10,
+      "maxOutput": 300,
       "prompt": "Fix the failing pytest tests below:",
       "timeout": 300000
     },
     "pylint": {
       "command": "pylint",
       "args": ["**/*.py"],
-      "errorDetection": {
-        "exitCodes": [1, 2, 4, 8, 16],
-        "patterns": [
-          { "pattern": "rated at", "flags": "" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
-          { "pattern": " C\\d{4}:", "flags": "" },
-          { "pattern": " R\\d{4}:", "flags": "" },
-          { "pattern": " W\\d{4}:", "flags": "" },
-          { "pattern": " E\\d{4}:", "flags": "" }
-        ],
-        "contextLines": 1,
-        "maxOutput": 200
-      },
+      "exitCodes": [1, 2, 4, 8, 16],
+      "errorPatterns": [
+        { "pattern": "^[^:]+:\\d+:\\d+:", "flags": "m" },
+        { "pattern": " C\\d{4}:", "flags": "" },
+        { "pattern": " R\\d{4}:", "flags": "" },
+        { "pattern": " W\\d{4}:", "flags": "" },
+        { "pattern": " E\\d{4}:", "flags": "" }
+      ],
+      "contextLines": 1,
+      "maxOutput": 200,
       "prompt": "Fix the pylint issues below:",
       "timeout": 120000
     }

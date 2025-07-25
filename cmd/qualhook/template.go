@@ -8,9 +8,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/bebsworthy/qualhook/internal/config"
 	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -86,12 +86,12 @@ Examples:
 func init() {
 	// Add template command to root
 	rootCmd.AddCommand(templateCmd)
-	
+
 	// Add subcommands
 	templateCmd.AddCommand(exportCmd)
 	templateCmd.AddCommand(importCmd)
 	templateCmd.AddCommand(listCmd)
-	
+
 	// Export flags
 	exportCmd.Flags().StringVar(&templateName, "name", "", "Template name (required)")
 	exportCmd.Flags().StringVar(&templateDescription, "description", "", "Template description")
@@ -100,12 +100,12 @@ func init() {
 		// This is a programming error and should never happen
 		panic(fmt.Sprintf("failed to mark 'name' flag as required: %v", err))
 	}
-	
+
 	// Import flags
 	importCmd.Flags().BoolVar(&mergeFlag, "merge", false, "Merge with existing configuration")
 	importCmd.Flags().StringVar(&templateDir, "dir", "", "Directory to import template from")
 	importCmd.Flags().BoolVar(&forceFlag, "force", false, "Force overwrite existing configuration")
-	
+
 	// List flags
 	listCmd.Flags().StringVar(&templateDir, "dir", "", "Directory to list templates from")
 }
@@ -115,53 +115,53 @@ func runExportTemplate(cmd *cobra.Command, args []string) error {
 	loader := config.NewLoader()
 	var cfg *pkgconfig.Config
 	var err error
-	
+
 	if configPath != "" {
 		cfg, err = loader.LoadFromPath(configPath)
 	} else {
 		cfg, err = loader.Load()
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
-	
+
 	// Create template manager
 	tm := config.NewTemplateManager()
 	if templateDir != "" {
 		tm.SetTemplateDir(templateDir)
 	}
-	
+
 	// Validate template
 	if err := tm.ValidateTemplate(cfg); err != nil {
 		return fmt.Errorf("configuration validation failed: %w", err)
 	}
-	
+
 	// Export template
 	if err := tm.ExportTemplate(cfg, templateName, templateDescription); err != nil {
 		return fmt.Errorf("failed to export template: %w", err)
 	}
-	
+
 	fmt.Printf("✅ Template '%s' exported successfully!\n", templateName)
-	
+
 	return nil
 }
 
 func runImportTemplate(cmd *cobra.Command, args []string) error {
 	templateNameOrPath := args[0]
-	
+
 	// Create template manager
 	tm := config.NewTemplateManager()
 	if templateDir != "" {
 		tm.SetTemplateDir(templateDir)
 	}
-	
+
 	// Import template
 	importedCfg, err := tm.ImportTemplate(templateNameOrPath)
 	if err != nil {
 		return fmt.Errorf("failed to import template: %w", err)
 	}
-	
+
 	// Determine output path
 	outputPath := configPath
 	if outputPath == "" {
@@ -171,7 +171,7 @@ func runImportTemplate(cmd *cobra.Command, args []string) error {
 		}
 		outputPath = filepath.Join(cwd, config.ConfigFileName)
 	}
-	
+
 	// Handle merge if requested
 	var finalCfg *pkgconfig.Config
 	if mergeFlag {
@@ -196,25 +196,25 @@ func runImportTemplate(cmd *cobra.Command, args []string) error {
 		}
 		finalCfg = importedCfg
 	}
-	
+
 	// Validate final configuration
 	validator := config.NewValidator()
 	if err := validator.Validate(finalCfg); err != nil {
 		fmt.Printf("⚠️  Configuration validation warning: %v\n", err)
 	}
-	
+
 	// Save configuration
 	data, err := pkgconfig.SaveConfig(finalCfg)
 	if err != nil {
 		return fmt.Errorf("failed to serialize configuration: %w", err)
 	}
-	
+
 	if err := os.WriteFile(outputPath, data, 0600); err != nil {
 		return fmt.Errorf("failed to write configuration file: %w", err)
 	}
-	
+
 	fmt.Printf("✅ Template imported successfully to: %s\n", outputPath)
-	
+
 	// Show summary
 	fmt.Printf("\n📋 Configuration Summary:\n")
 	fmt.Printf("   Version: %s\n", finalCfg.Version)
@@ -225,7 +225,7 @@ func runImportTemplate(cmd *cobra.Command, args []string) error {
 	if len(finalCfg.Paths) > 0 {
 		fmt.Printf("   Monorepo Paths: %d configured\n", len(finalCfg.Paths))
 	}
-	
+
 	return nil
 }
 
@@ -235,26 +235,26 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 	if templateDir != "" {
 		tm.SetTemplateDir(templateDir)
 	}
-	
+
 	// List templates
 	templates, err := tm.ListTemplates()
 	if err != nil {
 		return fmt.Errorf("failed to list templates: %w", err)
 	}
-	
+
 	if len(templates) == 0 {
 		fmt.Println("No templates found.")
 		fmt.Println("\nCreate a template with: qualhook template export --name <name>")
 		return nil
 	}
-	
+
 	// Display templates in a table
 	fmt.Printf("📋 Available templates (%d):\n\n", len(templates))
-	
+
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	_, _ = fmt.Fprintln(w, "NAME\tDESCRIPTION\tCREATED") //nolint:errcheck // Best effort table output
 	_, _ = fmt.Fprintln(w, "----\t-----------\t-------") //nolint:errcheck // Best effort table output
-	
+
 	for _, tmpl := range templates {
 		desc := tmpl.Description
 		if desc == "" {
@@ -263,7 +263,7 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 		if len(desc) > 50 {
 			desc = desc[:47] + "..."
 		}
-		
+
 		created := tmpl.CreatedAt
 		if created != "" {
 			// Parse and format the date
@@ -271,15 +271,15 @@ func runListTemplates(cmd *cobra.Command, args []string) error {
 				created = t.Format("2006-01-02")
 			}
 		}
-		
+
 		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", tmpl.Name, desc, created) //nolint:errcheck // Best effort table output
 	}
-	
+
 	if err := w.Flush(); err != nil {
 		return fmt.Errorf("failed to flush table output: %w", err)
 	}
-	
+
 	fmt.Println("\nImport a template with: qualhook template import <name>")
-	
+
 	return nil
 }

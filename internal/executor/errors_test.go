@@ -227,7 +227,7 @@ func TestClassifyError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ClassifyError(tt.err, "test-cmd", []string{"arg1", "arg2"})
-			
+
 			if tt.err == nil {
 				if result != nil {
 					t.Errorf("expected nil for nil error, got %v", result)
@@ -287,7 +287,7 @@ func TestClassifyError_RealExecErrors(t *testing.T) {
 	// Try to execute a non-existent command
 	cmd := exec.Command("this-command-definitely-does-not-exist-12345")
 	err := cmd.Run()
-	
+
 	if err != nil {
 		result := ClassifyError(err, cmd.Path, cmd.Args)
 		if result.Type != ErrorTypeCommandNotFound {

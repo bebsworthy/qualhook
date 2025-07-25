@@ -264,22 +264,13 @@ interface Config {
 interface CommandConfig {
   command: string; // Actual command to run
   args?: string[]; // Additional arguments
-  errorDetection: ErrorDetection;
-  outputFilter: FilterConfig;
-  prompt?: string; // LLM prompt template
-  timeout?: number; // Command timeout in ms
-}
-
-interface ErrorDetection {
   exitCodes?: number[]; // Which exit codes indicate errors
-  patterns?: RegexPattern[]; // Patterns in output indicating errors
-}
-
-interface FilterConfig {
-  errorPatterns: RegexPattern[];
+  errorPatterns?: RegexPattern[]; // Patterns in output to filter for errors
   contextLines?: number; // Lines of context around errors
   maxOutput?: number; // Max lines to output
   includePatterns?: RegexPattern[]; // Additional patterns to include
+  prompt?: string; // LLM prompt template
+  timeout?: number; // Command timeout in ms
 }
 
 interface RegexPattern {
@@ -303,34 +294,23 @@ interface PathConfig {
     "format": {
       "command": "npm",
       "args": ["run", "format"],
-      "errorDetection": {
-        "exitCodes": [1]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "error", "flags": "i" }
-        ],
-        "maxOutput": 50
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "error", "flags": "i" }
+      ],
+      "maxOutput": 50,
       "prompt": "Fix the formatting issues below:"
     },
     "lint": {
       "command": "npm",
       "args": ["run", "lint"],
-      "errorDetection": {
-        "exitCodes": [1],
-        "patterns": [
-          { "pattern": "\\d+ errors?", "flags": "i" }
-        ]
-      },
-      "outputFilter": {
-        "errorPatterns": [
-          { "pattern": "error", "flags": "i" },
-          { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
-        ],
-        "contextLines": 2,
-        "maxOutput": 100
-      },
+      "exitCodes": [1],
+      "errorPatterns": [
+        { "pattern": "error", "flags": "i" },
+        { "pattern": "^\\s*\\d+:\\d+", "flags": "m" }
+      ],
+      "contextLines": 2,
+      "maxOutput": 100,
       "prompt": "Fix the linting errors below:"
     }
   },
@@ -350,9 +330,7 @@ interface PathConfig {
         "lint": {
           "command": "go",
           "args": ["vet", "./..."],
-          "errorDetection": {
-            "exitCodes": [1]
-          }
+          "exitCodes": [1]
         }
       }
     }

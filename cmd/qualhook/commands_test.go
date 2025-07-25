@@ -11,11 +11,11 @@ import (
 // TestCommandStructure tests the command structure without execution
 func TestCommandStructure(t *testing.T) {
 	tests := []struct {
-		name        string
-		cmd         *cobra.Command
-		wantUse     string
-		wantShort   string
-		hasExample  bool
+		name       string
+		cmd        *cobra.Command
+		wantUse    string
+		wantShort  string
+		hasExample bool
 	}{
 		{
 			name:       "format command",
@@ -88,15 +88,15 @@ func TestCommandHelp(t *testing.T) {
 			cmd.SetOut(&buf)
 			cmd.SetErr(&buf)
 			cmd.SetArgs([]string{"--help"})
-			
+
 			// Help should not error
 			err := cmd.Help()
 			if err != nil {
 				t.Errorf("Help() error = %v", err)
 			}
-			
+
 			help := buf.String()
-			
+
 			// Check for key sections
 			if !strings.Contains(help, "Usage:") {
 				t.Error("Help should contain Usage section")
@@ -133,7 +133,7 @@ func TestTemplateCommandSubcommands(t *testing.T) {
 	if !templateCmd.HasSubCommands() {
 		t.Error("Template command should have subcommands")
 	}
-	
+
 	// Check for specific subcommands
 	subcommands := []string{"list", "export", "import"}
 	for _, sub := range subcommands {

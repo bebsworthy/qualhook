@@ -160,9 +160,7 @@ func TestValidate_MaliciousRegexPatterns(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Add pattern to config
-			cfg.Commands["test"].ErrorDetection = &config.ErrorDetection{
-				Patterns: []*config.RegexPattern{tt.pattern},
-			}
+			cfg.Commands["test"].ErrorPatterns = []*config.RegexPattern{tt.pattern}
 
 			err := v.Validate(cfg)
 			if (err != nil) != tt.wantErr {
@@ -446,10 +444,8 @@ func TestValidate_ResourceExhaustion(t *testing.T) {
 				Commands: map[string]*config.CommandConfig{
 					"test": {
 						Command: "echo",
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: make([]*config.RegexPattern, 0),
-							MaxOutput:     100,
-						},
+						ErrorPatterns: make([]*config.RegexPattern, 0),
+						MaxOutput:     100,
 					},
 				},
 			},
@@ -462,10 +458,8 @@ func TestValidate_ResourceExhaustion(t *testing.T) {
 				Commands: map[string]*config.CommandConfig{
 					"test": {
 						Command: "echo",
-						ErrorDetection: &config.ErrorDetection{
-							Patterns: []*config.RegexPattern{
-								{Pattern: "(a+)+b"}, // ReDoS pattern
-							},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "(a+)+b"}, // ReDoS pattern
 						},
 					},
 				},
@@ -477,8 +471,8 @@ func TestValidate_ResourceExhaustion(t *testing.T) {
 
 	// Add many patterns to first test case to simulate resource exhaustion attempt
 	for i := 0; i < 50; i++ {
-		tests[0].cfg.Commands["test"].OutputFilter.ErrorPatterns = append(
-			tests[0].cfg.Commands["test"].OutputFilter.ErrorPatterns,
+		tests[0].cfg.Commands["test"].ErrorPatterns = append(
+			tests[0].cfg.Commands["test"].ErrorPatterns,
 			&config.RegexPattern{Pattern: fmt.Sprintf("error%d", i)},
 		)
 	}
@@ -536,7 +530,7 @@ func TestSuggestFixes_SecurityErrors(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			suggestions := v.SuggestFixes(errors.New(tt.errMsg))
-			
+
 			for _, want := range tt.wantSuggest {
 				found := false
 				for _, got := range suggestions {

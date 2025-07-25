@@ -46,25 +46,21 @@ func BenchmarkConfigLoading(b *testing.B) {
 	// Create a temporary config file
 	tmpDir := b.TempDir()
 	configPath := filepath.Join(tmpDir, ".qualhook.json")
-	
+
 	sampleConfig := &pkgconfig.Config{
 		Version: "1.0",
 		Commands: map[string]*pkgconfig.CommandConfig{
 			"format": {
 				Command: "prettier",
 				Args:    []string{"--write", "."},
-				ErrorDetection: &pkgconfig.ErrorDetection{
-					ExitCodes: []int{1},
-				},
+				ExitCodes: []int{1},
 			},
 			"lint": {
 				Command: "eslint",
 				Args:    []string{"."},
-				ErrorDetection: &pkgconfig.ErrorDetection{
-					ExitCodes: []int{1},
-					Patterns: []*pkgconfig.RegexPattern{
-						{Pattern: `\d+ errors?`, Flags: "i"},
-					},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*pkgconfig.RegexPattern{
+					{Pattern: `\d+ errors?`, Flags: "i"},
 				},
 			},
 		},
@@ -107,7 +103,7 @@ func BenchmarkConfigLoading(b *testing.B) {
 				},
 			},
 		}
-		
+
 		complexPath := filepath.Join(tmpDir, ".qualhook-complex.json")
 		complexData, err := pkgconfig.SaveConfig(complexConfig)
 		if err != nil {
@@ -127,7 +123,7 @@ func BenchmarkConfigLoading(b *testing.B) {
 	b.Run("WithValidation", func(b *testing.B) {
 		loader := config.NewLoader()
 		validator := config.NewValidator()
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			cfg, err := loader.LoadFromPath(configPath)
@@ -155,10 +151,10 @@ func BenchmarkProjectDetection(b *testing.B) {
 		{
 			name: "GoProject",
 			files: map[string]string{
-				"go.mod":     `module example.com/test`,
-				"go.sum":     ``,
-				"main.go":    `package main`,
-				"Makefile":   `build:`,
+				"go.mod":   `module example.com/test`,
+				"go.sum":   ``,
+				"main.go":  `package main`,
+				"Makefile": `build:`,
 			},
 		},
 		{
@@ -225,22 +221,18 @@ func BenchmarkEndToEnd(b *testing.B) {
 	// Create a minimal config
 	tmpDir := b.TempDir()
 	configPath := filepath.Join(tmpDir, ".qualhook.json")
-	
+
 	minimalConfig := &pkgconfig.Config{
 		Version: "1.0",
 		Commands: map[string]*pkgconfig.CommandConfig{
 			"test": {
 				Command: "echo",
 				Args:    []string{"test output"},
-				ErrorDetection: &pkgconfig.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*pkgconfig.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &pkgconfig.FilterConfig{
-					ErrorPatterns: []*pkgconfig.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-					MaxOutput: 100,
-				},
+				MaxOutput: 100,
 			},
 		},
 	}
@@ -283,7 +275,7 @@ func BenchmarkMemoryUsage(b *testing.B) {
 	b.Run("ConfigLoading", func(b *testing.B) {
 		tmpDir := b.TempDir()
 		configPath := filepath.Join(tmpDir, ".qualhook.json")
-		
+
 		sampleConfig := &pkgconfig.Config{
 			Version: "1.0",
 			Commands: map[string]*pkgconfig.CommandConfig{
@@ -293,11 +285,11 @@ func BenchmarkMemoryUsage(b *testing.B) {
 				},
 			},
 		}
-		
+
 		configData, _ := pkgconfig.SaveConfig(sampleConfig)
 		os.WriteFile(configPath, configData, 0644)
 		loader := config.NewLoader()
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {

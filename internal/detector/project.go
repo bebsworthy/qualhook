@@ -109,7 +109,7 @@ func New() *ProjectDetector {
 func (d *ProjectDetector) Detect(path string) ([]ProjectType, error) {
 	debug.LogSection("Project Detection")
 	debug.Log("Scanning path: %s", path)
-	
+
 	// Validate path
 	info, err := os.Stat(path)
 	if err != nil {
@@ -121,7 +121,7 @@ func (d *ProjectDetector) Detect(path string) ([]ProjectType, error) {
 
 	// Scan for markers
 	projectScores := make(map[string]*projectScore)
-	
+
 	err = d.scanDirectory(path, projectScores)
 	if err != nil {
 		return nil, fmt.Errorf("error scanning directory: %w", err)
@@ -147,7 +147,7 @@ func (d *ProjectDetector) Detect(path string) ([]ProjectType, error) {
 
 	debug.Log("Detected %d project types", len(results))
 	for _, result := range results {
-		debug.Log("  %s (confidence: %.2f%%, markers: %v)", 
+		debug.Log("  %s (confidence: %.2f%%, markers: %v)",
 			result.Name, result.Confidence*100, result.Markers)
 	}
 
@@ -190,7 +190,7 @@ func (d *ProjectDetector) scanDirectory(dir string, scores map[string]*projectSc
 	// Check each entry against markers
 	for _, entry := range entries {
 		name := entry.Name()
-		
+
 		// Skip hidden directories (except specific ones we're looking for)
 		if strings.HasPrefix(name, ".") && entry.IsDir() {
 			if !d.isRelevantHiddenDir(name) {
@@ -253,16 +253,16 @@ func (d *ProjectDetector) DetectMonorepo(path string) (*MonorepoInfo, error) {
 
 	// Check for monorepo indicator files
 	monorepoMarkers := map[string]string{
-		"lerna.json":             "lerna",
-		"nx.json":                "nx",
-		"rush.json":              "rush",
-		"pnpm-workspace.yaml":    "pnpm",
-		"yarn.lock":              "yarn-workspaces", // Need to check package.json for workspaces
-		"turbo.json":             "turborepo",
-		"workspace.json":         "nx-legacy",
-		".yarnrc.yml":            "yarn-berry",
-		"WORKSPACE":              "bazel",
-		"WORKSPACE.bazel":        "bazel",
+		"lerna.json":          "lerna",
+		"nx.json":             "nx",
+		"rush.json":           "rush",
+		"pnpm-workspace.yaml": "pnpm",
+		"yarn.lock":           "yarn-workspaces", // Need to check package.json for workspaces
+		"turbo.json":          "turborepo",
+		"workspace.json":      "nx-legacy",
+		".yarnrc.yml":         "yarn-berry",
+		"WORKSPACE":           "bazel",
+		"WORKSPACE.bazel":     "bazel",
 	}
 
 	for marker, repoType := range monorepoMarkers {
@@ -270,7 +270,7 @@ func (d *ProjectDetector) DetectMonorepo(path string) (*MonorepoInfo, error) {
 		if _, err := os.Stat(markerPath); err == nil {
 			info.IsMonorepo = true
 			info.Type = repoType
-			
+
 			// Special case: check package.json for yarn workspaces
 			if repoType == "yarn-workspaces" {
 				if hasYarnWorkspaces := d.checkYarnWorkspaces(path); !hasYarnWorkspaces {
@@ -314,7 +314,7 @@ func (d *ProjectDetector) checkYarnWorkspaces(path string) bool {
 	if err != nil {
 		return false
 	}
-	
+
 	// Simple check for workspaces field
 	return strings.Contains(string(data), `"workspaces"`)
 }

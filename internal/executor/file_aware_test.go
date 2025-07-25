@@ -16,15 +16,11 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 			"lint": {
 				Command: "echo",
 				Args:    []string{"root lint"},
-				ErrorDetection: &config.ErrorDetection{
-					ExitCodes: []int{1},
+				ExitCodes: []int{1},
+				ErrorPatterns: []*config.RegexPattern{
+					{Pattern: "error", Flags: "i"},
 				},
-				OutputFilter: &config.FilterConfig{
-					ErrorPatterns: []*config.RegexPattern{
-						{Pattern: "error", Flags: "i"},
-					},
-					MaxOutput: 100,
-				},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -34,15 +30,11 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 					"lint": {
 						Command: "echo",
 						Args:    []string{"frontend lint"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error", Flags: "i"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error", Flags: "i"},
-							},
-							MaxOutput: 100,
-						},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -52,15 +44,11 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 					"lint": {
 						Command: "echo",
 						Args:    []string{"backend lint"},
-						ErrorDetection: &config.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*config.RegexPattern{
+							{Pattern: "error", Flags: "i"},
 						},
-						OutputFilter: &config.FilterConfig{
-							ErrorPatterns: []*config.RegexPattern{
-								{Pattern: "error", Flags: "i"},
-							},
-							MaxOutput: 100,
-						},
+						MaxOutput: 100,
 					},
 				},
 			},

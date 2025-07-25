@@ -15,12 +15,12 @@ import (
 func createLargeOutputScript(b *testing.B, lines int, errorRate float64) string {
 	tmpDir := b.TempDir()
 	scriptPath := filepath.Join(tmpDir, "generate_output.sh")
-	
+
 	errorInterval := int(1.0 / errorRate)
 	if errorRate == 0 {
 		errorInterval = lines + 1
 	}
-	
+
 	script := fmt.Sprintf(`#!/bin/bash
 for i in $(seq 1 %d); do
     if [ $((i %% %d)) -eq 0 ]; then
@@ -30,19 +30,19 @@ for i in $(seq 1 %d); do
     fi
 done
 `, lines, errorInterval)
-	
+
 	err := os.WriteFile(scriptPath, []byte(script), 0755)
 	if err != nil {
 		b.Fatal(err)
 	}
-	
+
 	return scriptPath
 }
 
 // BenchmarkLargeOutputMemory measures memory usage with large command outputs
 func BenchmarkLargeOutputMemory(b *testing.B) {
 	exec := NewCommandExecutor(30 * time.Second)
-	
+
 	testCases := []struct {
 		name      string
 		lines     int
@@ -54,11 +54,11 @@ func BenchmarkLargeOutputMemory(b *testing.B) {
 		{"VeryLargeOutput", 50000, 0.001},
 		{"HugeOutput", 100000, 0.0001},
 	}
-	
+
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
 			scriptPath := createLargeOutputScript(b, tc.lines, tc.errorRate)
-			
+
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
@@ -74,7 +74,7 @@ func BenchmarkLargeOutputMemory(b *testing.B) {
 // BenchmarkStreamingMemory measures memory usage with streaming vs buffering
 func BenchmarkStreamingMemory(b *testing.B) {
 	exec := NewCommandExecutor(10 * time.Second)
-	
+
 	// Create a script that generates continuous output
 	tmpDir := b.TempDir()
 	streamScript := filepath.Join(tmpDir, "stream.sh")
@@ -87,7 +87,7 @@ for i in {1..1000}; do
 done
 `
 	os.WriteFile(streamScript, []byte(script), 0755)
-	
+
 	b.Run("BufferedExecution", func(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -98,7 +98,7 @@ done
 			_, _ = exec.Execute("/bin/bash", []string{streamScript}, opts)
 		}
 	})
-	
+
 	b.Run("StreamingExecution", func(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -118,13 +118,13 @@ done
 func BenchmarkParallelMemoryUsage(b *testing.B) {
 	cmdExec := NewCommandExecutor(30 * time.Second)
 	pe := NewParallelExecutor(cmdExec, 4) // 4 concurrent workers
-	
+
 	// Create multiple scripts with different outputs
 	scripts := make([]string, 4)
 	for i := range scripts {
 		scripts[i] = createLargeOutputScript(b, 1000*(i+1), 0.1)
 	}
-	
+
 	b.Run("ParallelSmallOutputs", func(b *testing.B) {
 		commands := make([]ParallelCommand, 4)
 		for i := range commands {
@@ -137,14 +137,14 @@ func BenchmarkParallelMemoryUsage(b *testing.B) {
 				},
 			}
 		}
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_, _ = pe.Execute(context.Background(), commands, nil)
 		}
 	})
-	
+
 	b.Run("ParallelLargeOutputs", func(b *testing.B) {
 		commands := make([]ParallelCommand, len(scripts))
 		for i, script := range scripts {
@@ -157,7 +157,7 @@ func BenchmarkParallelMemoryUsage(b *testing.B) {
 				},
 			}
 		}
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -170,7 +170,7 @@ func BenchmarkParallelMemoryUsage(b *testing.B) {
 func BenchmarkOutputBuffering(b *testing.B) {
 	// Generate a large string to simulate command output
 	largeOutput := strings.Repeat("This is a line of output that simulates real command output.\n", 10000)
-	
+
 	testCases := []struct {
 		name       string
 		bufferSize int
@@ -180,7 +180,7 @@ func BenchmarkOutputBuffering(b *testing.B) {
 		{"LargeBuffer_1MB", 1024 * 1024},
 		{"VeryLargeBuffer_10MB", 10 * 1024 * 1024},
 	}
-	
+
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
 			b.ReportAllocs()
@@ -203,7 +203,7 @@ func BenchmarkOutputBuffering(b *testing.B) {
 // BenchmarkMemoryCleanup measures GC pressure from command execution
 func BenchmarkMemoryCleanup(b *testing.B) {
 	exec := NewCommandExecutor(5 * time.Second)
-	
+
 	b.Run("ManySmallCommands", func(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -217,10 +217,10 @@ func BenchmarkMemoryCleanup(b *testing.B) {
 			}
 		}
 	})
-	
+
 	b.Run("FewLargeCommands", func(b *testing.B) {
 		scriptPath := createLargeOutputScript(b, 10000, 0.01)
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -238,7 +238,7 @@ func BenchmarkMemoryCleanup(b *testing.B) {
 // BenchmarkWorstCaseMemory tests memory usage in worst-case scenarios
 func BenchmarkWorstCaseMemory(b *testing.B) {
 	exec := NewCommandExecutor(30 * time.Second)
-	
+
 	b.Run("AllErrorOutput", func(b *testing.B) {
 		// Script that outputs everything to stderr
 		tmpDir := b.TempDir()
@@ -249,7 +249,7 @@ for i in {1..1000}; do
 done
 `
 		os.WriteFile(scriptPath, []byte(script), 0755)
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -259,7 +259,7 @@ done
 			_, _ = exec.Execute("/bin/bash", []string{scriptPath}, opts)
 		}
 	})
-	
+
 	b.Run("RapidSmallOutputs", func(b *testing.B) {
 		// Script that generates many small outputs rapidly
 		tmpDir := b.TempDir()
@@ -270,7 +270,7 @@ for i in {1..10000}; do
 done
 `
 		os.WriteFile(scriptPath, []byte(script), 0755)
-		
+
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {

@@ -29,13 +29,13 @@ var SensitiveEnvVars = []string{
 	"PRIVATE_KEY",
 	"SSH_PRIVATE_KEY",
 	"GPG_PRIVATE_KEY",
-	
+
 	// System paths that could be exploited
 	"LD_PRELOAD",
 	"LD_LIBRARY_PATH",
 	"DYLD_INSERT_LIBRARIES",
 	"DYLD_LIBRARY_PATH",
-	
+
 	// Shell configuration
 	"BASH_ENV",
 	"ENV",
@@ -54,7 +54,7 @@ var SafeEnvVars = []string{
 	"TMPDIR",
 	"TEMP",
 	"TMP",
-	
+
 	// Development tools
 	"PATH",
 	"NODE_ENV",
@@ -64,7 +64,7 @@ var SafeEnvVars = []string{
 	"RUSTUP_HOME",
 	"PYTHON_HOME",
 	"JAVA_HOME",
-	
+
 	// CI/CD indicators (read-only)
 	"CI",
 	"CONTINUOUS_INTEGRATION",
@@ -73,7 +73,7 @@ var SafeEnvVars = []string{
 	"JENKINS_HOME",
 	"TRAVIS",
 	"CIRCLECI",
-	
+
 	// Terminal settings
 	"TERM",
 	"COLORTERM",
@@ -91,7 +91,7 @@ func SanitizeEnvironment(env []string, allowInherit bool) []string {
 	// Filter inherited environment
 	filtered := make([]string, 0, len(env))
 	sensitive := make(map[string]bool)
-	
+
 	// Build sensitive vars map
 	for _, v := range SensitiveEnvVars {
 		sensitive[v] = true
@@ -131,7 +131,7 @@ func SanitizeEnvironment(env []string, allowInherit bool) []string {
 // createMinimalEnvironment creates a minimal safe environment
 func createMinimalEnvironment() []string {
 	env := []string{}
-	
+
 	// Add only essential variables from current environment
 	for _, key := range SafeEnvVars {
 		if value := os.Getenv(key); value != "" {
@@ -148,7 +148,7 @@ func createMinimalEnvironment() []string {
 // containsSensitivePattern checks if a key contains sensitive patterns
 func containsSensitivePattern(key string) bool {
 	upperKey := strings.ToUpper(key)
-	
+
 	sensitivePatterns := []string{
 		"PASSWORD",
 		"SECRET",

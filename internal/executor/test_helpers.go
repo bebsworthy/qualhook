@@ -37,7 +37,7 @@ func (e *TestCommandExecutor) Execute(command string, args []string, options Exe
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, command, args...)
-	
+
 	if options.WorkingDir != "" {
 		cmd.Dir = options.WorkingDir
 	}
@@ -66,7 +66,7 @@ func (e *TestCommandExecutor) Execute(command string, args []string, options Exe
 	}
 
 	waitErr := cmd.Wait()
-	
+
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
@@ -102,7 +102,7 @@ func (e *TestCommandExecutor) ExecuteWithStreaming(command string, args []string
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, command, args...)
-	
+
 	if options.WorkingDir != "" {
 		cmd.Dir = options.WorkingDir
 	}
@@ -119,11 +119,11 @@ func (e *TestCommandExecutor) ExecuteWithStreaming(command string, args []string
 	}
 
 	var stdoutBuf, stderrBuf bytes.Buffer
-	
+
 	// Create streaming writers
 	stdout := io.MultiWriter(&stdoutBuf, stdoutWriter)
 	stderr := io.MultiWriter(&stderrBuf, stderrWriter)
-	
+
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
@@ -136,7 +136,7 @@ func (e *TestCommandExecutor) ExecuteWithStreaming(command string, args []string
 	}
 
 	waitErr := cmd.Wait()
-	
+
 	timedOut := false
 	if ctx.Err() == context.DeadlineExceeded {
 		timedOut = true
@@ -186,7 +186,7 @@ func (pe *TestParallelExecutor) Execute(ctx context.Context, commands []Parallel
 	}
 
 	startTime := time.Now()
-	
+
 	result := &ParallelResult{
 		Results:      make(map[string]*ExecResult),
 		Order:        make([]string, 0, len(commands)),
@@ -198,39 +198,39 @@ func (pe *TestParallelExecutor) Execute(ctx context.Context, commands []Parallel
 
 	// Create executor
 	executor := NewTestCommandExecutor(0)
-	
+
 	// Execute commands sequentially for simplicity in tests
 	completed := 0
 	total := len(commands)
-	
+
 	for _, cmd := range commands {
 		if progress != nil {
 			progress(completed, total, cmd.ID)
 		}
-		
+
 		execResult, err := executor.Execute(cmd.Command, cmd.Args, cmd.Options)
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute command %s: %w", cmd.ID, err)
 		}
-		
+
 		result.Results[cmd.ID] = execResult
 		result.Order = append(result.Order, cmd.ID)
-		
+
 		if execResult.Error != nil || execResult.ExitCode != 0 {
 			result.HasFailures = true
 			result.FailureCount++
 		} else {
 			result.SuccessCount++
 		}
-		
+
 		completed++
 		if progress != nil {
 			progress(completed, total, cmd.ID)
 		}
 	}
-	
+
 	result.TotalTime = time.Since(startTime)
-	
+
 	return result, nil
 }
 
@@ -240,14 +240,14 @@ func (pe *TestParallelExecutor) ExecuteWithAggregation(ctx context.Context, comm
 	if err != nil {
 		return nil, err
 	}
-	
+
 	aggregated := &AggregatedResult{
 		ParallelResult: parallelResult,
 		CombinedStdout: make([]string, 0),
 		CombinedStderr: make([]string, 0),
 		FailedCommands: make([]string, 0),
 	}
-	
+
 	for _, id := range parallelResult.Order {
 		result := parallelResult.Results[id]
 		if result.Stdout != "" {
@@ -260,6 +260,6 @@ func (pe *TestParallelExecutor) ExecuteWithAggregation(ctx context.Context, comm
 			aggregated.FailedCommands = append(aggregated.FailedCommands, id)
 		}
 	}
-	
+
 	return aggregated, nil
 }

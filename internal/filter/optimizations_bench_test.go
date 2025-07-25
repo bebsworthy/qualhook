@@ -4,7 +4,7 @@ package filter
 import (
 	"regexp"
 	"testing"
-	
+
 	config "github.com/bebsworthy/qualhook/pkg/config"
 )
 
@@ -27,7 +27,7 @@ func BenchmarkOptimizedPatternSet(b *testing.B) {
 		{Pattern: `(error|warning|fatal)`, Flags: "i"},
 		{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""},
 	}
-	
+
 	// Test inputs
 	testInputs := []string{
 		"ERROR",
@@ -41,11 +41,11 @@ func BenchmarkOptimizedPatternSet(b *testing.B) {
 		"app.go:15:8: undefined variable",
 		"Regular log line without patterns",
 	}
-	
+
 	b.Run("RegularPatternSet", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		ps, _ := NewPatternSet(patterns, cache)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			for _, input := range testInputs {
@@ -53,10 +53,10 @@ func BenchmarkOptimizedPatternSet(b *testing.B) {
 			}
 		}
 	})
-	
+
 	b.Run("OptimizedPatternSet", func(b *testing.B) {
 		ops, _ := NewOptimizedPatternSet(patterns)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			for _, input := range testInputs {
@@ -75,11 +75,11 @@ func BenchmarkLiteralMatching(b *testing.B) {
 		{Pattern: "DEBUG", Flags: ""},
 		{Pattern: "FATAL", Flags: ""},
 	}
-	
+
 	b.Run("RegexLiterals", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		ps, _ := NewPatternSet(literalPatterns, cache)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_ = ps.MatchAny("ERROR")
@@ -87,10 +87,10 @@ func BenchmarkLiteralMatching(b *testing.B) {
 			_ = ps.MatchAny("NOTFOUND")
 		}
 	})
-	
+
 	b.Run("OptimizedLiterals", func(b *testing.B) {
 		ops, _ := NewOptimizedPatternSet(literalPatterns)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_ = ops.MatchAnyOptimized("ERROR")
@@ -110,7 +110,7 @@ func BenchmarkPrefixSuffixMatching(b *testing.B) {
 		{Pattern: ".*\\.js$", Flags: ""},
 		{Pattern: ".py$", Flags: ""},
 	}
-	
+
 	testInputs := []string{
 		"ERROR: Connection failed",
 		"WARNING: Deprecated function",
@@ -120,11 +120,11 @@ func BenchmarkPrefixSuffixMatching(b *testing.B) {
 		"script.py",
 		"Random text without pattern",
 	}
-	
+
 	b.Run("RegexPrefixSuffix", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		ps, _ := NewPatternSet(patterns, cache)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			for _, input := range testInputs {
@@ -132,10 +132,10 @@ func BenchmarkPrefixSuffixMatching(b *testing.B) {
 			}
 		}
 	})
-	
+
 	b.Run("OptimizedPrefixSuffix", func(b *testing.B) {
 		ops, _ := NewOptimizedPatternSet(patterns)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			for _, input := range testInputs {
@@ -153,7 +153,7 @@ func BenchmarkBatchMatching(b *testing.B) {
 		{Pattern: `\d+:\d+`, Flags: ""},
 		{Pattern: "failed|failure", Flags: "i"},
 	}
-	
+
 	// Generate test lines
 	lines := make([]string, 1000)
 	for i := range lines {
@@ -168,14 +168,14 @@ func BenchmarkBatchMatching(b *testing.B) {
 			lines[i] = "Normal log line"
 		}
 	}
-	
+
 	b.Run("SequentialMatching", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		compiled := make([]*regexp.Regexp, len(patterns))
 		for i, p := range patterns {
 			compiled[i], _ = cache.GetOrCompile(p)
 		}
-		
+
 		b.ResetTimer()
 		var matchCount int
 		for i := 0; i < b.N; i++ {
@@ -192,11 +192,11 @@ func BenchmarkBatchMatching(b *testing.B) {
 		}
 		_ = matchCount
 	})
-	
+
 	b.Run("BatchMatching", func(b *testing.B) {
 		cache, _ := NewPatternCache()
 		bm := NewBatchMatcher(cache)
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_ = bm.MatchLines(lines, patterns)
@@ -208,7 +208,7 @@ func BenchmarkBatchMatching(b *testing.B) {
 func BenchmarkMemoryPooling(b *testing.B) {
 	cache, _ := NewPatternCache()
 	bm := NewBatchMatcher(cache)
-	
+
 	b.Run("WithoutPooling", func(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -219,7 +219,7 @@ func BenchmarkMemoryPooling(b *testing.B) {
 			_ = buf
 		}
 	})
-	
+
 	b.Run("WithPooling", func(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()

@@ -36,7 +36,7 @@ func NewLoader() *Loader {
 // Load attempts to load configuration from various sources
 func (l *Loader) Load() (*config.Config, error) {
 	debug.LogSection("Configuration Loading")
-	
+
 	// First check if environment variable is set
 	if envPath := os.Getenv(ConfigEnvVar); envPath != "" {
 		debug.Log("Loading config from environment variable %s: %s", ConfigEnvVar, envPath)
@@ -117,7 +117,7 @@ func (l *Loader) LoadForMonorepo(workingDir string) (*config.Config, error) {
 // loadFromPath loads and validates configuration from a file
 func (l *Loader) loadFromPath(path string) (*config.Config, error) {
 	debug.Log("Loading config from file: %s", path)
-	
+
 	// #nosec G304 - path is validated by caller (LoadFromPath checks file existence)
 	file, err := os.Open(path)
 	if err != nil {
@@ -138,10 +138,10 @@ func (l *Loader) loadFromPath(path string) (*config.Config, error) {
 		debug.LogError(err, "parsing config")
 		return nil, err
 	}
-	
-	debug.Log("Loaded config: version=%s, commands=%d, paths=%d", 
+
+	debug.Log("Loaded config: version=%s, commands=%d, paths=%d",
 		cfg.Version, len(cfg.Commands), len(cfg.Paths))
-	
+
 	return cfg, nil
 }
 
@@ -263,4 +263,3 @@ func ValidateConfigFile(path string) error {
 
 	return cfg.Validate()
 }
-

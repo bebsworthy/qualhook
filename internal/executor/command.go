@@ -55,7 +55,7 @@ func NewCommandExecutor(defaultTimeout time.Duration) *CommandExecutor {
 		defaultTimeout = 2 * time.Minute
 	}
 	return &CommandExecutor{
-		defaultTimeout: defaultTimeout,
+		defaultTimeout:    defaultTimeout,
 		securityValidator: security.NewSecurityValidator(),
 	}
 }
@@ -86,7 +86,7 @@ func (e *CommandExecutor) Execute(command string, args []string, options ExecOpt
 		if err := e.securityValidator.ValidatePath(options.WorkingDir); err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)
 		}
-		
+
 		absPath, err := filepath.Abs(options.WorkingDir)
 		if err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)
@@ -185,7 +185,7 @@ func (e *CommandExecutor) ExecuteWithStreaming(command string, args []string, op
 		if err := e.securityValidator.ValidatePath(options.WorkingDir); err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)
 		}
-		
+
 		absPath, err := filepath.Abs(options.WorkingDir)
 		if err != nil {
 			return nil, fmt.Errorf("invalid working directory: %w", err)

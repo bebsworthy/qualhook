@@ -26,7 +26,7 @@ func NewTemplateManager() *TemplateManager {
 	if err != nil {
 		home = "."
 	}
-	
+
 	return &TemplateManager{
 		templateDir: filepath.Join(home, ".qualhook", "templates"),
 	}
@@ -41,7 +41,7 @@ func (tm *TemplateManager) SetTemplateDir(dir string) {
 func (tm *TemplateManager) ExportTemplate(cfg *pkgconfig.Config, name, description string) error {
 	debug.LogSection("Export Template")
 	debug.Log("Exporting template: %s", name)
-	
+
 	// Validate name
 	if name == "" {
 		return fmt.Errorf("template name cannot be empty")
@@ -86,7 +86,7 @@ func (tm *TemplateManager) ExportTemplate(cfg *pkgconfig.Config, name, descripti
 func (tm *TemplateManager) ImportTemplate(nameOrPath string) (*pkgconfig.Config, error) {
 	debug.LogSection("Import Template")
 	debug.Log("Importing template: %s", nameOrPath)
-	
+
 	// Determine if it's a path or template name
 	var templatePath string
 	if strings.Contains(nameOrPath, string(os.PathSeparator)) || strings.HasSuffix(nameOrPath, ".json") {
@@ -114,7 +114,7 @@ func (tm *TemplateManager) ImportTemplate(nameOrPath string) (*pkgconfig.Config,
 	}
 
 	debug.Log("Imported template: %s (version: %s)", template.Name, template.Version)
-	
+
 	// Validate config
 	if template.Config == nil {
 		return nil, fmt.Errorf("template contains no configuration")
@@ -126,7 +126,7 @@ func (tm *TemplateManager) ImportTemplate(nameOrPath string) (*pkgconfig.Config,
 // ListTemplates lists available templates
 func (tm *TemplateManager) ListTemplates() ([]TemplateInfo, error) {
 	debug.LogSection("List Templates")
-	
+
 	// Check if template directory exists
 	if _, err := os.Stat(tm.templateDir); os.IsNotExist(err) {
 		debug.Log("Template directory does not exist: %s", tm.templateDir)
@@ -175,7 +175,7 @@ func (tm *TemplateManager) ListTemplates() ([]TemplateInfo, error) {
 // MergeConfigs merges two configurations, with the source overriding the target
 func (tm *TemplateManager) MergeConfigs(target, source *pkgconfig.Config) *pkgconfig.Config {
 	debug.LogSection("Merge Configurations")
-	
+
 	// Create a new config based on target
 	merged := &pkgconfig.Config{
 		Version:     source.Version, // Use source version
@@ -245,11 +245,11 @@ func (tm *TemplateManager) ValidateTemplate(cfg *pkgconfig.Config) error {
 
 // ConfigTemplate represents a configuration template with metadata
 type ConfigTemplate struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Version     string                 `json:"version"`
-	Config      *pkgconfig.Config      `json:"config"`
-	Metadata    TemplateMetadata       `json:"metadata"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Version     string            `json:"version"`
+	Config      *pkgconfig.Config `json:"config"`
+	Metadata    TemplateMetadata  `json:"metadata"`
 }
 
 // TemplateMetadata contains template metadata
@@ -272,67 +272,8 @@ func CloneCommandConfig(c *pkgconfig.CommandConfig) *pkgconfig.CommandConfig {
 		return nil
 	}
 
-	clone := &pkgconfig.CommandConfig{
-		Command: c.Command,
-		Prompt:  c.Prompt,
-		Timeout: c.Timeout,
-	}
-
-	// Clone args
-	if c.Args != nil {
-		clone.Args = make([]string, len(c.Args))
-		copy(clone.Args, c.Args)
-	}
-
-	// Clone error detection
-	if c.ErrorDetection != nil {
-		clone.ErrorDetection = &pkgconfig.ErrorDetection{}
-		if c.ErrorDetection.ExitCodes != nil {
-			clone.ErrorDetection.ExitCodes = make([]int, len(c.ErrorDetection.ExitCodes))
-			copy(clone.ErrorDetection.ExitCodes, c.ErrorDetection.ExitCodes)
-		}
-		if c.ErrorDetection.Patterns != nil {
-			clone.ErrorDetection.Patterns = make([]*pkgconfig.RegexPattern, len(c.ErrorDetection.Patterns))
-			for i, p := range c.ErrorDetection.Patterns {
-				clone.ErrorDetection.Patterns[i] = &pkgconfig.RegexPattern{
-					Pattern: p.Pattern,
-					Flags:   p.Flags,
-				}
-			}
-		}
-	}
-
-	// Clone output filter
-	if c.OutputFilter != nil {
-		clone.OutputFilter = &pkgconfig.FilterConfig{
-			MaxOutput:    c.OutputFilter.MaxOutput,
-			ContextLines: c.OutputFilter.ContextLines,
-		}
-		
-		// Clone error patterns
-		if c.OutputFilter.ErrorPatterns != nil {
-			clone.OutputFilter.ErrorPatterns = make([]*pkgconfig.RegexPattern, len(c.OutputFilter.ErrorPatterns))
-			for i, p := range c.OutputFilter.ErrorPatterns {
-				clone.OutputFilter.ErrorPatterns[i] = &pkgconfig.RegexPattern{
-					Pattern: p.Pattern,
-					Flags:   p.Flags,
-				}
-			}
-		}
-		
-		// Clone include patterns
-		if c.OutputFilter.IncludePatterns != nil {
-			clone.OutputFilter.IncludePatterns = make([]*pkgconfig.RegexPattern, len(c.OutputFilter.IncludePatterns))
-			for i, p := range c.OutputFilter.IncludePatterns {
-				clone.OutputFilter.IncludePatterns[i] = &pkgconfig.RegexPattern{
-					Pattern: p.Pattern,
-					Flags:   p.Flags,
-				}
-			}
-		}
-	}
-
-	return clone
+	// Use the Clone method from pkg/config/config.go
+	return c.Clone()
 }
 
 // clonePathConfig creates a deep copy of PathConfig

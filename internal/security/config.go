@@ -39,7 +39,7 @@ func LoadConfig(configPath string) (*Config, error) {
 	if strings.Contains(cleanPath, "..") {
 		return nil, fmt.Errorf("invalid config path: contains directory traversal")
 	}
-	
+
 	// #nosec G304 - path is validated above
 	data, err := os.ReadFile(cleanPath)
 	if err != nil {

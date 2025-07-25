@@ -65,8 +65,8 @@ func TestFileMapper_MapFilesToComponents(t *testing.T) {
 		expected []ComponentGroup
 	}{
 		{
-			name:  "empty files",
-			files: []string{},
+			name:     "empty files",
+			files:    []string{},
 			expected: nil,
 		},
 		{

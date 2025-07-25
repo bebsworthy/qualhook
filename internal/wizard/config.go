@@ -36,7 +36,7 @@ func NewConfigWizard() (*ConfigWizard, error) {
 // Run runs the interactive configuration wizard
 func (w *ConfigWizard) Run(outputPath string, force bool) error {
 	debug.LogSection("Configuration Wizard")
-	
+
 	// Determine output path
 	path, err := w.determineOutputPath(outputPath)
 	if err != nil {
@@ -259,15 +259,11 @@ func (w *ConfigWizard) configureMonorepoPaths(cfg *pkgconfig.Config, info *detec
 
 					pathConfig.Commands[cmdName] = &pkgconfig.CommandConfig{
 						Command: command,
-						ErrorDetection: &pkgconfig.ErrorDetection{
-							ExitCodes: []int{1},
+						ExitCodes: []int{1},
+						ErrorPatterns: []*pkgconfig.RegexPattern{
+							{Pattern: "error", Flags: "i"},
 						},
-						OutputFilter: &pkgconfig.FilterConfig{
-							ErrorPatterns: []*pkgconfig.RegexPattern{
-								{Pattern: "error", Flags: "i"},
-							},
-							MaxOutput: 100,
-						},
+						MaxOutput: 100,
 					}
 				}
 
@@ -286,7 +282,7 @@ func (w *ConfigWizard) determineOutputPath(outputPath string) (string, error) {
 	if outputPath != "" {
 		return outputPath, nil
 	}
-	
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("failed to get current directory: %w", err)
@@ -300,7 +296,7 @@ func (w *ConfigWizard) checkExistingConfig(outputPath string) (bool, error) {
 		// File doesn't exist, proceed
 		return true, nil
 	}
-	
+
 	overwrite := false
 	prompt := &survey.Confirm{
 		Message: fmt.Sprintf("Configuration already exists at %s. Overwrite?", outputPath),
@@ -430,7 +426,7 @@ func (w *ConfigWizard) validateAndSave(cfg *pkgconfig.Config, outputPath string)
 	validator := config.NewValidator()
 	if err := validator.Validate(cfg); err != nil {
 		fmt.Printf("\n⚠️  Configuration validation warning: %v\n", err)
-		
+
 		saveAnyway := false
 		prompt := &survey.Confirm{
 			Message: "Do you want to save anyway?",
@@ -490,10 +486,10 @@ func (w *ConfigWizard) configureProjectType(cfg *pkgconfig.Config) error {
 // configureStandardCommands configures the standard commands (format, lint, typecheck, test)
 func (w *ConfigWizard) configureStandardCommands(cfg *pkgconfig.Config) error {
 	fmt.Println("\nLet's configure the standard commands.")
-	
+
 	standardCommands := []struct {
-		name   string
-		prompt string
+		name          string
+		prompt        string
 		defaultPrompt string
 	}{
 		{"format", "Formatting command", "Fix the formatting issues below:"},
@@ -518,7 +514,7 @@ func (w *ConfigWizard) configureStandardCommands(cfg *pkgconfig.Config) error {
 // configureStandardCommand configures a single standard command
 func (w *ConfigWizard) configureStandardCommand(name, prompt, defaultPrompt string) (*pkgconfig.CommandConfig, error) {
 	fmt.Printf("\n📝 Configuring '%s' command:\n", name)
-	
+
 	command := ""
 	commandPrompt := &survey.Input{
 		Message: prompt + " (leave empty to skip):",
@@ -526,7 +522,7 @@ func (w *ConfigWizard) configureStandardCommand(name, prompt, defaultPrompt stri
 	if err := survey.AskOne(commandPrompt, &command); err != nil {
 		return nil, err
 	}
-	
+
 	if command == "" {
 		fmt.Printf("  Skipping %s command.\n", name)
 		return nil, nil
@@ -573,10 +569,8 @@ func (w *ConfigWizard) configureErrorDetection(cmdConfig *pkgconfig.CommandConfi
 	if err := survey.AskOne(exitCodesPrompt, &exitCodes); err != nil {
 		return err
 	}
-	
-	cmdConfig.ErrorDetection = &pkgconfig.ErrorDetection{
-		ExitCodes: make([]int, 0, len(exitCodes)),
-	}
+
+	cmdConfig.ExitCodes = make([]int, 0, len(exitCodes))
 	for _, code := range exitCodes {
 		var exitCode int
 		_, err := fmt.Sscanf(code, "%d", &exitCode)
@@ -584,9 +578,9 @@ func (w *ConfigWizard) configureErrorDetection(cmdConfig *pkgconfig.CommandConfi
 			// Skip invalid exit codes
 			continue
 		}
-		cmdConfig.ErrorDetection.ExitCodes = append(cmdConfig.ErrorDetection.ExitCodes, exitCode)
+		cmdConfig.ExitCodes = append(cmdConfig.ExitCodes, exitCode)
 	}
-	
+
 	return nil
 }
 
@@ -600,14 +594,12 @@ func (w *ConfigWizard) configureOutputFilter(cmdConfig *pkgconfig.CommandConfig)
 	if err := survey.AskOne(errorPatternPrompt, &errorPattern); err != nil {
 		return err
 	}
-	
-	cmdConfig.OutputFilter = &pkgconfig.FilterConfig{
-		ErrorPatterns: []*pkgconfig.RegexPattern{
-			{Pattern: errorPattern, Flags: "i"},
-		},
-		MaxOutput: 100,
+
+	cmdConfig.ErrorPatterns = []*pkgconfig.RegexPattern{
+		{Pattern: errorPattern, Flags: "i"},
 	}
-	
+	cmdConfig.MaxOutput = 100
+
 	return nil
 }
 
@@ -648,15 +640,11 @@ func (w *ConfigWizard) configureCustomCommands(cfg *pkgconfig.Config) error {
 
 		cfg.Commands[cmdName] = &pkgconfig.CommandConfig{
 			Command: command,
-			ErrorDetection: &pkgconfig.ErrorDetection{
-				ExitCodes: []int{1},
+			ExitCodes: []int{1},
+			ErrorPatterns: []*pkgconfig.RegexPattern{
+				{Pattern: "error", Flags: "i"},
 			},
-			OutputFilter: &pkgconfig.FilterConfig{
-				ErrorPatterns: []*pkgconfig.RegexPattern{
-					{Pattern: "error", Flags: "i"},
-				},
-				MaxOutput: 100,
-			},
+			MaxOutput: 100,
 		}
 	}
 
