@@ -4,6 +4,7 @@ package executor
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -66,7 +67,7 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 	}
 
 	startTime := time.Now()
-	
+
 	// Initialize result
 	result := &ParallelResult{
 		Results: make(map[string]*ExecResult),
@@ -80,13 +81,13 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 
 	// Create semaphore for limiting parallelism
 	semaphore := make(chan struct{}, pe.maxParallel)
-	
+
 	// Create wait group for synchronization
 	var wg sync.WaitGroup
-	
+
 	// Mutex for result map access
 	var resultMutex sync.Mutex
-	
+
 	// Progress tracking
 	var progressMutex sync.Mutex
 	completed := 0
@@ -94,14 +95,14 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 	// Execute commands
 	for _, cmd := range commands {
 		wg.Add(1)
-		
+
 		go func(pc ParallelCommand) {
 			defer wg.Done()
-			
+
 			// Acquire semaphore
 			semaphore <- struct{}{}
 			defer func() { <-semaphore }()
-			
+
 			// Check context cancellation
 			select {
 			case <-ctx.Done():
@@ -114,36 +115,71 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 				return
 			default:
 			}
-			
+
 			// Execute command
 			execResult, err := pe.executor.Execute(pc.Command, pc.Args, pc.Options)
+			
 			if err != nil {
-				execResult = &ExecResult{
-					ExitCode: -1,
-					Error:    err,
+				// The Execute method may return both a result and an error
+				// Preserve any partial output or diagnostic information
+				if execResult == nil {
+					// Only create a new result if Execute returned nil
+					errorMsg := fmt.Sprintf("Command execution failed: %v\nCommand: %s %s", err, pc.Command, strings.Join(pc.Args, " "))
+					execResult = &ExecResult{
+						ExitCode: -1,
+						Error:    err,
+						Stderr:   errorMsg,
+					}
+				} else {
+					// Preserve existing result but ensure error is recorded
+					if execResult.Error == nil {
+						execResult.Error = err
+					}
+					// Ensure non-zero exit code for errors
+					if execResult.ExitCode == 0 {
+						execResult.ExitCode = -1
+					}
+					// Add error context to stderr if it's empty
+					if execResult.Stderr == "" && err != nil {
+						execResult.Stderr = fmt.Sprintf("Error: %v", err)
+					}
+				}
+			} else if execResult != nil && execResult.TimedOut {
+				// Handle timeout case where Execute doesn't return an error
+				// but sets the TimedOut flag
+				timeout := pc.Options.Timeout
+				if timeout <= 0 {
+					timeout = pe.executor.defaultTimeout
+				}
+				if execResult.Stderr == "" {
+					execResult.Stderr = fmt.Sprintf("Command timed out after %v\nCommand: %s %s", timeout, pc.Command, strings.Join(pc.Args, " "))
+				}
+				// Create an error for consistency
+				if execResult.Error == nil {
+					execResult.Error = fmt.Errorf("command timed out after %v", timeout)
 				}
 			}
-			
+
 			// Store result
 			resultMutex.Lock()
 			result.Results[pc.ID] = execResult
 			resultMutex.Unlock()
-			
+
 			// Update progress
 			if progress != nil {
 				progressMutex.Lock()
 				completed++
 				currentCompleted := completed
 				progressMutex.Unlock()
-				
+
 				progress(currentCompleted, len(commands), pc.ID)
 			}
 		}(cmd)
 	}
-	
+
 	// Wait for all commands to complete
 	wg.Wait()
-	
+
 	// Calculate statistics
 	result.TotalTime = time.Since(startTime)
 	for _, execResult := range result.Results {
@@ -154,7 +190,7 @@ func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelComm
 			result.SuccessCount++
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -165,7 +201,7 @@ func (pe *ParallelExecutor) ExecuteWithAggregation(ctx context.Context, commands
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Aggregate results
 	aggregated := &AggregatedResult{
 		ParallelResult: parallelResult,
@@ -173,32 +209,32 @@ func (pe *ParallelExecutor) ExecuteWithAggregation(ctx context.Context, commands
 		CombinedStderr: make([]string, 0),
 		FailedCommands: make([]string, 0),
 	}
-	
+
 	// Collect output in order
 	for _, id := range parallelResult.Order {
 		execResult, ok := parallelResult.Results[id]
 		if !ok {
 			continue
 		}
-		
+
 		// Add stdout if present
 		if execResult.Stdout != "" {
-			aggregated.CombinedStdout = append(aggregated.CombinedStdout, 
+			aggregated.CombinedStdout = append(aggregated.CombinedStdout,
 				fmt.Sprintf("=== %s ===\n%s", id, execResult.Stdout))
 		}
-		
+
 		// Add stderr if present
 		if execResult.Stderr != "" {
 			aggregated.CombinedStderr = append(aggregated.CombinedStderr,
 				fmt.Sprintf("=== %s ===\n%s", id, execResult.Stderr))
 		}
-		
+
 		// Track failures
 		if execResult.Error != nil || execResult.ExitCode != 0 || execResult.TimedOut {
 			aggregated.FailedCommands = append(aggregated.FailedCommands, id)
 		}
 	}
-	
+
 	return aggregated, nil
 }
 
@@ -218,7 +254,7 @@ func (ar *AggregatedResult) GetFailureSummary() string {
 	if !ar.HasFailures {
 		return ""
 	}
-	
+
 	summary := fmt.Sprintf("Failed commands (%d/%d):\n", ar.FailureCount, len(ar.Order))
 	for _, id := range ar.FailedCommands {
 		if result, ok := ar.Results[id]; ok {
@@ -232,7 +268,7 @@ func (ar *AggregatedResult) GetFailureSummary() string {
 			}
 		}
 	}
-	
+
 	return summary
 }
 
@@ -248,15 +284,15 @@ func NewParallelExecutorPool(size int, commandExecutor *CommandExecutor, maxPara
 	if size <= 0 {
 		size = 1
 	}
-	
+
 	pool := &ParallelExecutorPool{
 		executors: make([]*ParallelExecutor, size),
 	}
-	
+
 	for i := 0; i < size; i++ {
 		pool.executors[i] = NewParallelExecutor(commandExecutor, maxParallel)
 	}
-	
+
 	return pool
 }
 
@@ -264,9 +300,9 @@ func NewParallelExecutorPool(size int, commandExecutor *CommandExecutor, maxPara
 func (p *ParallelExecutorPool) Get() *ParallelExecutor {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	
+
 	executor := p.executors[p.current]
 	p.current = (p.current + 1) % len(p.executors)
-	
+
 	return executor
 }

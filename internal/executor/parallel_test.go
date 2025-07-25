@@ -15,23 +15,23 @@ func TestNewParallelExecutor(t *testing.T) {
 	cmdExecutor := NewCommandExecutor(10 * time.Second)
 
 	tests := []struct {
-		name            string
-		maxParallel     int
+		name             string
+		maxParallel      int
 		expectedParallel int
 	}{
 		{
-			name:            "positive value",
-			maxParallel:     8,
+			name:             "positive value",
+			maxParallel:      8,
 			expectedParallel: 8,
 		},
 		{
-			name:            "zero value defaults to 4",
-			maxParallel:     0,
+			name:             "zero value defaults to 4",
+			maxParallel:      0,
 			expectedParallel: 4,
 		},
 		{
-			name:            "negative value defaults to 4",
-			maxParallel:     -1,
+			name:             "negative value defaults to 4",
+			maxParallel:      -1,
 			expectedParallel: 4,
 		},
 	}
@@ -62,7 +62,7 @@ func TestParallelExecute_Basic(t *testing.T) {
 			cmd = echoCommand
 			args = []string{fmt.Sprintf("test%d", i)}
 		}
-		
+
 		commands = append(commands, ParallelCommand{
 			ID:      fmt.Sprintf("cmd-%d", i),
 			Command: cmd,
@@ -134,7 +134,7 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 			cmd = echoCommand
 			args = []string{"test"}
 		}
-		
+
 		commands = append(commands, ParallelCommand{
 			ID:      fmt.Sprintf("cmd-%d", i),
 			Command: cmd,
@@ -147,14 +147,14 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 	var progressCount int32
 	progressIDs := make(map[string]bool)
 	var mu sync.Mutex
-	
+
 	progress := func(completed, total int, currentID string) {
 		atomic.AddInt32(&progressCount, 1)
-		
+
 		mu.Lock()
 		progressIDs[currentID] = true
 		mu.Unlock()
-		
+
 		if completed > total {
 			t.Errorf("completed %d > total %d", completed, total)
 		}
@@ -175,7 +175,7 @@ func TestParallelExecute_WithProgress(t *testing.T) {
 	mu.Lock()
 	progressIDCount := len(progressIDs)
 	mu.Unlock()
-	
+
 	if progressIDCount != 4 {
 		t.Errorf("expected 4 unique IDs in progress, got %d", progressIDCount)
 	}
@@ -451,7 +451,7 @@ func TestGetFailureSummary(t *testing.T) {
 
 func TestParallelExecutorPool(t *testing.T) {
 	cmdExecutor := NewCommandExecutor(10 * time.Second)
-	
+
 	tests := []struct {
 		name         string
 		size         int
@@ -566,4 +566,161 @@ func getBothOutputArgs(stdout, stderr string) []string {
 		return []string{"/c", fmt.Sprintf("echo %s && echo %s 1>&2", stdout, stderr)}
 	}
 	return []string{shArgC, fmt.Sprintf("echo '%s' && echo '%s' >&2", stdout, stderr)}
+}
+
+// TestParallelExecute_ErrorHandlingPreservesOutput verifies that error information
+// is properly preserved when command execution fails
+func TestParallelExecute_ErrorHandlingPreservesOutput(t *testing.T) {
+	cmdExecutor := NewCommandExecutor(10 * time.Second)
+	pe := NewParallelExecutor(cmdExecutor, 2)
+
+	tests := []struct {
+		name          string
+		command       ParallelCommand
+		expectError   bool
+		checkStderr   bool
+		checkExitCode bool
+	}{
+		{
+			name: "command validation failure preserves error details",
+			command: ParallelCommand{
+				ID:      "validation-fail",
+				Command: "test-command",
+				Args:    []string{";", "dangerous", "arg"},
+				Options: ExecOptions{},
+			},
+			expectError:   true,
+			checkStderr:   true,
+			checkExitCode: true,
+		},
+		{
+			name: "command with non-zero exit code",
+			command: ParallelCommand{
+				ID:      "exit-error",
+				Command: getExitCommand(),
+				Args:    getExitArgs(42),
+				Options: ExecOptions{},
+			},
+			expectError:   false, // Exit commands typically don't return Go errors
+			checkExitCode: true,
+		},
+		{
+			name: "command with stderr output before failure",
+			command: ParallelCommand{
+				ID:      "stderr-then-fail",
+				Command: getStderrCommand(),
+				Args:    getStderrArgs("Error message before failure"),
+				Options: ExecOptions{},
+			},
+			expectError: false,
+			checkStderr: true,
+		},
+		{
+			name: "command with timeout shows clear timeout message",
+			command: ParallelCommand{
+				ID:      "timeout-test",
+				Command: getSleepCommand(),
+				Args:    getSleepArgs(5), // Sleep for 5 seconds
+				Options: ExecOptions{
+					Timeout: 100 * time.Millisecond, // But timeout after 100ms
+				},
+			},
+			expectError:   true,
+			checkStderr:   true,
+			checkExitCode: true,
+		},
+		{
+			name: "command with format specifiers in args handled safely",
+			command: ParallelCommand{
+				ID:      "format-specifier-test",
+				Command: "test-command",
+				Args:    []string{"%s", "%d", "%;rm -rf /", "%v"},
+				Options: ExecOptions{},
+			},
+			expectError:   true,
+			checkStderr:   true,
+			checkExitCode: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			result, err := pe.Execute(ctx, []ParallelCommand{tt.command}, nil)
+
+			if err != nil {
+				t.Fatalf("unexpected Execute error: %v", err)
+			}
+
+			execResult, ok := result.Results[tt.command.ID]
+			if !ok {
+				t.Fatal("result not found for command")
+			}
+
+			// Verify error information is preserved
+			if tt.expectError && execResult.Error == nil {
+				t.Error("expected error to be preserved, but got nil")
+			}
+
+			// Verify stderr contains useful information
+			if tt.checkStderr && execResult.Stderr == "" {
+				t.Error("expected stderr to contain error information, but it was empty")
+			}
+
+			// Verify non-zero exit code for errors
+			if tt.checkExitCode && execResult.ExitCode == 0 {
+				t.Errorf("expected non-zero exit code for error, got %d", execResult.ExitCode)
+			}
+
+			// For validation failures, verify the command details are in error output
+			if tt.command.ID == "validation-fail" {
+				if execResult.Stderr != "" && !strings.Contains(execResult.Stderr, "test-command") {
+					t.Errorf("expected stderr to contain command name 'test-command', got: %s",
+						execResult.Stderr)
+				}
+			}
+			
+			// For timeout tests, verify timeout message and flag
+			if tt.command.ID == "timeout-test" {
+				if !execResult.TimedOut {
+					t.Error("expected TimedOut flag to be true for timeout test")
+				}
+				if execResult.Stderr != "" && !strings.Contains(execResult.Stderr, "timed out") {
+					t.Errorf("expected stderr to contain 'timed out', got: %s", execResult.Stderr)
+				}
+				if execResult.Stderr != "" && !strings.Contains(execResult.Stderr, "100ms") {
+					t.Errorf("expected stderr to contain timeout duration '100ms', got: %s", execResult.Stderr)
+				}
+			}
+			
+			// For format specifier test, verify args are properly escaped
+			if tt.command.ID == "format-specifier-test" {
+				// The error message should contain the literal format specifiers, not interpreted
+				if execResult.Stderr != "" {
+					if !strings.Contains(execResult.Stderr, "%s") || !strings.Contains(execResult.Stderr, "%d") {
+						t.Errorf("expected stderr to contain literal format specifiers, got: %s", execResult.Stderr)
+					}
+					// Verify the dangerous args are shown correctly
+					if !strings.Contains(execResult.Stderr, "%s %d %;rm -rf / %v") {
+						t.Errorf("expected stderr to show all args safely, got: %s", execResult.Stderr)
+					}
+				}
+			}
+
+			// Log the results for debugging
+			t.Logf("Command: %s %v", tt.command.Command, tt.command.Args)
+			t.Logf("ExitCode: %d", execResult.ExitCode)
+			t.Logf("Error: %v", execResult.Error)
+			t.Logf("Stderr: %s", execResult.Stderr)
+			t.Logf("Stdout: %s", execResult.Stdout)
+		})
+	}
+}
+
+// TestParallelExecute_PreservesPartialOutput verifies that partial output
+// is preserved even when commands fail
+func TestParallelExecute_PreservesPartialOutput(t *testing.T) {
+	// This test would require a mock executor that can simulate
+	// partial output before failure. For now, we document the expected behavior.
+	t.Skip("Test requires mock executor implementation")
 }
