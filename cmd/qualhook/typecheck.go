@@ -45,7 +45,3 @@ Exit codes:
   # src/api.ts:45:12: error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'
   # src/models.py:23: error: Incompatible return value type (got "str", expected "int")`,
 )
-
-func init() {
-	rootCmd.AddCommand(typecheckCmd)
-}

@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint": {
+      "command": "golangci-lint",
+      "args": ["run", "./..."],
+      "files": ["**/*.go"],
+      "exclude": ["vendor", "*_test.go"],
+      "errorPatterns": [{"pattern": "error:"}, {"pattern": "^([^:]+):(\\d+):(\\d+):"}],
+      "warningPatterns": [{"pattern": "warning:"}],
+      "outputFormat": "line-number"
+    },
+    "test": {
+      "command": "go",
+      "args": ["test", "-v", "./..."],
+      "files": ["**/*_test.go"],
+      "errorPatterns": [{"pattern": "FAIL"}, {"pattern": "--- FAIL:"}],
+      "warningPatterns": [{"pattern": "warning"}],
+      "env": {
+        "GO111MODULE": "on"
+      }
+    },
+    "build": {
+      "command": "go",
+      "args": ["build", "-o", "bin/app", "./cmd/..."],
+      "files": ["**/*.go"],
+      "exclude": ["*_test.go"]
+    },
+    "vet": {
+      "command": "go",
+      "args": ["vet", "./..."],
+      "files": ["**/*.go"],
+      "errorPatterns": [{"pattern": "vet:"}]
+    }
+  }
+}

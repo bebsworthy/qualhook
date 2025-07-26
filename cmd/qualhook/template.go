@@ -84,9 +84,6 @@ Examples:
 }
 
 func init() {
-	// Add template command to root
-	rootCmd.AddCommand(templateCmd)
-
 	// Add subcommands
 	templateCmd.AddCommand(exportCmd)
 	templateCmd.AddCommand(importCmd)

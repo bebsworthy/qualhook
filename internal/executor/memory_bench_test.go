@@ -1,3 +1,5 @@
+//go:build unit
+
 // Package executor provides command execution functionality for qualhook.
 package executor
 

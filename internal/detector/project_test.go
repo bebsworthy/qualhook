@@ -1,3 +1,5 @@
+//go:build unit
+
 package detector
 
 import (
@@ -111,6 +113,7 @@ func TestProjectDetector_Detect(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Create temporary directory
 			tmpDir := t.TempDir()
 
@@ -559,8 +562,10 @@ func TestProjectDetector_MonorepoSubProjects(t *testing.T) {
 		"packages/web/tsconfig.json":      `{}`,
 		"packages/api/go.mod":             `module api`,
 		"packages/api/go.sum":             ``,
-		"packages/cli/Cargo.toml":         `[package]\nname = "cli"`,
-		"packages/scripts/pyproject.toml": `[tool.poetry]\nname = "scripts"`,
+		"packages/cli/Cargo.toml":         `[package]
+name = "cli"`,
+		"packages/scripts/pyproject.toml": `[tool.poetry]
+name = "scripts"`,
 	}
 
 	for path, content := range files {

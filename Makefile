@@ -43,15 +43,43 @@ build-all: ## Build for multiple platforms
 	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-windows-amd64.exe ./cmd/qualhook
 
 .PHONY: test
-test: ## Run tests
-	@echo "Running tests..."
-	$(GOTEST) -v -race -coverprofile=coverage.out ./...
+test: ## Run all tests
+	@echo "Running all tests..."
+	$(GOTEST) -v -race -tags="unit,integration,e2e" -coverprofile=coverage.out $$(go list ./... | grep -v /test/fixtures/)
+
+.PHONY: test-unit
+test-unit: ## Run unit tests only
+	@echo "Running unit tests..."
+	$(GOTEST) -v -race -tags=unit -coverprofile=coverage-unit.out $$(go list ./... | grep -v /test/fixtures/)
+
+.PHONY: test-integration
+test-integration: ## Run integration tests only
+	@echo "Running integration tests..."
+	$(GOTEST) -v -race -tags=integration -coverprofile=coverage-integration.out $$(go list ./... | grep -v /test/fixtures/)
+
+.PHONY: test-e2e
+test-e2e: ## Run end-to-end tests only
+	@echo "Running end-to-end tests..."
+	$(GOTEST) -v -race -tags=e2e -coverprofile=coverage-e2e.out $$(go list ./... | grep -v /test/fixtures/)
 
 .PHONY: test-coverage
 test-coverage: test ## Run tests with coverage report
 	@echo "Generating coverage report..."
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
+
+.PHONY: test-coverage-unit
+test-coverage-unit: test-unit ## Run unit tests with coverage report
+	@echo "Generating unit test coverage report..."
+	$(GOCMD) tool cover -html=coverage-unit.out -o coverage-unit.html
+	@echo "Unit test coverage report generated: coverage-unit.html"
+
+.PHONY: test-metrics
+test-metrics: ## Collect comprehensive test quality metrics
+	@echo "Collecting test quality metrics..."
+	@./scripts/test_metrics.sh
+	@echo "Opening dashboard..."
+	@open test_metrics/dashboard.html 2>/dev/null || xdg-open test_metrics/dashboard.html 2>/dev/null || echo "Dashboard available at: test_metrics/dashboard.html"
 
 .PHONY: lint
 lint: check-golangci-lint ## Run golangci-lint
@@ -83,7 +111,7 @@ download: ## Download go modules
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
 	@rm -rf $(BINARY_DIR)
-	@rm -f coverage.out coverage.html
+	@rm -f coverage.out coverage.html coverage-unit.out coverage-integration.out coverage-e2e.out coverage-unit.html
 
 .PHONY: install
 install: build ## Install the binary

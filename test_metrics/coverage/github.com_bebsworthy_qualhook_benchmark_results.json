@@ -1,0 +1,6 @@
+{"Time":"2025-07-26T08:36:33.101944+02:00","Action":"start","Package":"github.com/bebsworthy/qualhook/benchmark_results"}
+{"Time":"2025-07-26T08:36:33.263052+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/benchmark_results","Output":"testing: warning: no tests to run\n"}
+{"Time":"2025-07-26T08:36:33.26314+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/benchmark_results","Output":"PASS\n"}
+{"Time":"2025-07-26T08:36:33.263552+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/benchmark_results","Output":"coverage: [no statements]\n"}
+{"Time":"2025-07-26T08:36:33.264018+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/benchmark_results","Output":"ok  \tgithub.com/bebsworthy/qualhook/benchmark_results\t0.162s\tcoverage: [no statements] [no tests to run]\n"}
+{"Time":"2025-07-26T08:36:33.264037+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/benchmark_results","Elapsed":0.162}

@@ -1,0 +1,53 @@
+{"Time":"2025-07-26T08:36:34.555542+02:00","Action":"start","Package":"github.com/bebsworthy/qualhook/internal/debug"}
+{"Time":"2025-07-26T08:36:34.717641+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogger"}
+{"Time":"2025-07-26T08:36:34.717753+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogger","Output":"=== RUN   TestLogger\n"}
+{"Time":"2025-07-26T08:36:34.717773+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogger","Output":"--- PASS: TestLogger (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717782+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogger","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717791+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogSection"}
+{"Time":"2025-07-26T08:36:34.717796+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogSection","Output":"=== RUN   TestLogSection\n"}
+{"Time":"2025-07-26T08:36:34.717801+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogSection","Output":"--- PASS: TestLogSection (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717805+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogSection","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.71781+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogCommand"}
+{"Time":"2025-07-26T08:36:34.717814+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogCommand","Output":"=== RUN   TestLogCommand\n"}
+{"Time":"2025-07-26T08:36:34.717818+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogCommand","Output":"--- PASS: TestLogCommand (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717822+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogCommand","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717826+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogTiming"}
+{"Time":"2025-07-26T08:36:34.71783+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogTiming","Output":"=== RUN   TestLogTiming\n"}
+{"Time":"2025-07-26T08:36:34.717834+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogTiming","Output":"--- PASS: TestLogTiming (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717838+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogTiming","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717846+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogPatternMatch"}
+{"Time":"2025-07-26T08:36:34.71785+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogPatternMatch","Output":"=== RUN   TestLogPatternMatch\n"}
+{"Time":"2025-07-26T08:36:34.717857+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogPatternMatch","Output":"--- PASS: TestLogPatternMatch (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717867+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogPatternMatch","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717871+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogFilterProcess"}
+{"Time":"2025-07-26T08:36:34.717875+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogFilterProcess","Output":"=== RUN   TestLogFilterProcess\n"}
+{"Time":"2025-07-26T08:36:34.717879+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogFilterProcess","Output":"--- PASS: TestLogFilterProcess (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717883+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogFilterProcess","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717901+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogError"}
+{"Time":"2025-07-26T08:36:34.717905+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogError","Output":"=== RUN   TestLogError\n"}
+{"Time":"2025-07-26T08:36:34.717909+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogError","Output":"--- PASS: TestLogError (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717913+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestLogError","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717917+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestFormatDuration"}
+{"Time":"2025-07-26T08:36:34.717921+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestFormatDuration","Output":"=== RUN   TestFormatDuration\n"}
+{"Time":"2025-07-26T08:36:34.717925+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestFormatDuration","Output":"--- PASS: TestFormatDuration (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717929+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestFormatDuration","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717933+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTruncate"}
+{"Time":"2025-07-26T08:36:34.717937+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTruncate","Output":"=== RUN   TestTruncate\n"}
+{"Time":"2025-07-26T08:36:34.717941+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTruncate","Output":"--- PASS: TestTruncate (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.717944+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTruncate","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.717948+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTimingIntegration"}
+{"Time":"2025-07-26T08:36:34.717952+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTimingIntegration","Output":"=== RUN   TestTimingIntegration\n"}
+{"Time":"2025-07-26T08:36:34.728936+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTimingIntegration","Output":"--- PASS: TestTimingIntegration (0.01s)\n"}
+{"Time":"2025-07-26T08:36:34.72896+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestTimingIntegration","Elapsed":0.01}
+{"Time":"2025-07-26T08:36:34.728982+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix"}
+{"Time":"2025-07-26T08:36:34.728988+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix","Output":"=== RUN   TestDebugPrefix\n"}
+{"Time":"2025-07-26T08:36:34.728993+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix","Output":"=== PAUSE TestDebugPrefix\n"}
+{"Time":"2025-07-26T08:36:34.728998+02:00","Action":"pause","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix"}
+{"Time":"2025-07-26T08:36:34.729003+02:00","Action":"cont","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix"}
+{"Time":"2025-07-26T08:36:34.729007+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix","Output":"=== CONT  TestDebugPrefix\n"}
+{"Time":"2025-07-26T08:36:34.730147+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix","Output":"--- PASS: TestDebugPrefix (0.00s)\n"}
+{"Time":"2025-07-26T08:36:34.730165+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Test":"TestDebugPrefix","Elapsed":0}
+{"Time":"2025-07-26T08:36:34.730186+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Output":"PASS\n"}
+{"Time":"2025-07-26T08:36:34.731806+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Output":"coverage: 89.1% of statements\n"}
+{"Time":"2025-07-26T08:36:34.732487+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/debug","Output":"ok  \tgithub.com/bebsworthy/qualhook/internal/debug\t0.176s\tcoverage: 89.1% of statements\n"}
+{"Time":"2025-07-26T08:36:34.7325+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/debug","Elapsed":0.177}

@@ -1,3 +1,5 @@
+//go:build unit
+
 // Package filter provides pattern compilation and caching functionality.
 package filter
 
@@ -11,22 +13,7 @@ import (
 // BenchmarkOptimizedPatternSet compares optimized vs regular pattern matching
 func BenchmarkOptimizedPatternSet(b *testing.B) {
 	// Mix of simple and complex patterns
-	patterns := []*config.RegexPattern{
-		// Literals
-		{Pattern: "ERROR", Flags: ""},
-		{Pattern: "WARNING", Flags: ""},
-		{Pattern: "FATAL", Flags: ""},
-		// Prefixes
-		{Pattern: "^DEBUG:", Flags: ""},
-		{Pattern: "INFO:.*", Flags: ""},
-		// Suffixes
-		{Pattern: ".*\\.go$", Flags: ""},
-		{Pattern: ".js$", Flags: ""},
-		// Complex patterns
-		{Pattern: `\d+:\d+:\d+`, Flags: ""},
-		{Pattern: `(error|warning|fatal)`, Flags: "i"},
-		{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""},
-	}
+	patterns := append(append([]*config.RegexPattern{}, LiteralPatterns...), PrefixSuffixPatterns...)
 
 	// Test inputs
 	testInputs := []string{
@@ -68,13 +55,7 @@ func BenchmarkOptimizedPatternSet(b *testing.B) {
 
 // BenchmarkLiteralMatching tests performance of literal pattern matching
 func BenchmarkLiteralMatching(b *testing.B) {
-	literalPatterns := []*config.RegexPattern{
-		{Pattern: "ERROR", Flags: ""},
-		{Pattern: "WARNING", Flags: ""},
-		{Pattern: "INFO", Flags: ""},
-		{Pattern: "DEBUG", Flags: ""},
-		{Pattern: "FATAL", Flags: ""},
-	}
+	literalPatterns := LiteralPatterns
 
 	b.Run("RegexLiterals", func(b *testing.B) {
 		cache, _ := NewPatternCache()
@@ -102,14 +83,7 @@ func BenchmarkLiteralMatching(b *testing.B) {
 
 // BenchmarkPrefixSuffixMatching tests prefix/suffix optimization
 func BenchmarkPrefixSuffixMatching(b *testing.B) {
-	patterns := []*config.RegexPattern{
-		{Pattern: "^ERROR:", Flags: ""},
-		{Pattern: "^WARNING:", Flags: ""},
-		{Pattern: "INFO:.*", Flags: ""},
-		{Pattern: ".*\\.go$", Flags: ""},
-		{Pattern: ".*\\.js$", Flags: ""},
-		{Pattern: ".py$", Flags: ""},
-	}
+	patterns := PrefixSuffixPatterns
 
 	testInputs := []string{
 		"ERROR: Connection failed",

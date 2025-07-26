@@ -1,0 +1,4201 @@
+{
+  "timestamp": "2025-07-26T05:52:46Z",
+  "go_version": "go1.24.4",
+  "os": "Darwin",
+  "arch": "arm64",
+  "metrics": {
+    "coverage": {
+      "average": 65.95,
+      "packages_total": 14,
+      "packages_with_tests": 14,
+      "packages_without_tests": 0,
+      "by_package": [
+        {
+          "package": "github.com/bebsworthy/qualhook/benchmark_results",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/cmd/qualhook",
+          "coverage": 42.7,
+          "test_files": 5
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/config",
+          "coverage": 51.4,
+          "test_files": 4
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/debug",
+          "coverage": 89.1,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/detector",
+          "coverage": 88.3,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "coverage": 76.2,
+          "test_files": 9
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/filter",
+          "coverage": 55.7,
+          "test_files": 7
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/hook",
+          "coverage": 92.7,
+          "test_files": 2
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/reporter",
+          "coverage": 98.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/security",
+          "coverage": 67.6,
+          "test_files": 4
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "coverage": 74.7,
+          "test_files": 5
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/watcher",
+          "coverage": 86.2,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/wizard",
+          "coverage": 6.7,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/pkg/config",
+          "coverage": 94.0,
+          "test_files": 2
+        }
+      ]
+    },
+    "execution_time": {
+      "by_package": [
+        {
+          "package": "github.com/bebsworthy/qualhook/cmd/qualhook",
+          "tests": [
+            {
+              "name": "TestCommandStructure/format_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure/lint_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure/typecheck_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure/test_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure/config_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure/template_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandStructure",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp/format_help",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp/lint_help",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp/typecheck_help",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp/test_help",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp/config_help",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelp",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandFlags/config_validate_flag",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandFlags",
+              "duration": 0
+            },
+            {
+              "name": "TestTemplateSubcommands/list_subcommand",
+              "duration": 0
+            },
+            {
+              "name": "TestTemplateSubcommands/export_subcommand",
+              "duration": 0
+            },
+            {
+              "name": "TestTemplateSubcommands/import_subcommand",
+              "duration": 0
+            },
+            {
+              "name": "TestTemplateSubcommands",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_format_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_lint_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_typecheck_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_test_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_config_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure/has_template_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommandStructure",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/format_success",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/lint_success",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/typecheck_success",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/test_success",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/format_with_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/lint_with_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution/custom_command_success",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandExecution",
+              "duration": 0.02
+            },
+            {
+              "name": "TestMonorepoFileAwareExecution/frontend_file_edit_triggers_frontend_lint",
+              "duration": 0
+            },
+            {
+              "name": "TestMonorepoFileAwareExecution/backend_file_edit_triggers_backend_lint",
+              "duration": 0
+            },
+            {
+              "name": "TestMonorepoFileAwareExecution/no_hook_input_runs_root_command",
+              "duration": 0
+            },
+            {
+              "name": "TestMonorepoFileAwareExecution",
+              "duration": 0.01
+            },
+            {
+              "name": "TestConfigValidation/valid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigValidation/missing_command_field",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigValidation/invalid_version",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigValidation",
+              "duration": 0
+            },
+            {
+              "name": "TestDebugMode",
+              "duration": 0
+            },
+            {
+              "name": "TestFailingCommands/command_exits_with_error_code",
+              "duration": 0
+            },
+            {
+              "name": "TestFailingCommands/command_output_matches_error_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestFailingCommands",
+              "duration": 0.01
+            },
+            {
+              "name": "TestScriptExecution/successful_script",
+              "duration": 0
+            },
+            {
+              "name": "TestScriptExecution/failing_script",
+              "duration": 0
+            },
+            {
+              "name": "TestScriptExecution",
+              "duration": 0.01
+            },
+            {
+              "name": "TestNewRootCmd",
+              "duration": 0
+            },
+            {
+              "name": "TestParseGlobalFlags/no_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestParseGlobalFlags/debug_flag",
+              "duration": 0
+            },
+            {
+              "name": "TestParseGlobalFlags/config_flag",
+              "duration": 0
+            },
+            {
+              "name": "TestParseGlobalFlags/both_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestParseGlobalFlags",
+              "duration": 0
+            },
+            {
+              "name": "TestExtractNonFlagArgs/no_args",
+              "duration": 0
+            },
+            {
+              "name": "TestExtractNonFlagArgs/only_non-flag_args",
+              "duration": 0
+            },
+            {
+              "name": "TestExtractNonFlagArgs/mixed_args",
+              "duration": 0
+            },
+            {
+              "name": "TestExtractNonFlagArgs/config_flag_with_value",
+              "duration": 0
+            },
+            {
+              "name": "TestExtractNonFlagArgs",
+              "duration": 0
+            },
+            {
+              "name": "TestTryCustomCommand/existing_custom_command",
+              "duration": 0
+            },
+            {
+              "name": "TestTryCustomCommand/non-existing_command",
+              "duration": 0
+            },
+            {
+              "name": "TestTryCustomCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommand/help_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommand/version_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommand/unknown_command",
+              "duration": 0
+            },
+            {
+              "name": "TestRootCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand/successful_command_execution",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand/command_not_found_in_config",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand/command_with_extra_arguments",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand/command_with_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteCommand_WithHookInput",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0.05,
+          "test_count": 73
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/config",
+          "tests": [
+            {
+              "name": "TestNewDefaultConfigs",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/nodejs",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/go",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/python",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/rust",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/unknown",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig/invalid",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_NodeJSConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GoConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetCommonErrorPatterns/nodejs",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetCommonErrorPatterns/go",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetCommonErrorPatterns/python",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetCommonErrorPatterns/rust",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_GetCommonErrorPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_MergeWithDefaults",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Node.js_with_package.json",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Node.js_with_yarn.lock",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Go_with_go.mod",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Python_with_requirements.txt",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Rust_with_Cargo.toml",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/Unknown_project_type",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType/No_markers",
+              "duration": 0
+            },
+            {
+              "name": "TestDetectProjectType",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_ExportTemplate/nodejs",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_ExportTemplate/go",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_ExportTemplate/python",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_ExportTemplate/rust",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_ExportTemplate",
+              "duration": 0
+            },
+            {
+              "name": "TestDefaultConfigs_CloneIsolation",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_Load",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFromEnv",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadForMonorepo",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadErrors/invalid_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadErrors/missing_version",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadErrors/invalid_command",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadErrors",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_NoConfigFound",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend_frontend",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/backend_backend",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend_frontend/",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend/src_frontend/",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend_frontend/**",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend/src_frontend/**",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/frontend/src/components_frontend/**",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/backend_frontend",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/src_frontend/",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath/_frontend",
+              "duration": 0
+            },
+            {
+              "name": "TestMatchesPath",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateConfigFile",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/basic_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/complex_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/golang_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/python_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/monorepo_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/minimal_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures/invalid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_LoadFixtures",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_ProjectFixtures/golang_project",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_ProjectFixtures/nodejs_project",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_ProjectFixtures/python_project",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_ProjectFixtures/monorepo_project",
+              "duration": 0
+            },
+            {
+              "name": "TestLoader_ProjectFixtures",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/command_with_shell_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/args_with_command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/valid_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/command_with_pipe",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/dangerous_rm_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks/curl_with_malicious_output",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand_SecurityChecks",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/ReDoS_vulnerable_pattern_-_nested_quantifiers",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/ReDoS_vulnerable_pattern_-_alternation",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/safe_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/pattern_too_long",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/too_many_capturing_groups",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns/invalid_regex_syntax",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_MaliciousRegexPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/valid_relative_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/path_with_directory_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/absolute_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/windows_absolute_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/path_with_null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns/empty_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_PathTraversalInPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_TimeoutLimits/valid_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_TimeoutLimits/timeout_too_large",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_TimeoutLimits/negative_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_TimeoutLimits/timeout_too_short",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_TimeoutLimits",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_CommandWhitelist/allowed_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_CommandWhitelist/disallowed_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_CommandWhitelist/allowed_command_with_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_CommandWhitelist",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_ComplexMaliciousConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_ResourceExhaustion/excessive_output_filter_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_ResourceExhaustion/pattern_designed_to_consume_CPU",
+              "duration": 0
+            },
+            {
+              "name": "TestValidate_ResourceExhaustion",
+              "duration": 0
+            },
+            {
+              "name": "TestSuggestFixes_SecurityErrors/regex_pattern_error",
+              "duration": 0
+            },
+            {
+              "name": "TestSuggestFixes_SecurityErrors/timeout_error",
+              "duration": 0
+            },
+            {
+              "name": "TestSuggestFixes_SecurityErrors/path_pattern_error",
+              "duration": 0
+            },
+            {
+              "name": "TestSuggestFixes_SecurityErrors",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidateCommand/valid_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidateCommand/command_with_allowed_list",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidateCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_SuggestFixes/command_\"npm\"_not_found_in_PATH",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_SuggestFixes/invalid_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_SuggestFixes/invalid_regex_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_SuggestFixes/timeout_50ms_is_too_short",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_SuggestFixes",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/simple_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/too_many_capture_groups",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/greedy_nested_quantifiers",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/catastrophic_backtracking",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/line:column_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/nested_quantifiers",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/pattern_too_long",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex/whitespace_catastrophic_backtracking",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_CheckDangerousRegex",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/path\\x00null",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/frontend/**",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/../parent",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/#00",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern//absolute/path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/src/**/*.js",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/packages/*/src",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern/[invalid",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_ValidatePathPattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate/valid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate/dangerous_regex_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate/invalid_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate/timeout_too_long",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate/timeout_too_short",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_Validate",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/ERROR|WARN|FAIL",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/\\d+:\\d+",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/error",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/^\\s*at\\s+",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/\\s+",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/.*",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/\\w+",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/.+",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/^.+$",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern/^.*$",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsTooGenericPattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed/npm",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed/go",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed//usr/local/bin/npm",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed/rm",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed/curl",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed/./custom-script",
+              "duration": 0
+            },
+            {
+              "name": "TestValidator_IsCommandAllowed",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 151
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/debug",
+          "tests": [
+            {
+              "name": "TestLogger",
+              "duration": 0
+            },
+            {
+              "name": "TestLogSection",
+              "duration": 0
+            },
+            {
+              "name": "TestLogCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestLogTiming",
+              "duration": 0
+            },
+            {
+              "name": "TestLogPatternMatch",
+              "duration": 0
+            },
+            {
+              "name": "TestLogFilterProcess",
+              "duration": 0
+            },
+            {
+              "name": "TestLogError",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatDuration",
+              "duration": 0
+            },
+            {
+              "name": "TestTruncate",
+              "duration": 0
+            },
+            {
+              "name": "TestTimingIntegration",
+              "duration": 0.01
+            },
+            {
+              "name": "TestDebugPrefix",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0.01,
+          "test_count": 11
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/detector",
+          "tests": [
+            {
+              "name": "TestProjectDetector_Detect/Laravel_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Python_project_with_pyproject.toml",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Java_Gradle_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/TypeScript_Node.js_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Python_project_with_setup.py",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Empty_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/PHP_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Multiple_project_types",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Django_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Rust_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Java_Maven_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Node.js_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Go_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Unknown_project_type",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect/Ruby_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_Detect",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectWithDotNetProject",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectInvalidPath",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_ConfidenceScoring/Full_Node.js_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_ConfidenceScoring/Minimal_Go_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_ConfidenceScoring/Complete_Rust_project",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_ConfidenceScoring",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Lerna_monorepo",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Nx_monorepo",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/pnpm_workspace",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Go_workspace",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Turborepo",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Not_a_monorepo",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo/Yarn_workspaces",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_DetectMonorepo",
+              "duration": 0.01
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/nodejs",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/go",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/rust",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/python",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/java",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/ruby",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/php",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/dotnet",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/unknown",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName/#00",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_GetDefaultConfigName",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_NestedProjects",
+              "duration": 0
+            },
+            {
+              "name": "TestProjectDetector_MonorepoSubProjects",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0.01,
+          "test_count": 43
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "tests": [
+            {
+              "name": "TestExecError_Error/command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error/permission_denied_with_args",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error/timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error/working_directory_error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error/execution_error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error/unknown_error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/matches_command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/matches_permission_denied",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/matches_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/matches_working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/does_not_match_different_error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is/does_not_match_random_error",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Is",
+              "duration": 0
+            },
+            {
+              "name": "TestExecError_Unwrap",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/nil_error",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/context_deadline_exceeded",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/exec.Error_-_file_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/exec.Error_-_permission_denied",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/exit_error",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/string_contains_permission_denied",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/string_contains_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/string_contains_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/string_contains_working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError/unknown_error",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError",
+              "duration": 0
+            },
+            {
+              "name": "TestHandleTimeoutCleanup/nil_command",
+              "duration": 0
+            },
+            {
+              "name": "TestHandleTimeoutCleanup/command_with_nil_process",
+              "duration": 0
+            },
+            {
+              "name": "TestHandleTimeoutCleanup",
+              "duration": 0
+            },
+            {
+              "name": "TestClassifyError_RealExecErrors",
+              "duration": 0
+            },
+            {
+              "name": "TestErrorMessages/ErrCommandNotFound",
+              "duration": 0
+            },
+            {
+              "name": "TestErrorMessages/ErrPermissionDenied",
+              "duration": 0
+            },
+            {
+              "name": "TestErrorMessages/ErrTimeout",
+              "duration": 0
+            },
+            {
+              "name": "TestErrorMessages/ErrInvalidWorkingDirectory",
+              "duration": 0
+            },
+            {
+              "name": "TestErrorMessages",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/timeout_behavior/command_completes_before_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/timeout_behavior/command_times_out",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/timeout_behavior",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/error_handling/command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/error_handling/exit_with_code_1",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/error_handling/exit_with_code_42",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/error_handling",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/environment_variables/custom_environment_variable",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/environment_variables/multiple_environment_variables",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor/environment_variables",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/CommandExecutor",
+              "duration": 0.12
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/timeout_behavior/command_completes_before_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/timeout_behavior/command_times_out",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/timeout_behavior",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/error_handling/command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/error_handling/exit_with_code_1",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/error_handling/exit_with_code_42",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/error_handling",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/environment_variables/custom_environment_variable",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/environment_variables/multiple_environment_variables",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand/environment_variables",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand",
+              "duration": 0.12
+            },
+            {
+              "name": "TestExecutors_CommonBehavior",
+              "duration": 0.24
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles/no_edited_files",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles/frontend_file_edited",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles/backend_file_edited",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles/root_file_edited",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles/unknown_command",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ExecuteForEditedFiles",
+              "duration": 0.01
+            },
+            {
+              "name": "TestFileAwareExecutor_getStatusText/nil_output",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_getStatusText/no_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_getStatusText/has_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_getStatusText",
+              "duration": 0
+            },
+            {
+              "name": "TestNewFileAwareExecutor",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns/single_js_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns/single_ts_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns/test_file_matches_multiple_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns/multiple_files_different_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns/files_outside_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_MultipleFilePatterns",
+              "duration": 0.01
+            },
+            {
+              "name": "TestFileAwareExecutor_OverlappingPaths/file_in_src_root",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_OverlappingPaths/file_in_components",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_OverlappingPaths/file_in_ui_subdirectory",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_OverlappingPaths/file_outside_src",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_OverlappingPaths",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_VeryLargeFileList",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_PatternPriorityAndPrecedence/generic_js_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_PatternPriorityAndPrecedence/src_js_file_matches_two_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_PatternPriorityAndPrecedence/critical_js_file_matches_all_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_PatternPriorityAndPrecedence/non-js_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_PatternPriorityAndPrecedence",
+              "duration": 0.01
+            },
+            {
+              "name": "TestFileAwareExecutor_EmptyAndNilEdgeCases/empty_file_list",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_EmptyAndNilEdgeCases/file_in_path_with_empty_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_EmptyAndNilEdgeCases/file_in_path_with_nil_command",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_EmptyAndNilEdgeCases/non-existent_command",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_EmptyAndNilEdgeCases",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_SymbolicLinks/symlink_to_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_SymbolicLinks/symlink_to_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_SymbolicLinks",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ConcurrentFileMapping",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ComplexGlobPatterns/public_js_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ComplexGlobPatterns/private_js_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ComplexGlobPatterns/typescript_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ComplexGlobPatterns/jsx_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileAwareExecutor_ComplexGlobPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/semicolon_injection_in_command",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/pipe_injection_in_command",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/backtick_injection_in_args",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/dollar_sign_command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/logical_AND_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/logical_OR_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/newline_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/null_byte_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/escaped_null_byte_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/output_redirection_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/input_redirection_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/encoded_semicolon_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention/encoded_pipe_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandInjectionPrevention",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/directory_traversal_with_..",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/absolute_path_to_system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/windows_system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/path_with_null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/valid_relative_path",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention/non-existent_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_PathTraversalPrevention",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentVariableFiltering",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_DangerousCommands/rm_with_force_and_recursive_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands/rm_with_separate_force_and_recursive_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands/safe_rm_command",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands/curl_with_output_to_sensitive_location",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands/wget_with_output_to_sensitive_location",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands/format_command",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_DangerousCommands",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandWhitelist/allowed_command_echo",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandWhitelist/allowed_command_npm",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecute_CommandWhitelist/disallowed_command_curl",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandWhitelist/disallowed_command_rm",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandWhitelist",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecute_TimeoutValidation/valid_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_TimeoutValidation/timeout_exceeds_maximum",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_TimeoutValidation/negative_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_TimeoutValidation/very_short_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_TimeoutValidation",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection/valid_environment_variable",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection/environment_with_command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection/environment_with_backticks",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection/environment_with_null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection/PATH_with_parent_directory_reference",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_EnvironmentInjection",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_ConcurrentSecurity",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithBuilders/echo_command_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithBuilders/failing_command_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithBuilders/timeout_scenario_with_builders",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecutorWithBuilders/script_execution_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithBuilders/environment_variables_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithBuilders",
+              "duration": 0.11
+            },
+            {
+              "name": "TestParallelExecutorWithBuilders/parallel_commands_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorWithBuilders/mixed_success_and_failure_with_builders",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorWithBuilders",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/basic_isolated_execution",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/test_with_directory_structure",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/custom_whitelisted_command",
+              "duration": 0.12
+            },
+            {
+              "name": "TestExecutorWithIsolation/cleanup_functionality",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/parallel_executor_with_isolation",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation/path_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation/system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation/command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation/piping",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation/redirection",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation/security_validation",
+              "duration": 0
+            },
+            {
+              "name": "TestExecutorWithIsolation",
+              "duration": 0.13
+            },
+            {
+              "name": "TestMigrationExample/new_style_test",
+              "duration": 0
+            },
+            {
+              "name": "TestMigrationExample",
+              "duration": 0
+            },
+            {
+              "name": "TestStreamingWriter",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_Empty",
+              "duration": 0
+            },
+            {
+              "name": "TestNewCommandExecutor/with_valid_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestNewCommandExecutor/with_zero_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestNewCommandExecutor/with_negative_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestNewCommandExecutor",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_Basic",
+              "duration": 0
+            },
+            {
+              "name": "TestNewParallelExecutor/positive_value",
+              "duration": 0
+            },
+            {
+              "name": "TestNewParallelExecutor/negative_value_defaults_to_4",
+              "duration": 0
+            },
+            {
+              "name": "TestNewParallelExecutor/zero_value_defaults_to_4",
+              "duration": 0
+            },
+            {
+              "name": "TestNewParallelExecutor",
+              "duration": 0
+            },
+            {
+              "name": "TestExecuteWithAggregation",
+              "duration": 0.01
+            },
+            {
+              "name": "TestParallelExecute_WithFailures",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecuteWithStreaming",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_CommandSpecific/empty_command",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandSpecific/invalid_working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommandSpecific/working_directory",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_CommandSpecific",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorPool/positive_size",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorPool/negative_size_defaults_to_1",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorPool/zero_size_defaults_to_1",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecutorPool",
+              "duration": 0
+            },
+            {
+              "name": "TestGetFailureSummary/no_failures",
+              "duration": 0
+            },
+            {
+              "name": "TestGetFailureSummary/error_failure",
+              "duration": 0
+            },
+            {
+              "name": "TestGetFailureSummary/exit_code_failure",
+              "duration": 0
+            },
+            {
+              "name": "TestGetFailureSummary/timeout_failure",
+              "duration": 0
+            },
+            {
+              "name": "TestGetFailureSummary",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_WithProgress",
+              "duration": 0.02
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput/command_validation_failure_preserves_error_details",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput/command_with_format_specifiers_in_args_handled_safely",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput/command_with_stderr_output_before_failure",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput/command_with_non-zero_exit_code",
+              "duration": 0.01
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput/command_with_timeout_shows_clear_timeout_message",
+              "duration": 0.1
+            },
+            {
+              "name": "TestParallelExecute_ErrorHandlingPreservesOutput",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommonScenarios/command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestExecute_CommonScenarios/success",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_CommonScenarios/environment_variable",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_CommonScenarios/non-zero_exit",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExecute_CommonScenarios/timeout",
+              "duration": 0.1
+            },
+            {
+              "name": "TestExecute_CommonScenarios",
+              "duration": 0
+            },
+            {
+              "name": "TestParallelExecute_ContextCancellation",
+              "duration": 2.01
+            }
+          ],
+          "total_duration": 3.95,
+          "test_count": 210
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/filter",
+          "tests": [
+            {
+              "name": "TestNewOutputFilter/nil_rules",
+              "duration": 0
+            },
+            {
+              "name": "TestNewOutputFilter/valid_rules",
+              "duration": 0
+            },
+            {
+              "name": "TestNewOutputFilter/invalid_regex_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestNewOutputFilter",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Filter/simple_error",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Filter/line_number_format",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Filter/no_matches",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Filter/multiple_errors_with_context",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Filter",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/FilterBoth_detects_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/intelligent_truncate_preserves_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/stream_filter_outputs_error_lines",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/large_output_with_truncation",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/empty_patterns_no_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations/context_overlap_includes_all_lines",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputFilter_Operations",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/nested_quantifiers_(.*)*",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/nested_quantifiers_(.+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/alternation_with_quantifier_(a|a)*",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/complex_nested_groups_((a+)+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/safe_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention/safe_alternation",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ReDoSPrevention",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_PatternTimeout",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/exponential_backtracking",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/nested_groups_with_alternation",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/overlapping_alternation",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/complex_lookahead",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/deeply_nested_groups",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns/alternation_of_similar_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_MaliciousPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns/simple_error_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns/line_number_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns/log_level_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns/file_path_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns/test_result_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_SafePatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_ConcurrentAccess",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns/SQL_injection_detection",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns/XSS_detection",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns/Path_traversal_detection",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns/Command_injection_detection",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns/Overly_broad_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidation_SecurityPatterns",
+              "duration": 0
+            },
+            {
+              "name": "TestNewPatternCache",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_GetOrCompile/nil_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_GetOrCompile/valid_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_GetOrCompile/invalid_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_GetOrCompile/pattern_with_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_GetOrCompile",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_Caching",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_Concurrent",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_Precompile",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternCache_Clear",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_TestPattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_TestPatternBatch",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_OptimizePattern/pattern_without_anchors",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_OptimizePattern/pattern_with_greedy_quantifier",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_OptimizePattern/already_optimized",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_OptimizePattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_NewPatternSet",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAny/This_is_an_ERROR_message",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAny/Just_a_warning_here",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAny/Normal_output",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAny/error_and_warning",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAny",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_MatchAll",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternSet_FindAll",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_Validate/nil_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_Validate/empty_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_Validate/valid_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_Validate/invalid_regex",
+              "duration": 0
+            },
+            {
+              "name": "TestPatternValidator_Validate",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 73
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/hook",
+          "tests": [
+            {
+              "name": "TestNewParser",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/valid_input_with_Edit_tool",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/valid_input_without_tool_use",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/invalid_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/missing_session_id",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/missing_cwd",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/missing_hook_event_name",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse/empty_session_id",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_Parse",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ParseJSON/valid_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ParseJSON/invalid_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ParseJSON/empty_input",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ParseJSON/null_input",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ParseJSON",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/nil_input",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/no_tool_use",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/Edit_tool_with_file_path",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/Write_tool_with_file_path",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/MultiEdit_tool_with_file_path",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/case_insensitive_tool_name",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/unknown_tool_type",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/Edit_tool_with_empty_file_path",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/Edit_tool_with_missing_file_path",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles/invalid_tool_input_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractEditedFiles",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/empty_inputs",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/nil_inputs",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/single_input_with_file",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/multiple_inputs_with_different_files",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/duplicate_files_are_deduplicated",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/mixed_valid_and_no_tool_use",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles/error_in_one_input",
+              "duration": 0
+            },
+            {
+              "name": "TestParser_ExtractAllEditedFiles",
+              "duration": 0
+            },
+            {
+              "name": "ExampleParser_Parse",
+              "duration": 0
+            },
+            {
+              "name": "ExampleParser_ExtractAllEditedFiles",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 35
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/reporter",
+          "tests": [
+            {
+              "name": "TestNewErrorReporter",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios/no_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios/with_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios/execution_error",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios/monorepo_multiple_components",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios/truncated_output",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_Scenarios",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors/exit_code_match",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors/exit_code_no_match",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors/filtered_output_has_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors/no_config_non-zero_exit",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors/no_config_zero_exit",
+              "duration": 0
+            },
+            {
+              "name": "TestHasErrors",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/custom_prompt",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/format_default",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/lint_default",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/typecheck_default",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/test_default",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt/unknown_command",
+              "duration": 0
+            },
+            {
+              "name": "TestGetPrompt",
+              "duration": 0
+            },
+            {
+              "name": "TestReportSingleError",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatExecutionError/command_not_found",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatExecutionError/permission_denied",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatExecutionError/timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatExecutionError/working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestFormatExecutionError",
+              "duration": 0
+            },
+            {
+              "name": "TestGroupByCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_FallbackAndMixed/fallback_to_stderr_output",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_FallbackAndMixed/fallback_to_stdout_when_no_stderr",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_FallbackAndMixed/mixed_results",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_FallbackAndMixed",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases/partial_output_before_error",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases/extremely_large_error_output",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases/empty_results_slice",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases/nil_exec_result",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases/mixed_stdout_and_stderr_in_same_component",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_EdgeCases",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ConcurrentErrorReporting/concurrent_report_calls",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ConcurrentErrorReporting/concurrent_error_aggregation_simulation",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ConcurrentErrorReporting",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ErrorAggregationFromMultipleSources/multiple_error_types_from_different_tools",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ErrorAggregationFromMultipleSources/aggregated_errors_without_execution_errors",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ErrorAggregationFromMultipleSources/mixed_success_and_failure_across_components",
+              "duration": 0
+            },
+            {
+              "name": "TestReport_ErrorAggregationFromMultipleSources",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 44
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/security",
+          "tests": [
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity/filter_all_sensitive_variables",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity/filter_variables_with_sensitive_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity/filter_malicious_PATH_entries",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity/minimal_environment_when_not_inheriting",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity/filter_command_injection_in_values",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment_ComprehensiveSecurity",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security/valid_merge",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security/override_base_with_custom",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security/reject_malformed_custom_env",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security/reject_dangerous_custom_values",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security/reject_null_bytes_in_custom_env",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment_Security",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/valid_PATH",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/PATH_with_current_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/PATH_with_parent_directory_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/PATH_with_home_expansion",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/empty_PATH_entries",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/Windows-style_PATH",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security/Windows_PATH_with_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePathEnv_Security",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateMinimalEnvironment",
+              "duration": 0
+            },
+            {
+              "name": "TestEnvironmentSanitization_RealWorldScenarios/AWS_credential_theft_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestEnvironmentSanitization_RealWorldScenarios/LD_PRELOAD_hijacking",
+              "duration": 0
+            },
+            {
+              "name": "TestEnvironmentSanitization_RealWorldScenarios/Shell_configuration_hijacking",
+              "duration": 0
+            },
+            {
+              "name": "TestEnvironmentSanitization_RealWorldScenarios/Database_credential_theft",
+              "duration": 0
+            },
+            {
+              "name": "TestEnvironmentSanitization_RealWorldScenarios",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment/minimal_environment",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment/filter_sensitive_variables",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment/filter_variables_with_sensitive_patterns",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment/filter_dangerous_system_variables",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment/filter_command_injection_attempts",
+              "duration": 0
+            },
+            {
+              "name": "TestSanitizeEnvironment",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/valid_value",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/backtick_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/pipe_character",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/PATH_with_relative_entry",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/PATH_with_parent_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue/valid_PATH",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateEnvValue",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment/simple_merge",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment/invalid_custom_format",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment/dangerous_custom_value",
+              "duration": 0
+            },
+            {
+              "name": "TestMergeEnvironment",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/NORMAL_VAR",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/DB_PASSWORD",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/API_SECRET",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/AUTH_TOKEN",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/PRIVATE_KEY",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/ACCESS_KEY_ID",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/MY_CREDENTIAL",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/password_hash",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern/SECRET_VALUE",
+              "duration": 0
+            },
+            {
+              "name": "TestContainsSensitivePattern",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/safe_command_execution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/command_injection_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/null_byte_in_arguments",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/dangerous_command_with_force_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/environment_variable_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution/path_traversal_in_working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_CommandExecution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation/safe_configuration",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation/configuration_with_shell_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation/configuration_with_ReDoS_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation/configuration_with_path_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation/configuration_with_excessive_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_ConfigurationValidation",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios/Log4Shell-style_attack",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios/Container_escape_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios/Supply_chain_attack",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios/Cryptomining_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios/CI/CD_pipeline_poisoning",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_RealWorldScenarios",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/valid_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/empty_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/command_with_shell_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/args_with_shell_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/command_with_pipe",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/command_with_backticks",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/command_with_dollar_sign_execution",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/dangerous_rm_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/safe_rm_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/encoded_shell_metacharacters",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommandWithWhitelist/allowed_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommandWithWhitelist/allowed_command_with_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommandWithWhitelist/disallowed_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommandWithWhitelist/disallowed_command_with_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommandWithWhitelist",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/valid_relative_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/valid_nested_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/empty_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/path_with_null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/path_with_directory_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/path_with_encoded_traversal",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/absolute_path_to_system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath/windows_system_path",
+              "duration": 0
+            },
+            {
+              "name": "TestValidatePath",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/valid_simple_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/valid_complex_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/ReDoS_vulnerable_pattern_-_nested_quantifiers",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/ReDoS_vulnerable_pattern_-_alternation",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/ReDoS_vulnerable_pattern_-_complex",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/too_many_alternations",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/too_many_capturing_groups",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/invalid_regex_syntax",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern/pattern_too_long",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateRegexPattern",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout/valid_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout/zero_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout/negative_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout/too_short_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout/timeout_exceeds_maximum",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateTimeout",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateResourceLimits/valid_limits",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateResourceLimits/output_size_exceeds_limit",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateResourceLimits/memory_limit_exceeds_maximum",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateResourceLimits",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a*)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a*)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a+)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(.*)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(.+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(.*)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(.+)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/([a-z]+)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/([a-z]*)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(\\d+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(\\w*)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/((a))+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a|a)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a|ab)*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/a*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/a+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/(a)",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/a|b",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/[a-z]+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/\\d+",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/\\w*",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/^test$",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern/error:_(.+)",
+              "duration": 0
+            },
+            {
+              "name": "TestCheckReDoSPattern",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_DefenseInDepth/multi-vector_attack_1",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_DefenseInDepth/multi-vector_attack_2",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_DefenseInDepth/multi-vector_attack_3",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_DefenseInDepth/multi-vector_attack_4",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityIntegration_DefenseInDepth",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 149
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "tests": [
+            {
+              "name": "TestCommandBuilder/default_values",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/fluent_interface",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/echo_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/sleep_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/failing_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/successful_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/script_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/build_options",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/execute_integration",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/config_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/project_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/output_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture/load_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture/load_output",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture/with_extension",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture/without_extension",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture/copy_config",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture/copy_project",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestSafeCommandEnvironment/creates_isolated_environment",
+              "duration": 0
+            },
+            {
+              "name": "TestSafeCommandEnvironment/whitelists_safe_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestSafeCommandEnvironment/blocks_dangerous_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestSafeCommandEnvironment/allows_adding_commands_to_whitelist",
+              "duration": 0
+            },
+            {
+              "name": "TestSafeCommandEnvironment",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/empty_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/non-whitelisted_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/safe_command",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/path_traversal_in_args",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/system_path_in_args",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/piping",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand/redirection",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestRunSafeCommand/executes_safe_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestRunSafeCommand/blocks_dangerous_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestRunSafeCommand/enforces_temp_directory_for_working_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestRunSafeCommand",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFile/creates_file_with_content",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFile/creates_nested_directories",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFile",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempDir/creates_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempDir/creates_nested_directories",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempDir",
+              "duration": 0
+            },
+            {
+              "name": "TestCleanup/runs_cleanup_functions_in_reverse_order",
+              "duration": 0
+            },
+            {
+              "name": "TestCleanup",
+              "duration": 0
+            },
+            {
+              "name": "TestWithIsolatedEnvironment/provides_isolated_environment_to_test_function",
+              "duration": 0
+            },
+            {
+              "name": "TestWithIsolatedEnvironment",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/default_values",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/fluent_interface",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/with_error_message",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/timed_out",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/timed_out_with_existing_error",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/success",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/success_with_stdout",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure_with_stderr",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure_with_code",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_matching",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_stdout_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_exit_code_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_error_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/must_equal_-_matching",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/must_equal_-_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigBuilder/basic_config_creation",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigBuilder/default_test_config",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigBuilder/write_to_file",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigBuilder",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputCapture/capture_stdout",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputCapture/capture_stderr",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputCapture/capture_both",
+              "duration": 0
+            },
+            {
+              "name": "TestOutputCapture",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelpers/safe_test_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelpers/failing_test_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelpers/successful_test_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandHelpers",
+              "duration": 0
+            },
+            {
+              "name": "TestTestWriter",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 81
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/watcher",
+          "tests": [
+            {
+              "name": "TestFileMapper_MapFilesToComponents/empty_files",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_MapFilesToComponents/single_frontend_file",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_MapFilesToComponents/frontend_component_file_(more_specific_match)",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_MapFilesToComponents/multiple_files_in_same_component",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_MapFilesToComponents/files_across_multiple_components",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_MapFilesToComponents",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/exact_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/wildcard_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/nested_wildcard_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/no_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/single_star_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath/question_mark_match",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_matchesPath",
+              "duration": 0
+            },
+            {
+              "name": "TestCalculateSpecificity/frontend/components/**_vs_frontend/**",
+              "duration": 0
+            },
+            {
+              "name": "TestCalculateSpecificity/src/components/button.js_vs_src/components/*.js",
+              "duration": 0
+            },
+            {
+              "name": "TestCalculateSpecificity/a/b/c/**_vs_a/**",
+              "duration": 0
+            },
+            {
+              "name": "TestCalculateSpecificity/src/*.js_vs_src/*.ts",
+              "duration": 0
+            },
+            {
+              "name": "TestCalculateSpecificity",
+              "duration": 0
+            },
+            {
+              "name": "TestFileMapper_mergeConfigs",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 19
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/wizard",
+          "tests": [
+            {
+              "name": "TestValidateConfig/valid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateConfig/invalid_config_-_missing_version",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateConfig/invalid_config_-_empty_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestValidateConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestNewConfigWizard",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 5
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/pkg/config",
+          "tests": [
+            {
+              "name": "TestConfig_Validate/valid_config_with_commands",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate/missing_version",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate/no_commands_or_paths",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate/invalid_command_config",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate/valid_config_with_paths",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate/invalid_path_config",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_Validate",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/valid_command_config",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/missing_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/negative_timeout",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/invalid_error_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/negative_context_lines",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate/valid_with_all_fields",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Validate",
+              "duration": 0
+            },
+            {
+              "name": "TestPathConfig_Validate/valid_path_config",
+              "duration": 0
+            },
+            {
+              "name": "TestPathConfig_Validate/missing_path",
+              "duration": 0
+            },
+            {
+              "name": "TestPathConfig_Validate/invalid_command",
+              "duration": 0
+            },
+            {
+              "name": "TestPathConfig_Validate/valid_with_extends",
+              "duration": 0
+            },
+            {
+              "name": "TestPathConfig_Validate",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/valid_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/valid_pattern_with_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/empty_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/invalid_regex",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/invalid_flag",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate/all_valid_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Validate",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Compile/simple_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Compile/pattern_with_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Compile/invalid_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestRegexPattern_Compile",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadConfig/valid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadConfig/invalid_JSON",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadConfig/invalid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadConfig/config_with_paths",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestSaveConfig/valid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestSaveConfig/invalid_config",
+              "duration": 0
+            },
+            {
+              "name": "TestSaveConfig",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandConfig_Clone",
+              "duration": 0
+            },
+            {
+              "name": "TestConfig_ComplexValidation",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 40
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/test/benchmarks",
+          "tests": [
+            {
+              "name": "TestExample",
+              "duration": 0.01
+            },
+            {
+              "name": "TestExampleSlow",
+              "duration": 0.1
+            }
+          ],
+          "total_duration": 0.11,
+          "test_count": 2
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/test/integration/executor",
+          "tests": [
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/semicolon_injection_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/pipe_injection_in_command",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/backtick_injection_in_args",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/dollar_sign_command_substitution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/logical_AND_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/logical_OR_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/newline_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/null_byte_injection",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/output_redirection_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/input_redirection_attempt",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/encoded_semicolon",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution/safe_command_execution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_CommandInjection_RealExecution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/directory_traversal_with_..",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/absolute_path_to_system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/windows_system_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/path_with_null_byte",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/valid_relative_path_within_temp",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution/non-existent_directory",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_PathTraversal_RealExecution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution/environment_injection_attempts/command_substitution_in_env",
+              "duration": 0.01
+            },
+            {
+              "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution/environment_injection_attempts/backtick_injection_in_env",
+              "duration": 0.01
+            },
+            {
+              "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution/environment_injection_attempts/null_byte_in_env",
+              "duration": 0.01
+            },
+            {
+              "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution/environment_injection_attempts",
+              "duration": 0.02
+            },
+            {
+              "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution",
+              "duration": 0.12
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution/rm_with_force_and_recursive",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution/rm_with_separate_flags",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution/safe_rm_single_file",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution/curl_to_sensitive_location",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution/safe_curl_to_temp",
+              "duration": 10
+            },
+            {
+              "name": "TestSecurityValidation_DangerousCommands_RealExecution",
+              "duration": 10
+            },
+            {
+              "name": "TestSecurityValidation_ConcurrentAttacks_RealExecution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/nested_quantifiers_(.*)*_",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/nested_quantifiers_(.+)+",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/alternation_with_star",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/excessive_alternations",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/safe_pattern",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution/pattern_too_long",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_RegexPatterns_RealExecution",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/chained_command_injection_attempts",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/environment_variable_expansion_attacks/direct_expansion",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/environment_variable_expansion_attacks/braced_expansion",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/environment_variable_expansion_attacks/command_with_expansion",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/environment_variable_expansion_attacks",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios/file_descriptor_manipulation",
+              "duration": 0
+            },
+            {
+              "name": "TestSecurityValidation_ComplexScenarios",
+              "duration": 0
+            }
+          ],
+          "total_duration": 20.17,
+          "test_count": 46
+        }
+      ],
+      "slowest_tests": [
+        {
+          "name": "TestSecurityValidation_DangerousCommands_RealExecution",
+          "package": "github.com/bebsworthy/qualhook/test/integration/executor",
+          "duration": 10
+        },
+        {
+          "name": "TestSecurityValidation_DangerousCommands_RealExecution/safe_curl_to_temp",
+          "package": "github.com/bebsworthy/qualhook/test/integration/executor",
+          "duration": 10
+        },
+        {
+          "name": "TestParallelExecute_ContextCancellation",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 2.01
+        },
+        {
+          "name": "TestExecutors_CommonBehavior",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.24
+        },
+        {
+          "name": "TestExecutorWithIsolation",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.13
+        },
+        {
+          "name": "TestSecurityValidation_EnvironmentFiltering_RealExecution",
+          "package": "github.com/bebsworthy/qualhook/test/integration/executor",
+          "duration": 0.12
+        },
+        {
+          "name": "TestExecutorWithIsolation/custom_whitelisted_command",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.12
+        },
+        {
+          "name": "TestExecutors_CommonBehavior/ParallelExecutor_SingleCommand",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.12
+        },
+        {
+          "name": "TestExecutors_CommonBehavior/CommandExecutor",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.12
+        },
+        {
+          "name": "TestExecutorWithBuilders",
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "duration": 0.11
+        }
+      ]
+    },
+    "flakiness": {
+      "flaky_test_count": 0,
+      "flaky_tests": []
+    },
+    "test_types": {
+      "total_test_files": 49,
+      "unit_test_files": 39,
+      "integration_test_files": 4,
+      "e2e_test_files": 0,
+      "benchmark_files": 7,
+      "example_files": 2
+    },
+    "code_ratio": {
+      "source_lines": 9822,
+      "test_lines": 18534,
+      "test_to_code_ratio": 1.88
+    },
+    "quality_score": {
+      "overall": 117.98,
+      "components": {
+        "coverage_score": 65.95,
+        "ratio_score": 188,
+        "test_presence_score": 100.00,
+        "flaky_penalty": 0
+      }
+    }
+  }
+}

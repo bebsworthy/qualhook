@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint": {
+      "command": "flake8",
+      "files": ["**/*.py"]
+    },
+    "test": {
+      "command": "pytest",
+      "files": ["**/*_test.py", "**/test_*.py"]
+    }
+  }
+}

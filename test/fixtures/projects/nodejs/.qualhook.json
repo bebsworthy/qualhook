@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint": {
+      "command": "eslint",
+      "args": ["."],
+      "files": ["**/*.js"]
+    },
+    "test": {
+      "command": "npm",
+      "args": ["test"],
+      "files": ["**/*.test.js"]
+    }
+  }
+}

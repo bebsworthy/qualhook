@@ -1,0 +1,2 @@
+file.go:10:5: undefined variable
+file.go:20:3: syntax error

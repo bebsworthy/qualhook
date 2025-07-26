@@ -145,8 +145,8 @@ func (v *Validator) validateRegexPattern(pattern *config.RegexPattern) error {
 	return nil
 }
 
-// checkDangerousRegex checks for regex patterns that could cause performance issues
-func (v *Validator) checkDangerousRegex(pattern string) error {
+// CheckDangerousRegex checks for regex patterns that could cause performance issues
+func (v *Validator) CheckDangerousRegex(pattern string) error {
 	// Check for catastrophic backtracking patterns
 	// Look for specific dangerous constructs
 	if strings.Contains(pattern, "(.*)*") ||

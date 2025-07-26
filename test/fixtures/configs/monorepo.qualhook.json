@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint:frontend": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "cwd": "packages/frontend",
+      "files": ["packages/frontend/**/*.{js,jsx,ts,tsx}"],
+      "errorPatterns": [{"pattern": "error"}, {"pattern": "✖"}],
+      "parallel": true
+    },
+    "lint:backend": {
+      "command": "npm",
+      "args": ["run", "lint"],
+      "cwd": "packages/backend",
+      "files": ["packages/backend/**/*.{js,ts}"],
+      "errorPatterns": [{"pattern": "error"}, {"pattern": "✖"}],
+      "parallel": true
+    },
+    "test:all": {
+      "command": "npm",
+      "args": ["run", "test:ci"],
+      "files": ["packages/**/*.{test,spec}.{js,ts}"],
+      "errorPatterns": [{"pattern": "FAIL"}, {"pattern": "✕"}],
+      "timeout": 60000
+    },
+    "build:all": {
+      "command": "npm",
+      "args": ["run", "build"],
+      "files": ["packages/**/*.{js,jsx,ts,tsx}"],
+      "exclude": ["**/*.test.*", "**/*.spec.*"],
+      "continueOnError": false
+    }
+  },
+  "settings": {
+    "parallelism": 2,
+    "workspaces": ["packages/*"]
+  }
+}

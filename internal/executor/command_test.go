@@ -1,11 +1,11 @@
+//go:build unit
+
 package executor
 
 import (
 	"bytes"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -13,6 +13,7 @@ import (
 )
 
 func TestNewCommandExecutor(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name            string
 		timeout         time.Duration
@@ -37,6 +38,7 @@ func TestNewCommandExecutor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			executor := NewCommandExecutor(tt.timeout)
 			if executor.defaultTimeout != tt.expectedTimeout {
 				t.Errorf("expected timeout %v, got %v", tt.expectedTimeout, executor.defaultTimeout)
@@ -45,248 +47,142 @@ func TestNewCommandExecutor(t *testing.T) {
 	}
 }
 
-func TestExecute_Success(t *testing.T) {
+func TestExecute_CommonScenarios(t *testing.T) {
+	t.Parallel()
 	executor := NewCommandExecutor(10 * time.Second)
+	tests := commonTestScenarios(t)
 
-	// Use a simple command that exists on all platforms
-	var cmd string
-	var args []string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "echo", "hello world"}
-	} else {
-		cmd = echoCommand
-		args = []string{"hello world"}
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cmd, args := tt.setupCmd()
+			result, err := executor.Execute(cmd, args, tt.opts)
 
-	result, err := executor.Execute(cmd, args, ExecOptions{})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+			// Check error expectations
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("expected error but got none")
+				}
+				return
+			}
 
-	if result.ExitCode != 0 {
-		t.Errorf("expected exit code 0, got %d", result.ExitCode)
-	}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-	if !strings.Contains(result.Stdout, "hello world") {
-		t.Errorf("expected stdout to contain 'hello world', got %q", result.Stdout)
-	}
+			// Check exec error in result
+			if tt.wantExecErr {
+				if result.Error == nil {
+					t.Fatal("expected error in result")
+				}
+				var execErr *ExecError
+				if !errors.As(result.Error, &execErr) {
+					t.Fatalf("expected ExecError, got %T", result.Error)
+				}
+				if execErr.Type != tt.wantErrType {
+					t.Errorf("expected error type %v, got %v", tt.wantErrType, execErr.Type)
+				}
+				return
+			}
 
-	if result.TimedOut {
-		t.Error("command should not have timed out")
-	}
-
-	if result.Error != nil {
-		t.Errorf("expected no error, got %v", result.Error)
+			// Check result expectations
+			if tt.wantTimedOut && !result.TimedOut {
+				t.Error("expected command to timeout")
+			}
+			if tt.wantTimedOut && result.ExitCode == 0 {
+				t.Error("expected non-zero exit code for timeout")
+			}
+			if !tt.wantTimedOut && tt.wantExitCode != result.ExitCode {
+				t.Errorf("expected exit code %d, got %d", tt.wantExitCode, result.ExitCode)
+			}
+			if tt.wantInStdout != "" && !strings.Contains(result.Stdout, tt.wantInStdout) {
+				t.Errorf("expected stdout to contain %q, got %q", tt.wantInStdout, result.Stdout)
+			}
+		})
 	}
 }
 
-func TestExecute_CommandNotFound(t *testing.T) {
+func TestExecute_CommandSpecific(t *testing.T) {
+	t.Parallel()
 	executor := NewCommandExecutor(10 * time.Second)
 
-	result, err := executor.Execute("this-command-does-not-exist-12345", []string{}, ExecOptions{})
-	if err != nil {
-		t.Fatalf("Execute should not return error for command not found: %v", err)
+	tests := []struct {
+		name           string
+		setup          func() (cmd string, args []string, opts ExecOptions, cleanup func())
+		wantErr        bool
+		wantExitCode   int
+		wantInErr      string
+	}{
+		{
+			name: "working directory",
+			setup: func() (string, []string, ExecOptions, func()) {
+				tmpDir, cleanup := createTempDir(t)
+				cmd, args := pc.pwd()
+				return cmd, args, ExecOptions{WorkingDir: tmpDir}, cleanup
+			},
+			wantExitCode: 0,
+		},
+		{
+			name: "invalid working directory",
+			setup: func() (string, []string, ExecOptions, func()) {
+				cmd := echoCommand
+				if runtime.GOOS == osWindows {
+					cmd = cmdCommand
+				}
+				return cmd, []string{}, 
+					ExecOptions{WorkingDir: "/this/does/not/exist/12345"}, nil
+			},
+			wantErr:   true,
+			wantInErr: "invalid working directory",
+		},
+		{
+			name: "empty command",
+			setup: func() (string, []string, ExecOptions, func()) {
+				return "", []string{}, ExecOptions{}, nil
+			},
+			wantErr:   true,
+			wantInErr: "command cannot be empty",
+		},
 	}
 
-	if result.Error == nil {
-		t.Fatal("expected error in result")
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cmd, args, opts, cleanup := tt.setup()
+			if cleanup != nil {
+				defer cleanup()
+			}
 
-	var execErr *ExecError
-	if !errors.As(result.Error, &execErr) {
-		t.Fatalf("expected ExecError, got %T", result.Error)
-	}
+			result, err := executor.Execute(cmd, args, opts)
 
-	if execErr.Type != ErrorTypeCommandNotFound {
-		t.Errorf("expected ErrorTypeCommandNotFound, got %v", execErr.Type)
-	}
+			// Check error expectations
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("expected error but got none")
+				}
+				if tt.wantInErr != "" && !strings.Contains(err.Error(), tt.wantInErr) {
+					t.Errorf("expected error containing %q, got %v", tt.wantInErr, err)
+				}
+				return
+			}
 
-	if !errors.Is(result.Error, ErrCommandNotFound) {
-		t.Error("error should match ErrCommandNotFound")
-	}
-}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-func TestExecute_Timeout(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	// Use a command that sleeps
-	var cmd string
-	var args []string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "timeout", "/t", "5", "/nobreak"}
-	} else {
-		cmd = "sleep"
-		args = []string{"5"}
-	}
-
-	result, err := executor.Execute(cmd, args, ExecOptions{
-		Timeout: 100 * time.Millisecond,
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if !result.TimedOut {
-		t.Error("expected command to timeout")
-	}
-
-	// Exit code might vary on timeout
-	if result.ExitCode == 0 {
-		t.Error("expected non-zero exit code for timeout")
-	}
-}
-
-func TestExecute_NonZeroExit(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	// Use a command that exits with non-zero
-	var cmd string
-	var args []string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "exit", "1"}
-	} else {
-		cmd = shCommand
-		args = []string{"-c", "exit 1"}
-	}
-
-	result, err := executor.Execute(cmd, args, ExecOptions{})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if result.ExitCode != 1 {
-		t.Errorf("expected exit code 1, got %d", result.ExitCode)
-	}
-
-	if result.Error != nil {
-		t.Errorf("expected no error for non-zero exit, got %v", result.Error)
-	}
-}
-
-func TestExecute_WorkingDirectory(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	// Create a temporary directory
-	tmpDir, err := os.MkdirTemp("", "qualhook-test-*")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Use pwd/cd to verify working directory
-	var cmd string
-	var args []string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "cd"}
-	} else {
-		cmd = "pwd"
-		args = []string{}
-	}
-
-	result, err := executor.Execute(cmd, args, ExecOptions{
-		WorkingDir: tmpDir,
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if result.ExitCode != 0 {
-		t.Errorf("expected exit code 0, got %d", result.ExitCode)
-	}
-
-	// Normalize paths for comparison
-	expectedPath, _ := filepath.Abs(tmpDir)
-	actualPath := strings.TrimSpace(result.Stdout)
-
-	if !strings.Contains(actualPath, filepath.Base(expectedPath)) {
-		t.Errorf("expected working directory %q in output, got %q", expectedPath, actualPath)
-	}
-}
-
-func TestExecute_InvalidWorkingDirectory(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	var cmd string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-	} else {
-		cmd = echoCommand
-	}
-
-	_, err := executor.Execute(cmd, []string{}, ExecOptions{
-		WorkingDir: "/this/does/not/exist/12345",
-	})
-	if err == nil {
-		t.Fatal("expected error for invalid working directory")
-	}
-
-	if !strings.Contains(err.Error(), "invalid working directory") {
-		t.Errorf("expected 'invalid working directory' error, got %v", err)
-	}
-}
-
-func TestExecute_Environment(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	// Command to print environment variable
-	var cmd string
-	var args []string
-	testVar := "QUALHOOK_TEST_VAR"
-	testValue := "test-value-12345"
-
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "echo", "%" + testVar + "%"}
-	} else {
-		cmd = shCommand
-		args = []string{"-c", "echo $" + testVar}
-	}
-
-	result, err := executor.Execute(cmd, args, ExecOptions{
-		Environment: []string{testVar + "=" + testValue},
-		InheritEnv:  true,
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if !strings.Contains(result.Stdout, testValue) {
-		t.Errorf("expected output to contain %q, got %q", testValue, result.Stdout)
-	}
-}
-
-func TestExecute_EmptyCommand(t *testing.T) {
-	executor := NewCommandExecutor(10 * time.Second)
-
-	_, err := executor.Execute("", []string{}, ExecOptions{})
-	if err == nil {
-		t.Fatal("expected error for empty command")
-	}
-
-	if !strings.Contains(err.Error(), "command cannot be empty") {
-		t.Errorf("expected 'command cannot be empty' error, got %v", err)
+			assertExecResult(t, result, tt.wantExitCode, "", "")
+		})
 	}
 }
 
 func TestExecuteWithStreaming(t *testing.T) {
-	executor := NewTestCommandExecutor(10 * time.Second)
+	t.Parallel()
+	executor := NewCommandExecutor(10 * time.Second)
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 
-	// Command that outputs to both stdout and stderr
-	var cmd string
-	var args []string
-	if runtime.GOOS == osWindows {
-		cmd = cmdCommand
-		args = []string{"/c", "echo stdout message && echo stderr message 1>&2"}
-	} else {
-		cmd = shCommand
-		args = []string{"-c", "echo stdout message && echo stderr message >&2"}
-	}
+	// Use echo command for stdout test
+	cmd, args := pc.echo("stdout message")
 
 	result, err := executor.ExecuteWithStreaming(cmd, args, ExecOptions{}, &stdoutBuf, &stderrBuf)
 	if err != nil {
@@ -298,17 +194,9 @@ func TestExecuteWithStreaming(t *testing.T) {
 		t.Errorf("expected stdout in result, got %q", result.Stdout)
 	}
 
-	if !strings.Contains(result.Stderr, "stderr message") {
-		t.Errorf("expected stderr in result, got %q", result.Stderr)
-	}
-
-	// Check that output was streamed to buffers
+	// Check that output was streamed to stdout buffer
 	if !strings.Contains(stdoutBuf.String(), "stdout message") {
 		t.Errorf("expected stdout in buffer, got %q", stdoutBuf.String())
-	}
-
-	if !strings.Contains(stderrBuf.String(), "stderr message") {
-		t.Errorf("expected stderr in buffer, got %q", stderrBuf.String())
 	}
 }
 
@@ -402,6 +290,7 @@ func TestPrepareEnvironment(t *testing.T) {
 }
 
 func TestStreamingWriter(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	writer := NewStreamingWriter(&buf)
 

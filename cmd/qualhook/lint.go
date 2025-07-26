@@ -48,7 +48,3 @@ Exit codes:
   # src/main.js:10:5: error: 'unused' is defined but never used [no-unused-vars]
   # src/utils.js:25:1: warning: Missing semicolon [semi]`,
 )
-
-func init() {
-	rootCmd.AddCommand(lintCmd)
-}

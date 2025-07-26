@@ -79,7 +79,3 @@ POWERSHELL:
 		return nil
 	},
 }
-
-func init() {
-	rootCmd.AddCommand(completionCmd)
-}

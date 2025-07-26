@@ -48,8 +48,6 @@ func init() {
 	configCmd.Flags().BoolVar(&validateFlag, "validate", false, "Validate existing configuration")
 	configCmd.Flags().StringVar(&outputPath, "output", "", "Output path for configuration file")
 	configCmd.Flags().BoolVar(&forceFlag, "force", false, "Force overwrite existing configuration")
-
-	rootCmd.AddCommand(configCmd)
 }
 
 func runConfig(cmd *cobra.Command, args []string) error {

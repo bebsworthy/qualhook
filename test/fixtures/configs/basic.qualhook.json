@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint": {
+      "command": "npm run lint",
+      "files": ["**/*.js", "**/*.ts"],
+      "errorPatterns": [{"pattern": "error"}, {"pattern": "warning"}]
+    },
+    "test": {
+      "command": "npm test",
+      "files": ["**/*.test.js", "**/*.spec.js"]
+    }
+  }
+}

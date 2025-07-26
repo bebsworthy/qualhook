@@ -44,7 +44,6 @@ installed system-wide for easy access.`,
 
 func init() {
 	manCmd.Flags().StringVar(&manDir, "dir", ".", "Directory to write man pages to")
-	rootCmd.AddCommand(manCmd)
 }
 
 func runGenerateMan(cmd *cobra.Command, args []string) error {
@@ -62,7 +61,7 @@ func runGenerateMan(cmd *cobra.Command, args []string) error {
 	}
 
 	// Generate man pages
-	err := doc.GenManTree(rootCmd, header, manDir)
+	err := doc.GenManTree(cmd.Root(), header, manDir)
 	if err != nil {
 		return fmt.Errorf("failed to generate man pages: %w", err)
 	}

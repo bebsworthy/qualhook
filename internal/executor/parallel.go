@@ -58,6 +58,7 @@ func NewParallelExecutor(executor *CommandExecutor, maxParallel int) *ParallelEx
 }
 
 // Execute runs multiple commands in parallel
+//nolint:gocyclo // Complex function handling multiple edge cases for parallel execution
 func (pe *ParallelExecutor) Execute(ctx context.Context, commands []ParallelCommand, progress ProgressCallback) (*ParallelResult, error) {
 	if len(commands) == 0 {
 		return &ParallelResult{

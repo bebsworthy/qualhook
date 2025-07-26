@@ -37,7 +37,3 @@ Exit codes:
   # Rust: cargo fmt
   # Python: black`,
 )
-
-func init() {
-	rootCmd.AddCommand(formatCmd)
-}

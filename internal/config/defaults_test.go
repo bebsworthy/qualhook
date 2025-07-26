@@ -1,3 +1,5 @@
+//go:build unit
+
 package config
 
 import (
@@ -5,6 +7,8 @@ import (
 
 	"github.com/bebsworthy/qualhook/pkg/config"
 )
+
+const testModifiedValue = "modified-version"
 
 func TestNewDefaultConfigs(t *testing.T) {
 	dc, err := NewDefaultConfigs()

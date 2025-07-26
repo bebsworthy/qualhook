@@ -53,7 +53,3 @@ Exit codes:
   #       Received: 140
   #       at src/utils.test.js:15:23`,
 )
-
-func init() {
-	rootCmd.AddCommand(testCmd)
-}

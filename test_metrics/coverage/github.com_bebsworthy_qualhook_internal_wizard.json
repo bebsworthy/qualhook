@@ -1,0 +1,42 @@
+{"Time":"2025-07-26T08:36:40.75512+02:00","Action":"start","Package":"github.com/bebsworthy/qualhook/internal/wizard"}
+{"Time":"2025-07-26T08:36:40.92942+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard"}
+{"Time":"2025-07-26T08:36:40.929502+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Output":"=== RUN   TestNewConfigWizard\n"}
+{"Time":"2025-07-26T08:36:40.929535+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Output":"=== PAUSE TestNewConfigWizard\n"}
+{"Time":"2025-07-26T08:36:40.929541+02:00","Action":"pause","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard"}
+{"Time":"2025-07-26T08:36:40.929547+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig"}
+{"Time":"2025-07-26T08:36:40.929552+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig","Output":"=== RUN   TestRun_ExistingConfig\n"}
+{"Time":"2025-07-26T08:36:40.929561+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig","Output":"=== PAUSE TestRun_ExistingConfig\n"}
+{"Time":"2025-07-26T08:36:40.929565+02:00","Action":"pause","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig"}
+{"Time":"2025-07-26T08:36:40.929569+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig"}
+{"Time":"2025-07-26T08:36:40.929573+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig","Output":"=== RUN   TestValidateConfig\n"}
+{"Time":"2025-07-26T08:36:40.929578+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig","Output":"=== PAUSE TestValidateConfig\n"}
+{"Time":"2025-07-26T08:36:40.929582+02:00","Action":"pause","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig"}
+{"Time":"2025-07-26T08:36:40.929586+02:00","Action":"cont","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard"}
+{"Time":"2025-07-26T08:36:40.92959+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Output":"=== CONT  TestNewConfigWizard\n"}
+{"Time":"2025-07-26T08:36:40.9296+02:00","Action":"cont","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig"}
+{"Time":"2025-07-26T08:36:40.929604+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig","Output":"=== CONT  TestValidateConfig\n"}
+{"Time":"2025-07-26T08:36:40.929609+02:00","Action":"cont","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig"}
+{"Time":"2025-07-26T08:36:40.929613+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig","Output":"=== CONT  TestRun_ExistingConfig\n"}
+{"Time":"2025-07-26T08:36:40.929669+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/valid_config"}
+{"Time":"2025-07-26T08:36:40.929686+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/valid_config","Output":"=== RUN   TestValidateConfig/valid_config\n"}
+{"Time":"2025-07-26T08:36:40.929708+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/valid_config","Output":"--- PASS: TestValidateConfig/valid_config (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.929725+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/valid_config","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.929735+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_missing_version"}
+{"Time":"2025-07-26T08:36:40.929754+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_missing_version","Output":"=== RUN   TestValidateConfig/invalid_config_-_missing_version\n"}
+{"Time":"2025-07-26T08:36:40.92977+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_missing_version","Output":"--- PASS: TestValidateConfig/invalid_config_-_missing_version (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.929775+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_missing_version","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.929785+02:00","Action":"run","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_empty_commands"}
+{"Time":"2025-07-26T08:36:40.92979+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_empty_commands","Output":"=== RUN   TestValidateConfig/invalid_config_-_empty_commands\n"}
+{"Time":"2025-07-26T08:36:40.929796+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_empty_commands","Output":"--- PASS: TestValidateConfig/invalid_config_-_empty_commands (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.9298+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig/invalid_config_-_empty_commands","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.929805+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig","Output":"--- PASS: TestValidateConfig (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.930293+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestValidateConfig","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.930301+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Output":"--- PASS: TestNewConfigWizard (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.930784+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Output":"\u001b[0G\u001b[2K\u001b[0;1;92m? \u001b[0m\u001b[0;1;99mConfiguration already exists at /var/folders/b4/k6plbnxs1c3_c57_c_bvfw6r0000gn/T/TestRun_ExistingConfig3514692520/001/qualhook.json. Overwrite? \u001b[0m\u001b[0;37m(y/N) \u001b[0m\u001b[?25l\u001b7\u001b[999;999f\u001b[6n\u001b8\u001b[?25h\u001b[6n"}
+{"Time":"2025-07-26T08:36:40.930795+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestNewConfigWizard","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.930798+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig","Output":"--- PASS: TestRun_ExistingConfig (0.00s)\n"}
+{"Time":"2025-07-26T08:36:40.930801+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Test":"TestRun_ExistingConfig","Elapsed":0}
+{"Time":"2025-07-26T08:36:40.930804+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Output":"PASS\n"}
+{"Time":"2025-07-26T08:36:40.931614+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Output":"coverage: 6.7% of statements\n"}
+{"Time":"2025-07-26T08:36:40.932271+02:00","Action":"output","Package":"github.com/bebsworthy/qualhook/internal/wizard","Output":"ok  \tgithub.com/bebsworthy/qualhook/internal/wizard\t0.177s\tcoverage: 6.7% of statements\n"}
+{"Time":"2025-07-26T08:36:40.932278+02:00","Action":"pass","Package":"github.com/bebsworthy/qualhook/internal/wizard","Elapsed":0.177}

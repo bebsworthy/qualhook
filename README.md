@@ -33,21 +33,40 @@ go install github.com/bebsworthy/qualhook/cmd/qualhook@latest
 
 2. Run quality checks:
    ```bash
-   # Run all checks
-   qualhook
-   
-   # Run specific check
+   qualhook typecheck
    qualhook lint
    qualhook test
    ```
 
 3. Use with Claude Code hooks:
-   ```bash
-   # Add to your Claude Code settings
-   "hooks": {
-     "post-edit": "qualhook"
+   ```json
+   // .claude/settings.json
+   {
+     "hooks": {
+       "Stop": [
+         {
+           "matcher": "",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "qualhook typecheck"
+             },
+             {
+               "type": "command",
+               "command": "qualhook lint"
+             },
+             {
+               "type": "command",
+               "command": "qualhook test"
+             }
+           ]
+         }
+       ]
+     }
    }
    ```
+   
+   This example runs typecheck, lint, and test checks automatically when Claude Code stops editing files, ensuring code quality throughout your development session.
 
 ## Configuration
 
@@ -93,6 +112,43 @@ go test ./...
 
 # Build
 go build -o qualhook cmd/qualhook/main.go
+```
+
+### Test Categories
+
+The test suite is organized into three categories using build tags:
+
+- **Unit Tests** (`//go:build unit`): Test individual components in isolation
+  - Fast execution
+  - No external dependencies
+  - Mock dependencies and test helpers
+  - Run with: `make test-unit`
+
+- **Integration Tests** (`//go:build integration`): Test multiple components working together
+  - May use file system operations
+  - Test component interactions
+  - Security and validation tests
+  - Run with: `make test-integration`
+
+- **E2E Tests** (`//go:build e2e`): Test complete workflows from CLI perspective
+  - Full command execution
+  - Create temporary directories and config files
+  - Test user-facing functionality
+  - Run with: `make test-e2e`
+
+Run specific test categories:
+```bash
+# Run only unit tests
+make test-unit
+
+# Run only integration tests
+make test-integration
+
+# Run only e2e tests
+make test-e2e
+
+# Run all tests (default behavior)
+make test
 ```
 
 ## License

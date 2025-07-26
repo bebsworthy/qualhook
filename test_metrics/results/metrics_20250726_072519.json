@@ -1,0 +1,1096 @@
+{
+  "timestamp": "2025-07-26T05:25:19Z",
+  "go_version": "go1.24.4",
+  "os": "Darwin",
+  "arch": "arm64",
+  "metrics": {
+    "coverage": {
+      "average": 3.20,
+      "packages_total": 14,
+      "packages_with_tests": 14,
+      "packages_without_tests": 0,
+      "by_package": [
+        {
+          "package": "github.com/bebsworthy/qualhook/benchmark_results",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/cmd/qualhook",
+          "coverage": 0.0,
+          "test_files": 5
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/config",
+          "coverage": 0.0,
+          "test_files": 4
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/debug",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/detector",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/executor",
+          "coverage": 0.0,
+          "test_files": 9
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/filter",
+          "coverage": 0.0,
+          "test_files": 7
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/hook",
+          "coverage": 0.0,
+          "test_files": 2
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/reporter",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/security",
+          "coverage": 0.0,
+          "test_files": 4
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "coverage": 44.9,
+          "test_files": 5
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/watcher",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/wizard",
+          "coverage": 0.0,
+          "test_files": 1
+        },
+        {
+          "package": "github.com/bebsworthy/qualhook/pkg/config",
+          "coverage": 0.0,
+          "test_files": 2
+        }
+      ]
+    },
+    "execution_time": {
+      "by_package": [
+        {
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "tests": [
+            {
+              "name": "TestCommandBuilder/default_values",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/fluent_interface",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/echo_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/sleep_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/failing_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/successful_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/script_command",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/build_options",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder/execute_integration",
+              "duration": 0
+            },
+            {
+              "name": "TestCommandBuilder",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/config_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/project_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath/output_fixture",
+              "duration": 0
+            },
+            {
+              "name": "TestFixturePath",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture/load_config",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture/load_output",
+              "duration": 0
+            },
+            {
+              "name": "TestLoadFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture/with_extension",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture/without_extension",
+              "duration": 0
+            },
+            {
+              "name": "TestConfigFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture/copy_config",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture/copy_project",
+              "duration": 0
+            },
+            {
+              "name": "TestCreateTempFixture",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/default_values",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/fluent_interface",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/with_error_message",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/timed_out",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/timed_out_with_existing_error",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/success",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/success_with_stdout",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure_with_stderr",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/failure_with_code",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_matching",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_stdout_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_exit_code_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/assert_equal_-_error_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/must_equal_-_matching",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder/must_equal_-_mismatch",
+              "duration": 0
+            },
+            {
+              "name": "TestResultBuilder",
+              "duration": 0
+            }
+          ],
+          "total_duration": 0,
+          "test_count": 40
+        }
+      ],
+      "slowest_tests": [
+        {
+          "name": "TestResultBuilder",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/must_equal_-_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/must_equal_-_matching",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/assert_equal_-_error_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/assert_equal_-_exit_code_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/assert_equal_-_stdout_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/assert_equal_-_matching",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/failure_with_code",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/failure_with_stderr",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        },
+        {
+          "name": "TestResultBuilder/failure",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "duration": 0
+        }
+      ]
+    },
+    "flakiness": {
+      "flaky_test_count": 40,
+      "flaky_tests": [
+        {
+          "test": "TestCommandBuilder",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/build_options",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/default_values",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/echo_command",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/execute_integration",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/failing_command",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/fluent_interface",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/script_command",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/sleep_command",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCommandBuilder/successful_command",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestConfigFixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestConfigFixture/with_extension",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestConfigFixture/without_extension",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCreateTempFixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCreateTempFixture/copy_config",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestCreateTempFixture/copy_project",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestFixturePath",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestFixturePath/config_fixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestFixturePath/output_fixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestFixturePath/project_fixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestLoadFixture",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestLoadFixture/load_config",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestLoadFixture/load_output",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/assert_equal_-_error_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/assert_equal_-_exit_code_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/assert_equal_-_matching",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/assert_equal_-_stdout_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/default_values",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/failure",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/failure_with_code",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/failure_with_stderr",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/fluent_interface",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/must_equal_-_matching",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/must_equal_-_mismatch",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/success",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/success_with_stdout",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/timed_out",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/timed_out_with_existing_error",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        },
+        {
+          "test": "TestResultBuilder/with_error_message",
+          "package": "github.com/bebsworthy/qualhook/internal/testutil",
+          "results": [
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass",
+            "run",
+            "output",
+            "output",
+            "pass"
+          ],
+          "flaky": true
+        }
+      ]
+    },
+    "test_types": {
+      "total_test_files": 49,
+      "unit_test_files": 39,
+      "integration_test_files": 4,
+      "e2e_test_files": 0,
+      "benchmark_files": 7,
+      "example_files": 2
+    },
+    "code_ratio": {
+      "source_lines": 9822,
+      "test_lines": 18575,
+      "test_to_code_ratio": 1.89
+    },
+    "quality_score": {
+      "overall": 0,
+      "components": {
+        "coverage_score": 3.20,
+        "ratio_score": 189,
+        "test_presence_score": 100.00,
+        "flaky_penalty": 200
+      }
+    }
+  }
+}

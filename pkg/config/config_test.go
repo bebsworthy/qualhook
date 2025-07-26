@@ -1,3 +1,5 @@
+//go:build unit
+
 package config
 
 import (
@@ -6,85 +8,125 @@ import (
 	"testing"
 )
 
+// testConfigBuilder is a local helper to build test configs without import cycles
+type testConfigBuilder struct {
+	config *Config
+}
+
+func newTestConfigBuilder() *testConfigBuilder {
+	return &testConfigBuilder{
+		config: &Config{
+			Version:  "1.0",
+			Commands: make(map[string]*CommandConfig),
+		},
+	}
+}
+
+func (b *testConfigBuilder) withVersion(version string) *testConfigBuilder {
+	b.config.Version = version
+	return b
+}
+
+func (b *testConfigBuilder) withCommand(name string, cmd *CommandConfig) *testConfigBuilder {
+	if b.config.Commands == nil {
+		b.config.Commands = make(map[string]*CommandConfig)
+	}
+	b.config.Commands[name] = cmd
+	return b
+}
+
+func (b *testConfigBuilder) withSimpleCommand(name, command string, args ...string) *testConfigBuilder {
+	return b.withCommand(name, &CommandConfig{
+		Command:       command,
+		Args:          args,
+		ExitCodes:     []int{1},
+		ErrorPatterns: []*RegexPattern{{Pattern: "error", Flags: "i"}},
+		MaxOutput:     100,
+	})
+}
+
+func (b *testConfigBuilder) withPath(pathConfig *PathConfig) *testConfigBuilder {
+	b.config.Paths = append(b.config.Paths, pathConfig)
+	return b
+}
+
+func (b *testConfigBuilder) build() *Config {
+	return b.config
+}
+
 func TestConfig_Validate(t *testing.T) {
 	tests := []struct {
-		name    string
-		config  *Config
-		wantErr bool
-		errMsg  string
+		name      string
+		buildFunc func() *Config
+		wantErr   bool
+		errMsg    string
 	}{
 		{
 			name: "valid config with commands",
-			config: &Config{
-				Version: "1.0",
-				Commands: map[string]*CommandConfig{
-					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint"},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*RegexPattern{
-							{Pattern: "error"},
-						},
-					},
-				},
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withCommand("lint", &CommandConfig{
+						Command:       "npm",
+						Args:          []string{"run", "lint"},
+						ExitCodes:     []int{1},
+						ErrorPatterns: []*RegexPattern{{Pattern: "error"}},
+					}).
+					build()
 			},
 			wantErr: false,
 		},
 		{
 			name: "missing version",
-			config: &Config{
-				Commands: map[string]*CommandConfig{
-					"lint": {Command: "npm"},
-				},
+			buildFunc: func() *Config {
+				return &Config{
+					Commands: map[string]*CommandConfig{
+						"lint": {Command: "npm"},
+					},
+				}
 			},
 			wantErr: true,
 			errMsg:  "version is required",
 		},
 		{
 			name: "no commands or paths",
-			config: &Config{
-				Version: "1.0",
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withVersion("1.0").
+					build()
 			},
 			wantErr: true,
 			errMsg:  "at least one command or path configuration is required",
 		},
 		{
 			name: "invalid command config",
-			config: &Config{
-				Version: "1.0",
-				Commands: map[string]*CommandConfig{
-					"lint": {},
-				},
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withCommand("lint", &CommandConfig{}).
+					build()
 			},
 			wantErr: true,
 			errMsg:  "command \"lint\": command is required",
 		},
 		{
 			name: "valid config with paths",
-			config: &Config{
-				Version: "1.0",
-				Paths: []*PathConfig{
-					{
-						Path: "frontend/**",
-						Commands: map[string]*CommandConfig{
-							"lint": {Command: "npm"},
-						},
-					},
-				},
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withPath(&PathConfig{
+						Path:     "frontend/**",
+						Commands: map[string]*CommandConfig{"lint": {Command: "npm"}},
+					}).
+					build()
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid path config",
-			config: &Config{
-				Version: "1.0",
-				Paths: []*PathConfig{
-					{
-						Commands: map[string]*CommandConfig{
-							"lint": {Command: "npm"},
-						},
-					},
-				},
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withPath(&PathConfig{
+						Commands: map[string]*CommandConfig{"lint": {Command: "npm"}},
+					}).
+					build()
 			},
 			wantErr: true,
 			errMsg:  "path config 0: path is required",
@@ -93,7 +135,8 @@ func TestConfig_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.config.Validate()
+			cfg := tt.buildFunc()
+			err := cfg.Validate()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -417,29 +460,27 @@ func TestLoadConfig(t *testing.T) {
 
 func TestSaveConfig(t *testing.T) {
 	tests := []struct {
-		name    string
-		config  *Config
-		wantErr bool
+		name      string
+		buildFunc func() *Config
+		wantErr   bool
 	}{
 		{
 			name: "valid config",
-			config: &Config{
-				Version: "1.0",
-				Commands: map[string]*CommandConfig{
-					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint"},
-					},
-				},
+			buildFunc: func() *Config {
+				return newTestConfigBuilder().
+					withSimpleCommand("lint", "npm", "run", "lint").
+					build()
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid config",
-			config: &Config{
-				Commands: map[string]*CommandConfig{
-					"lint": {Command: "npm"},
-				},
+			buildFunc: func() *Config {
+				return &Config{
+					Commands: map[string]*CommandConfig{
+						"lint": {Command: "npm"},
+					},
+				}
 			},
 			wantErr: true,
 		},
@@ -447,7 +488,8 @@ func TestSaveConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := SaveConfig(tt.config)
+			cfg := tt.buildFunc()
+			data, err := SaveConfig(cfg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SaveConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -461,8 +503,8 @@ func TestSaveConfig(t *testing.T) {
 				if err != nil {
 					t.Errorf("Failed to load saved config: %v", err)
 				}
-				if loaded.Version != tt.config.Version {
-					t.Errorf("Loaded config version = %v, want %v", loaded.Version, tt.config.Version)
+				if loaded.Version != cfg.Version {
+					t.Errorf("Loaded config version = %v, want %v", loaded.Version, cfg.Version)
 				}
 			}
 		})
@@ -534,54 +576,48 @@ func TestCommandConfig_Clone(t *testing.T) {
 
 func TestConfig_ComplexValidation(t *testing.T) {
 	// Test a complex monorepo configuration
-	config := &Config{
-		Version:     "1.0",
-		ProjectType: "monorepo",
-		Commands: map[string]*CommandConfig{
-			"format": {
-				Command: "prettier",
-				Args:    []string{"--check", "."},
-				ExitCodes: []int{1},
-				ErrorPatterns: []*RegexPattern{
-					{Pattern: "\\[error\\]", Flags: "i"},
-				},
-				MaxOutput: 50,
-				Prompt: "Fix the formatting issues below:",
-			},
-		},
-		Paths: []*PathConfig{
-			{
-				Path:    "frontend/**",
-				Extends: "base",
-				Commands: map[string]*CommandConfig{
-					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint", "--prefix", "frontend"},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*RegexPattern{
-							{Pattern: "error", Flags: "i"},
-							{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
-						},
-						ContextLines: 2,
-						MaxOutput:    100,
+	config := newTestConfigBuilder().
+		withVersion("1.0").
+		withCommand("format", &CommandConfig{
+			Command:       "prettier",
+			Args:          []string{"--check", "."},
+			ExitCodes:     []int{1},
+			ErrorPatterns: []*RegexPattern{{Pattern: "\\[error\\]", Flags: "i"}},
+			MaxOutput:     50,
+			Prompt:        "Fix the formatting issues below:",
+		}).
+		withPath(&PathConfig{
+			Path:    "frontend/**",
+			Extends: "base",
+			Commands: map[string]*CommandConfig{
+				"lint": {
+					Command:   "npm",
+					Args:      []string{"run", "lint", "--prefix", "frontend"},
+					ExitCodes: []int{1},
+					ErrorPatterns: []*RegexPattern{
+						{Pattern: "error", Flags: "i"},
+						{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
 					},
+					ContextLines: 2,
+					MaxOutput:    100,
 				},
 			},
-			{
-				Path: "backend/**",
-				Commands: map[string]*CommandConfig{
-					"lint": {
-						Command: "go",
-						Args:    []string{"vet", "./..."},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*RegexPattern{
-							{Pattern: ".*"},
-						},
-					},
+		}).
+		withPath(&PathConfig{
+			Path: "backend/**",
+			Commands: map[string]*CommandConfig{
+				"lint": {
+					Command:       "go",
+					Args:          []string{"vet", "./..."},
+					ExitCodes:     []int{1},
+					ErrorPatterns: []*RegexPattern{{Pattern: ".*"}},
 				},
 			},
-		},
-	}
+		}).
+		build()
+	
+	// Set ProjectType after building
+	config.ProjectType = "monorepo"
 
 	err := config.Validate()
 	if err != nil {

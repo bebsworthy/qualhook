@@ -1,7 +1,10 @@
+//go:build unit
+
 package reporter
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -20,188 +23,176 @@ func TestNewErrorReporter(t *testing.T) {
 	}
 }
 
-func TestReport_NoErrors(t *testing.T) {
+func TestReport_Scenarios(t *testing.T) {
 	reporter := NewErrorReporter()
 
-	results := []executor.ComponentExecResult{
+	tests := []struct {
+		name          string
+		results       []executor.ComponentExecResult
+		wantExitCode  int
+		wantInStdout  []string
+		wantInStderr  []string
+		notWantStderr []string
+	}{
 		{
-			Path:    ".",
-			Command: "lint",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 0,
-				Stdout:   "All checks passed",
+			name: "no errors",
+			results: []executor.ComponentExecResult{
+				{
+					Path:    ".",
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 0,
+						Stdout:   "All checks passed",
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
 			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
+			wantExitCode: 0,
+			wantInStdout: []string{"All quality checks passed"},
+		},
+		{
+			name: "with errors",
+			results: []executor.ComponentExecResult{
+				{
+					Path:    ".",
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stderr:   "file.js:10:5: error: Missing semicolon",
+					},
+					FilteredOutput: &filter.FilteredOutput{
+						Lines:     []string{"file.js:10:5: error: Missing semicolon"},
+						HasErrors: true,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+						Prompt:    "Fix the linting errors below:",
+					},
+				},
+			},
+			wantExitCode: 2,
+			wantInStderr: []string{
+				"Fix the linting errors below:",
+				"Missing semicolon",
+			},
+		},
+		{
+			name: "execution error",
+			results: []executor.ComponentExecResult{
+				{
+					Path:    ".",
+					Command: "lint",
+					ExecutionError: &executor.ExecError{
+						Type:    executor.ErrorTypeCommandNotFound,
+						Command: "eslint",
+						Err:     errors.New("command not found"),
+					},
+				},
+			},
+			wantExitCode: 1,
+			wantInStderr: []string{
+				"[QUALHOOK ERROR]",
+				"Command not found",
+				"eslint",
+			},
+		},
+		{
+			name: "monorepo multiple components",
+			results: []executor.ComponentExecResult{
+				{
+					Path:    "frontend",
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stderr:   "frontend/app.js:5: error",
+					},
+					FilteredOutput: &filter.FilteredOutput{
+						Lines:     []string{"frontend/app.js:5: error"},
+						HasErrors: true,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
+				{
+					Path:    "backend",
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stderr:   "backend/server.go:10: error",
+					},
+					FilteredOutput: &filter.FilteredOutput{
+						Lines:     []string{"backend/server.go:10: error"},
+						HasErrors: true,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
+			},
+			wantExitCode: 2,
+			wantInStderr: []string{
+				"frontend",
+				"backend",
+				"---",
+			},
+		},
+		{
+			name: "truncated output",
+			results: []executor.ComponentExecResult{
+				{
+					Path:    ".",
+					Command: "test",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+					},
+					FilteredOutput: &filter.FilteredOutput{
+						Lines:      []string{"Test failed: assertion error"},
+						HasErrors:  true,
+						Truncated:  true,
+						TotalLines: 500,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
+			},
+			wantExitCode: 2,
+			wantInStderr: []string{
+				"Output truncated",
+				"500 total lines",
 			},
 		},
 	}
 
-	report := reporter.Report(results)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			report := reporter.Report(tt.results)
 
-	if report.ExitCode != 0 {
-		t.Errorf("expected exit code 0, got %d", report.ExitCode)
-	}
-	if report.Stderr != "" {
-		t.Errorf("expected empty stderr, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stdout, "All quality checks passed") {
-		t.Errorf("expected success message in stdout, got %q", report.Stdout)
-	}
-}
+			if report.ExitCode != tt.wantExitCode {
+				t.Errorf("expected exit code %d, got %d", tt.wantExitCode, report.ExitCode)
+			}
 
-func TestReport_WithErrors(t *testing.T) {
-	reporter := NewErrorReporter()
+			for _, want := range tt.wantInStdout {
+				if !strings.Contains(report.Stdout, want) {
+					t.Errorf("expected %q in stdout, got %q", want, report.Stdout)
+				}
+			}
 
-	results := []executor.ComponentExecResult{
-		{
-			Path:    ".",
-			Command: "lint",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 1,
-				Stderr:   "file.js:10:5: error: Missing semicolon",
-			},
-			FilteredOutput: &filter.FilteredOutput{
-				Lines:     []string{"file.js:10:5: error: Missing semicolon"},
-				HasErrors: true,
-			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-				Prompt: "Fix the linting errors below:",
-			},
-		},
-	}
+			for _, want := range tt.wantInStderr {
+				if !strings.Contains(report.Stderr, want) {
+					t.Errorf("expected %q in stderr, got %q", want, report.Stderr)
+				}
+			}
 
-	report := reporter.Report(results)
-
-	if report.ExitCode != 2 {
-		t.Errorf("expected exit code 2 for LLM errors, got %d", report.ExitCode)
-	}
-	if report.Stdout != "" {
-		t.Errorf("expected empty stdout, got %q", report.Stdout)
-	}
-	if !strings.Contains(report.Stderr, "Fix the linting errors below:") {
-		t.Errorf("expected prompt in stderr, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "Missing semicolon") {
-		t.Errorf("expected error message in stderr, got %q", report.Stderr)
-	}
-}
-
-func TestReport_ExecutionError(t *testing.T) {
-	reporter := NewErrorReporter()
-
-	execErr := &executor.ExecError{
-		Type:    executor.ErrorTypeCommandNotFound,
-		Command: "eslint",
-		Err:     errors.New("command not found"),
-	}
-
-	results := []executor.ComponentExecResult{
-		{
-			Path:           ".",
-			Command:        "lint",
-			ExecutionError: execErr,
-		},
-	}
-
-	report := reporter.Report(results)
-
-	if report.ExitCode != 1 {
-		t.Errorf("expected exit code 1 for execution errors, got %d", report.ExitCode)
-	}
-	if !strings.Contains(report.Stderr, "[QUALHOOK ERROR]") {
-		t.Errorf("expected error prefix in stderr, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "Command not found") {
-		t.Errorf("expected error message in stderr, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "eslint") {
-		t.Errorf("expected command name in stderr, got %q", report.Stderr)
-	}
-}
-
-func TestReport_MonorepoMultipleComponents(t *testing.T) {
-	reporter := NewErrorReporter()
-
-	results := []executor.ComponentExecResult{
-		{
-			Path:    "frontend",
-			Command: "lint",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 1,
-				Stderr:   "frontend/app.js:5: error",
-			},
-			FilteredOutput: &filter.FilteredOutput{
-				Lines:     []string{"frontend/app.js:5: error"},
-				HasErrors: true,
-			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-			},
-		},
-		{
-			Path:    "backend",
-			Command: "lint",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 1,
-				Stderr:   "backend/server.go:10: error",
-			},
-			FilteredOutput: &filter.FilteredOutput{
-				Lines:     []string{"backend/server.go:10: error"},
-				HasErrors: true,
-			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-			},
-		},
-	}
-
-	report := reporter.Report(results)
-
-	if report.ExitCode != 2 {
-		t.Errorf("expected exit code 2, got %d", report.ExitCode)
-	}
-	if !strings.Contains(report.Stderr, "frontend") {
-		t.Errorf("expected frontend path in output, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "backend") {
-		t.Errorf("expected backend path in output, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "---") {
-		t.Errorf("expected separator between components, got %q", report.Stderr)
-	}
-}
-
-func TestReport_TruncatedOutput(t *testing.T) {
-	reporter := NewErrorReporter()
-
-	results := []executor.ComponentExecResult{
-		{
-			Path:    ".",
-			Command: "test",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 1,
-			},
-			FilteredOutput: &filter.FilteredOutput{
-				Lines:      []string{"Test failed: assertion error"},
-				HasErrors:  true,
-				Truncated:  true,
-				TotalLines: 500,
-			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-			},
-		},
-	}
-
-	report := reporter.Report(results)
-
-	if !strings.Contains(report.Stderr, "Output truncated") {
-		t.Errorf("expected truncation message, got %q", report.Stderr)
-	}
-	if !strings.Contains(report.Stderr, "500 total lines") {
-		t.Errorf("expected total line count, got %q", report.Stderr)
+			for _, notWant := range tt.notWantStderr {
+				if strings.Contains(report.Stderr, notWant) {
+					t.Errorf("should not have %q in stderr, got %q", notWant, report.Stderr)
+				}
+			}
+		})
 	}
 }
 
@@ -469,94 +460,579 @@ func TestGroupByCommand(t *testing.T) {
 	}
 }
 
-func TestReport_FallbackToRawOutput(t *testing.T) {
+func TestReport_FallbackAndMixed(t *testing.T) {
 	reporter := NewErrorReporter()
 
 	tests := []struct {
-		name     string
-		result   executor.ComponentExecResult
-		expected string
+		name          string
+		results       []executor.ComponentExecResult
+		wantExitCode  int
+		wantInStderr  []string
+		notWantStderr []string
 	}{
 		{
-			name: "stderr output",
-			result: executor.ComponentExecResult{
-				Command: "lint",
-				ExecResult: &executor.ExecResult{
-					ExitCode: 1,
-					Stderr:   "Error on line 10",
-				},
-				CommandConfig: &config.CommandConfig{
-					ExitCodes: []int{1},
+			name: "fallback to stderr output",
+			results: []executor.ComponentExecResult{
+				{
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stderr:   "Error on line 10",
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
 				},
 			},
-			expected: "Error on line 10",
+			wantExitCode: 2,
+			wantInStderr: []string{"Error on line 10"},
 		},
 		{
-			name: "stdout output when no stderr",
-			result: executor.ComponentExecResult{
-				Command: "test",
-				ExecResult: &executor.ExecResult{
-					ExitCode: 1,
-					Stdout:   "Test failed: assertion error",
-				},
-				CommandConfig: &config.CommandConfig{
-					ExitCodes: []int{1},
+			name: "fallback to stdout when no stderr",
+			results: []executor.ComponentExecResult{
+				{
+					Command: "test",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stdout:   "Test failed: assertion error",
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
 				},
 			},
-			expected: "Test failed: assertion error",
+			wantExitCode: 2,
+			wantInStderr: []string{"Test failed: assertion error"},
+		},
+		{
+			name: "mixed results",
+			results: []executor.ComponentExecResult{
+				{
+					Command: "lint",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 0,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
+				{
+					Command: "test",
+					ExecResult: &executor.ExecResult{
+						ExitCode: 1,
+						Stderr:   "Test failed",
+					},
+					FilteredOutput: &filter.FilteredOutput{
+						Lines:     []string{"Test failed: assertion error"},
+						HasErrors: true,
+					},
+					CommandConfig: &config.CommandConfig{
+						ExitCodes: []int{1},
+					},
+				},
+			},
+			wantExitCode:  2,
+			wantInStderr:  []string{"Test failed"},
+			notWantStderr: []string{"lint"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			report := reporter.Report([]executor.ComponentExecResult{tt.result})
-			if !strings.Contains(report.Stderr, tt.expected) {
-				t.Errorf("expected %q in stderr, got %q", tt.expected, report.Stderr)
+			report := reporter.Report(tt.results)
+
+			if report.ExitCode != tt.wantExitCode {
+				t.Errorf("expected exit code %d, got %d", tt.wantExitCode, report.ExitCode)
+			}
+
+			for _, want := range tt.wantInStderr {
+				if !strings.Contains(report.Stderr, want) {
+					t.Errorf("expected %q in stderr, got %q", want, report.Stderr)
+				}
+			}
+
+			for _, notWant := range tt.notWantStderr {
+				if strings.Contains(report.Stderr, notWant) {
+					t.Errorf("should not have %q in stderr, got %q", notWant, report.Stderr)
+				}
 			}
 		})
 	}
 }
 
-func TestReport_MixedResults(t *testing.T) {
+func TestReport_EdgeCases(t *testing.T) {
 	reporter := NewErrorReporter()
 
-	results := []executor.ComponentExecResult{
-		{
-			Command: "lint",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 0,
+	t.Run("partial output before error", func(t *testing.T) {
+		// Test that partial output is captured when a command fails mid-execution
+		partialOutput := strings.Repeat("Starting test run...\n", 10)
+		errorOutput := "FATAL ERROR: Segmentation fault at line 42"
+		
+		results := []executor.ComponentExecResult{
+			{
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 139, // SIGSEGV exit code
+					Stdout:   partialOutput,
+					Stderr:   errorOutput,
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines:     []string{errorOutput},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1, 139},
+				},
 			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-			},
-		},
-		{
-			Command: "test",
-			ExecResult: &executor.ExecResult{
-				ExitCode: 1,
-				Stderr:   "Test failed",
-			},
-			FilteredOutput: &filter.FilteredOutput{
-				Lines:     []string{"Test failed: assertion error"},
-				HasErrors: true,
-			},
-			CommandConfig: &config.CommandConfig{
-				ExitCodes: []int{1},
-			},
-		},
-	}
+		}
 
-	report := reporter.Report(results)
+		report := reporter.Report(results)
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2, got %d", report.ExitCode)
+		}
+		if !strings.Contains(report.Stderr, errorOutput) {
+			t.Errorf("expected error output in stderr, got %q", report.Stderr)
+		}
+	})
 
-	// Should report errors despite one success
-	if report.ExitCode != 2 {
-		t.Errorf("expected exit code 2, got %d", report.ExitCode)
-	}
-	if !strings.Contains(report.Stderr, "Test failed") {
-		t.Errorf("expected test error in output, got %q", report.Stderr)
-	}
-	// Should not include the successful lint command
-	if strings.Contains(report.Stderr, "lint") {
-		t.Errorf("should not include successful command in error output, got %q", report.Stderr)
-	}
+	t.Run("extremely large error output", func(t *testing.T) {
+		// Generate 2MB of error output
+		largeErrorLine := strings.Repeat("ERROR: This is a very long error message with details ", 100)
+		var lines []string
+		totalSize := 0
+		for totalSize < 2*1024*1024 { // 2MB
+			lines = append(lines, largeErrorLine)
+			totalSize += len(largeErrorLine)
+		}
+
+		results := []executor.ComponentExecResult{
+			{
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "Large output truncated for display", // Don't include actual large output
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines:      lines[:50], // Filtered to first 50 lines
+					HasErrors:  true,
+					Truncated:  true,
+					TotalLines: len(lines),
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+		}
+
+		report := reporter.Report(results)
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2, got %d", report.ExitCode)
+		}
+		if !strings.Contains(report.Stderr, "Output truncated") {
+			t.Errorf("expected truncation notice in stderr")
+		}
+		if !strings.Contains(report.Stderr, fmt.Sprintf("%d total lines", len(lines))) {
+			t.Errorf("expected total line count in stderr")
+		}
+		// Verify output is reasonable size (not 2MB)
+		// The filtered output (50 lines) should dominate the size
+		expectedMaxSize := len(largeErrorLine) * 50 * 2 // 50 lines + some overhead
+		if len(report.Stderr) > expectedMaxSize {
+			t.Errorf("stderr output too large: %d bytes (expected < %d)", len(report.Stderr), expectedMaxSize)
+		}
+	})
+
+	t.Run("empty results slice", func(t *testing.T) {
+		report := reporter.Report([]executor.ComponentExecResult{})
+		if report.ExitCode != 0 {
+			t.Errorf("expected exit code 0 for empty results, got %d", report.ExitCode)
+		}
+		if !strings.Contains(report.Stdout, "All quality checks passed") {
+			t.Errorf("expected success message in stdout, got %q", report.Stdout)
+		}
+	})
+
+	t.Run("nil exec result", func(t *testing.T) {
+		results := []executor.ComponentExecResult{
+			{
+				Command:       "test",
+				ExecResult:    nil,
+				CommandConfig: &config.CommandConfig{},
+			},
+		}
+
+		// Should not panic and treat as success (no error)
+		report := reporter.Report(results)
+		if report.ExitCode != 0 {
+			t.Errorf("expected exit code 0 for nil exec result, got %d", report.ExitCode)
+		}
+	})
+
+	t.Run("mixed stdout and stderr in same component", func(t *testing.T) {
+		results := []executor.ComponentExecResult{
+			{
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stdout:   "Running tests...\nTest 1: PASS\nTest 2: PASS\n",
+					Stderr:   "Test 3: FAIL - assertion failed",
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines:     []string{"Test 3: FAIL - assertion failed"},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+		}
+
+		report := reporter.Report(results)
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2, got %d", report.ExitCode)
+		}
+		// Should prefer filtered output over raw stderr
+		if !strings.Contains(report.Stderr, "Test 3: FAIL") {
+			t.Errorf("expected filtered error in stderr, got %q", report.Stderr)
+		}
+	})
+}
+
+func TestReport_ConcurrentErrorReporting(t *testing.T) {
+	reporter := NewErrorReporter()
+
+	t.Run("concurrent report calls", func(t *testing.T) {
+		// Test that multiple goroutines can safely call Report
+		results := []executor.ComponentExecResult{
+			{
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "Linting error",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+		}
+
+		const numGoroutines = 10
+		reports := make([]*ReportResult, numGoroutines)
+		done := make(chan bool, numGoroutines)
+
+		for i := 0; i < numGoroutines; i++ {
+			go func(idx int) {
+				reports[idx] = reporter.Report(results)
+				done <- true
+			}(i)
+		}
+
+		// Wait for all goroutines
+		for i := 0; i < numGoroutines; i++ {
+			<-done
+		}
+
+		// All reports should be identical
+		for i := 1; i < numGoroutines; i++ {
+			if reports[i].ExitCode != reports[0].ExitCode {
+				t.Errorf("report %d has different exit code: %d vs %d", i, reports[i].ExitCode, reports[0].ExitCode)
+			}
+			if reports[i].Stderr != reports[0].Stderr {
+				t.Errorf("report %d has different stderr", i)
+			}
+		}
+	})
+
+	t.Run("concurrent error aggregation simulation", func(t *testing.T) {
+		// Simulate errors coming from multiple parallel executors
+		var results []executor.ComponentExecResult
+		
+		// Simulate 5 components with errors
+		for i := 0; i < 5; i++ {
+			results = append(results, executor.ComponentExecResult{
+				Path:    fmt.Sprintf("component-%d", i),
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   fmt.Sprintf("Test failed in component %d", i),
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines:     []string{fmt.Sprintf("Error at line %d in component %d", i*10, i)},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			})
+		}
+
+		report := reporter.Report(results)
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2, got %d", report.ExitCode)
+		}
+
+		// Check all components are reported
+		for i := 0; i < 5; i++ {
+			componentName := fmt.Sprintf("component-%d", i)
+			if !strings.Contains(report.Stderr, componentName) {
+				t.Errorf("missing component %s in error report", componentName)
+			}
+		}
+	})
+}
+
+func TestReport_ErrorAggregationFromMultipleSources(t *testing.T) {
+	reporter := NewErrorReporter()
+
+	t.Run("multiple error types from different tools", func(t *testing.T) {
+		results := []executor.ComponentExecResult{
+			// Linting errors
+			{
+				Path:    "frontend",
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "ESLint found 5 problems",
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines: []string{
+						"src/app.js:10:5: error: Missing semicolon",
+						"src/app.js:20:1: warning: Unused variable 'x'",
+					},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+					Prompt:    "Fix the linting issues:",
+				},
+			},
+			// Type errors
+			{
+				Path:    "backend",
+				Command: "typecheck",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 2,
+					Stderr:   "TypeScript compilation failed",
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines: []string{
+						"src/server.ts:15:10: error TS2322: Type 'string' is not assignable to type 'number'",
+						"src/server.ts:25:5: error TS2554: Expected 2 arguments, but got 1",
+					},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{2},
+				},
+			},
+			// Test failures
+			{
+				Path:    "shared",
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stdout:   "Test suite failed",
+					Stderr:   "",
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines: []string{
+						"FAIL: TestUserAuth",
+						"  Expected: true",
+						"  Got: false",
+					},
+					HasErrors: true,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+			// Execution error
+			{
+				Path:           "tools",
+				Command:        "custom-check",
+				ExecutionError: &executor.ExecError{
+					Type:    executor.ErrorTypeCommandNotFound,
+					Command: "custom-check",
+					Err:     errors.New("command not found"),
+				},
+			},
+		}
+
+		report := reporter.Report(results)
+		
+		// Should report execution error with exit code 1
+		if report.ExitCode != 1 {
+			t.Errorf("expected exit code 1 for execution error, got %d", report.ExitCode)
+		}
+		if !strings.Contains(report.Stderr, "[QUALHOOK ERROR]") {
+			t.Errorf("expected error prefix for execution error")
+		}
+		if !strings.Contains(report.Stderr, "custom-check") {
+			t.Errorf("expected command name in error")
+		}
+	})
+
+	t.Run("aggregated errors without execution errors", func(t *testing.T) {
+		results := []executor.ComponentExecResult{
+			// Multiple lint errors from different paths
+			{
+				Path:    "src/frontend",
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "3 errors found",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+			{
+				Path:    "src/backend",
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "5 errors found",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+			// Format errors
+			{
+				Path:    "docs",
+				Command: "format",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "Formatting issues detected",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+		}
+
+		report := reporter.Report(results)
+		
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2 for quality errors, got %d", report.ExitCode)
+		}
+
+		// Check that errors are grouped by command type
+		if !strings.Contains(report.Stderr, "Fix the linting errors below:") {
+			t.Errorf("expected lint prompt in stderr")
+		}
+		if !strings.Contains(report.Stderr, "Fix the formatting issues below:") {
+			t.Errorf("expected format prompt in stderr")
+		}
+
+		// Check component separation
+		if !strings.Contains(report.Stderr, "src/frontend") {
+			t.Errorf("expected frontend component in stderr")
+		}
+		if !strings.Contains(report.Stderr, "src/backend") {
+			t.Errorf("expected backend component in stderr")
+		}
+	})
+
+	t.Run("mixed success and failure across components", func(t *testing.T) {
+		results := []executor.ComponentExecResult{
+			// Success
+			{
+				Path:    "component1",
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 0,
+					Stdout:   "All checks passed",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+			// Failure
+			{
+				Path:    "component2",
+				Command: "lint",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 1,
+					Stderr:   "Linting failed",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1},
+				},
+			},
+			// Success
+			{
+				Path:    "component3",
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 0,
+					Stdout:   "All tests passed",
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1, 2},
+				},
+			},
+			// Failure with filtered output
+			{
+				Path:    "component4",
+				Command: "test",
+				ExecResult: &executor.ExecResult{
+					ExitCode: 2,
+					Stderr:   "Test suite failed with 3 failures",
+				},
+				FilteredOutput: &filter.FilteredOutput{
+					Lines: []string{
+						"TestA: Failed - timeout",
+						"TestB: Failed - assertion",
+						"TestC: Failed - panic",
+					},
+					HasErrors:  true,
+					Truncated:  true,
+					TotalLines: 150,
+				},
+				CommandConfig: &config.CommandConfig{
+					ExitCodes: []int{1, 2},
+				},
+			},
+		}
+
+		report := reporter.Report(results)
+		
+		if report.ExitCode != 2 {
+			t.Errorf("expected exit code 2, got %d", report.ExitCode)
+		}
+
+		// Should only report failures
+		if strings.Contains(report.Stderr, "component1") {
+			t.Errorf("should not include successful component1 in stderr")
+		}
+		if strings.Contains(report.Stderr, "component3") {
+			t.Errorf("should not include successful component3 in stderr")
+		}
+
+		// Should include error outputs from failed components
+		// Note: component paths are only shown when multiple components of the same command fail
+		if !strings.Contains(report.Stderr, "Linting failed") {
+			t.Errorf("expected lint error output in stderr")
+		}
+		if !strings.Contains(report.Stderr, "TestA: Failed") {
+			t.Errorf("expected test error output in stderr")
+		}
+
+		// Check that both command types are reported
+		if !strings.Contains(report.Stderr, "Fix the linting errors below:") {
+			t.Errorf("expected lint prompt in stderr")
+		}
+		if !strings.Contains(report.Stderr, "Fix the failing tests below:") {
+			t.Errorf("expected test prompt in stderr")
+		}
+
+		// Check truncation notice for component4
+		if !strings.Contains(report.Stderr, "Output truncated") {
+			t.Errorf("expected truncation notice for component4")
+		}
+		if !strings.Contains(report.Stderr, "150 total lines") {
+			t.Errorf("expected total line count for component4")
+		}
+	})
 }

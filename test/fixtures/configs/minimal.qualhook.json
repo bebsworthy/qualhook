@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "commands": {
+    "check": {
+      "command": "echo",
+      "args": ["Running checks..."],
+      "files": ["*"]
+    }
+  }
+}

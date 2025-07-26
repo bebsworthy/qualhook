@@ -1,0 +1,4 @@
+main.go:15:8: error: undefined variable
+utils.js:42:15: warning: unused parameter
+helper.py:108:3: error: syntax error
+test.ts:23:11: warning: deprecated function

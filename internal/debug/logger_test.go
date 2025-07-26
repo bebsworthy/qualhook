@@ -1,3 +1,5 @@
+//go:build unit
+
 package debug
 
 import (
@@ -246,6 +248,10 @@ func TestTruncate(t *testing.T) {
 }
 
 func TestTimingIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping timing test in short mode")
+	}
+	// Cannot run in parallel due to global state modification
 	var buf bytes.Buffer
 	SetWriter(&buf)
 	Enable()
@@ -269,6 +275,7 @@ func TestTimingIntegration(t *testing.T) {
 }
 
 func TestDebugPrefix(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	SetWriter(&buf)
 	Enable()

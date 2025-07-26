@@ -1,3 +1,5 @@
+//go:build unit
+
 package config
 
 import (
@@ -7,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bebsworthy/qualhook/internal/testutil"
 	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
@@ -14,29 +17,16 @@ func TestLoader_Load(t *testing.T) {
 	// Create a temporary directory for test files
 	tempDir := t.TempDir()
 
-	// Create a test configuration
-	testConfig := &config.Config{
-		Version: "1.0",
-		Commands: map[string]*config.CommandConfig{
-			"lint": {
-				Command: "npm",
-				Args:    []string{"run", "lint"},
-				ExitCodes: []int{1},
-				ErrorPatterns: []*config.RegexPattern{
-					{Pattern: "error", Flags: "i"},
-				},
-				MaxOutput: 100,
-			},
-		},
-	}
+	// Create a test configuration using ConfigBuilder
+	testConfig := testutil.NewConfigBuilder().
+		WithSimpleCommand("lint", "npm", "run", "lint").
+		Build()
 
 	// Write test configuration to file
 	configPath := filepath.Join(tempDir, ConfigFileName)
-	data, err := json.MarshalIndent(testConfig, "", "  ")
-	if err != nil {
-		t.Fatalf("Failed to marshal test config: %v", err)
-	}
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	builder := testutil.NewConfigBuilder().
+		WithSimpleCommand("lint", "npm", "run", "lint")
+	if err := builder.WriteToFile(configPath); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
 	}
 
@@ -63,29 +53,16 @@ func TestLoader_LoadFromEnv(t *testing.T) {
 	// Create a temporary directory for test files
 	tempDir := t.TempDir()
 
-	// Create a test configuration
-	testConfig := &config.Config{
-		Version: "1.0",
-		Commands: map[string]*config.CommandConfig{
-			"format": {
-				Command: "prettier",
-				Args:    []string{"--write", "."},
-				ExitCodes: []int{1},
-				ErrorPatterns: []*config.RegexPattern{
-					{Pattern: "error", Flags: "i"},
-				},
-				MaxOutput: 100,
-			},
-		},
-	}
+	// Create a test configuration using ConfigBuilder
+	testConfig := testutil.NewConfigBuilder().
+		WithSimpleCommand("format", "prettier", "--write", ".").
+		Build()
 
 	// Write test configuration to custom path
 	configPath := filepath.Join(tempDir, "custom-config.json")
-	data, err := json.MarshalIndent(testConfig, "", "  ")
-	if err != nil {
-		t.Fatalf("Failed to marshal test config: %v", err)
-	}
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	builder := testutil.NewConfigBuilder().
+		WithSimpleCommand("format", "prettier", "--write", ".")
+	if err := builder.WriteToFile(configPath); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
 	}
 
@@ -113,51 +90,28 @@ func TestLoader_LoadForMonorepo(t *testing.T) {
 	os.MkdirAll(frontendDir, 0755)
 	os.MkdirAll(backendDir, 0755)
 
-	// Create a monorepo configuration
-	monorepoConfig := &config.Config{
-		Version: "1.0",
-		Commands: map[string]*config.CommandConfig{
+	// Create a monorepo configuration using ConfigBuilder
+	monorepoConfig := testutil.NewConfigBuilder().
+		WithSimpleCommand("lint", "npm", "run", "lint").
+		WithPathCommand("frontend/**", map[string]*config.CommandConfig{
 			"lint": {
-				Command: "npm",
-				Args:    []string{"run", "lint"},
-				ExitCodes: []int{1},
-				ErrorPatterns: []*config.RegexPattern{
-					{Pattern: "error", Flags: "i"},
-				},
-				MaxOutput: 100,
+				Command:       "npm",
+				Args:          []string{"run", "lint", "--prefix", "frontend"},
+				ExitCodes:     []int{1},
+				ErrorPatterns: []*config.RegexPattern{{Pattern: "eslint", Flags: "i"}},
+				MaxOutput:     100,
 			},
-		},
-		Paths: []*config.PathConfig{
-			{
-				Path: "frontend/**",
-				Commands: map[string]*config.CommandConfig{
-					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint", "--prefix", "frontend"},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "eslint", Flags: "i"},
-						},
-						MaxOutput: 100,
-					},
-				},
+		}).
+		WithPathCommand("backend/**", map[string]*config.CommandConfig{
+			"lint": {
+				Command:       "go",
+				Args:          []string{"vet", "./..."},
+				ExitCodes:     []int{1},
+				ErrorPatterns: []*config.RegexPattern{{Pattern: "vet:", Flags: ""}},
+				MaxOutput:     100,
 			},
-			{
-				Path: "backend/**",
-				Commands: map[string]*config.CommandConfig{
-					"lint": {
-						Command: "go",
-						Args:    []string{"vet", "./..."},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "vet:", Flags: ""},
-						},
-						MaxOutput: 100,
-					},
-				},
-			},
-		},
-	}
+		}).
+		Build()
 
 	// Write configuration to root
 	configPath := filepath.Join(tempDir, ConfigFileName)
@@ -328,25 +282,13 @@ func TestMatchesPath(t *testing.T) {
 func TestValidateConfigFile(t *testing.T) {
 	tempDir := t.TempDir()
 
-	// Valid config
-	validConfig := &config.Config{
-		Version: "1.0",
-		Commands: map[string]*config.CommandConfig{
-			"lint": {
-				Command: "npm",
-				Args:    []string{"run", "lint"},
-				ExitCodes: []int{1},
-				ErrorPatterns: []*config.RegexPattern{
-					{Pattern: "error", Flags: "i"},
-				},
-				MaxOutput: 100,
-			},
-		},
-	}
-
+	// Valid config using ConfigBuilder
 	validPath := filepath.Join(tempDir, "valid.json")
-	data, _ := json.MarshalIndent(validConfig, "", "  ")
-	os.WriteFile(validPath, data, 0644)
+	validBuilder := testutil.NewConfigBuilder().
+		WithSimpleCommand("lint", "npm", "run", "lint")
+	if err := validBuilder.WriteToFile(validPath); err != nil {
+		t.Fatalf("Failed to write valid config: %v", err)
+	}
 
 	if err := ValidateConfigFile(validPath); err != nil {
 		t.Errorf("Expected valid config to pass validation: %v", err)
@@ -364,4 +306,165 @@ func TestValidateConfigFile(t *testing.T) {
 // Helper function to check if error message contains substring
 func containsError(errMsg, want string) bool {
 	return strings.Contains(errMsg, want)
+}
+
+// TestLoader_LoadFixtures tests loading configuration from fixture files
+func TestLoader_LoadFixtures(t *testing.T) {
+	tests := []struct {
+		name         string
+		fixtureName  string
+		expectValid  bool
+		checkCommand string // Command to verify if loaded
+		expectError  string // Expected error message for invalid configs
+	}{
+		{
+			name:         "basic config",
+			fixtureName:  "basic",
+			expectValid:  true,
+			checkCommand: "lint",
+		},
+		{
+			name:         "complex config",
+			fixtureName:  "complex",
+			expectValid:  true,
+			checkCommand: "typecheck",
+		},
+		{
+			name:         "golang config",
+			fixtureName:  "golang",
+			expectValid:  true,
+			checkCommand: "vet",
+		},
+		{
+			name:         "python config",
+			fixtureName:  "python",
+			expectValid:  true,
+			checkCommand: "typecheck",
+		},
+		{
+			name:         "monorepo config",
+			fixtureName:  "monorepo",
+			expectValid:  true,
+			checkCommand: "lint:frontend",
+		},
+		{
+			name:         "minimal config",
+			fixtureName:  "minimal",
+			expectValid:  true,
+			checkCommand: "check",
+		},
+		{
+			name:         "invalid config",
+			fixtureName:  "invalid",
+			expectValid:  false,
+			expectError:  "version is required",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create temp directory and copy fixture with correct name
+			tempDir := t.TempDir()
+			configContent := testutil.LoadFixture(t, "configs/"+tt.fixtureName+".qualhook.json")
+			configPath := filepath.Join(tempDir, ConfigFileName)
+			if err := os.WriteFile(configPath, configContent, 0644); err != nil {
+				t.Fatalf("Failed to write config: %v", err)
+			}
+			
+			// Create loader pointing to temp directory
+			loader := &Loader{
+				SearchPaths: []string{tempDir},
+			}
+			
+			// Try to load the config
+			cfg, err := loader.Load()
+			
+			if tt.expectValid {
+				if err != nil {
+					t.Fatalf("Failed to load valid config: %v", err)
+				}
+				
+				// Check that expected command exists
+				if tt.checkCommand != "" {
+					if _, exists := cfg.Commands[tt.checkCommand]; !exists {
+						t.Errorf("Expected command %q not found in config", tt.checkCommand)
+					}
+				}
+			} else {
+				if err == nil {
+					t.Fatal("Expected error loading invalid config, got nil")
+				}
+				
+				// Verify error message contains expected text
+				if tt.expectError != "" && !strings.Contains(err.Error(), tt.expectError) {
+					t.Errorf("Expected error containing %q, got %q", tt.expectError, err.Error())
+				}
+			}
+		})
+	}
+}
+
+// TestLoader_ProjectFixtures tests loading configs from project fixture directories
+func TestLoader_ProjectFixtures(t *testing.T) {
+	projects := []struct {
+		name         string
+		projectType  string
+		expectConfig bool
+		checkCommand string
+	}{
+		{
+			name:         "golang project",
+			projectType:  "golang",
+			expectConfig: true,
+			checkCommand: "lint",
+		},
+		{
+			name:         "nodejs project",
+			projectType:  "nodejs",
+			expectConfig: true,
+			checkCommand: "test",
+		},
+		{
+			name:         "python project",
+			projectType:  "python",
+			expectConfig: true,
+			checkCommand: "lint",
+		},
+		{
+			name:         "monorepo project",
+			projectType:  "monorepo",
+			expectConfig: true,
+			checkCommand: "lint:all",
+		},
+	}
+
+	for _, tt := range projects {
+		t.Run(tt.name, func(t *testing.T) {
+			// Get project fixture path
+			projectPath := testutil.ProjectFixture(t, tt.projectType)
+			
+			// Create loader for project directory
+			loader := &Loader{
+				SearchPaths: []string{projectPath},
+			}
+			
+			// Load config
+			cfg, err := loader.Load()
+			
+			if tt.expectConfig {
+				if err != nil {
+					t.Fatalf("Failed to load config from project fixture: %v", err)
+				}
+				
+				// Verify expected command exists
+				if _, exists := cfg.Commands[tt.checkCommand]; !exists {
+					t.Errorf("Expected command %q not found in project config", tt.checkCommand)
+				}
+			} else {
+				if err == nil {
+					t.Error("Expected no config, but found one")
+				}
+			}
+		})
+	}
 }

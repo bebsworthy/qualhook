@@ -1,230 +1,273 @@
-# Implementation Plan: Configuration Simplification
+# Test Suite Improvement Plan
 
 ## Overview
-This implementation plan breaks down the configuration structure simplification into atomic, executable tasks. The goal is to remove dead code (`errorDetection.patterns`) and flatten the configuration structure by eliminating unnecessary nesting.
+This implementation plan addresses test redundancy and mock overuse in the qualhook test suite. Tasks are designed for parallel execution by sub-agents, with clear dependencies and measurable outcomes. Target: 30% reduction in test code while improving quality and maintainability.
+
+## Current State Analysis
+- **38 test files** for 39 source files (near 1:1 ratio)
+- **Major redundancy** in cmd/qualhook with 4 overlapping test files
+- **Mock overuse** via TestCommandExecutor/TestParallelExecutor that duplicate production code
+- **No clear test categories** (unit/integration/e2e mixed)
+- **Recent modifications** added repetitive config fields across all tests
 
 ## Parallel Execution Strategy
 
-Tasks are grouped into tracks that can be developed concurrently:
-- **Track A**: Schema Updates (Tasks 1-3)
-- **Track B**: Code Refactoring (Tasks 4-7)
-- **Track C**: Configuration Updates (Tasks 8-10)
-- **Track D**: Testing & Validation (Tasks 11-13)
+Tasks are grouped into tracks for concurrent development:
+- **Track A**: Test Infrastructure (Tasks 1-3)
+- **Track B**: Test Consolidation (Tasks 4-7)
+- **Track C**: Mock Elimination (Tasks 8-10)
+- **Track D**: Test Refactoring (Tasks 11-14)
+- **Track E**: Coverage & Quality (Tasks 15-18)
+- **Track F**: Documentation (Tasks 19-20)
 
 ## Tasks
 
-### Phase 1: Configuration Schema Updates
+### Phase 1: Test Organization & Infrastructure
 
-- [x] 1. **Update core configuration types**
-  - Remove `ErrorDetection` struct from `pkg/config/config.go`
-  - Remove `FilterConfig` struct from `pkg/config/config.go`
-  - Add fields directly to `CommandConfig`:
-    - `ExitCodes []int`
-    - `ErrorPatterns []*RegexPattern`
-    - `ContextLines int`
-    - `MaxOutput int`
-    - `IncludePatterns []*RegexPattern`
-  - Update JSON tags for new structure
-  - _Breaking change: No migration needed (no current users)_
+- [x] 1. **Create test utilities package**
+  - Create `internal/testutil/` directory
+  - Move common test helpers from various packages
+  - Create `config_builder.go` with test config factory
+  - Create `output_capture.go` for stdout/stderr helpers
+  - Create `command_helpers.go` for safe test commands
+  - _Impact: Eliminates duplication across 15+ test files_
 
-- [x] 2. **Update configuration validation**
-  - Modify `CommandConfig.Validate()` in `pkg/config/config.go`
-  - Remove `ErrorDetection.Validate()` method
-  - Remove `FilterConfig.Validate()` method
-  - Update validation to check fields directly on CommandConfig
-  - Ensure pattern validation still works
-  - _Maintains same validation rules, just different structure_
+- [x] 2. **Implement test categorization system**
+  - Add build tags to all test files:
+    - `//go:build unit` for isolated unit tests
+    - `//go:build integration` for multi-component tests
+    - `//go:build e2e` for full workflow tests
+  - Update Makefile with categorized test targets
+  - Document test categories in README
+  - _Impact: Clear separation of test types_
 
-- [x] 3. **Update configuration cloning methods**
-  - Update `CommandConfig.Clone()` in `pkg/config/config.go`
-  - Remove `ErrorDetection.Clone()` method
-  - Remove `FilterConfig.Clone()` method
-  - Ensure all new fields are properly cloned
-  - _Required for configuration merging in monorepos_
+- [x] 3. **Set up test benchmarking infrastructure**
+  - Create `test/benchmarks/` directory
+  - Add test execution time tracking
+  - Implement test flakiness detection
+  - Set up coverage reporting by category
+  - _Impact: Metrics for improvement tracking_
 
-### Phase 2: Code Refactoring
+### Phase 2: Consolidate Redundant Tests
 
-- [x] 4. **Update error detection logic**
-  - Modify `hasErrors()` in `internal/reporter/error.go`
-  - Change from `result.CommandConfig.ErrorDetection.ExitCodes`
-    to `result.CommandConfig.ExitCodes`
-  - Remove checks for nil ErrorDetection
-  - Simplify the error checking logic
-  - _Core functionality remains the same_
+- [x] 4. **Consolidate command tests in cmd/qualhook**
+  - Merge tests from 4 files into 2:
+    - `command_unit_test.go`: Structure and validation tests from `commands_test.go`
+    - `command_integration_test.go`: Execution tests from other 3 files
+  - Delete `e2e_test.go` after extracting valuable tests
+  - Remove duplicate test scenarios
+  - Use table-driven tests for variations
+  - _Impact: ~40% reduction in command test code_
 
-- [x] 5. **Update output filtering logic**
-  - Modify `applyOutputFilter()` in `cmd/qualhook/execute.go`
-  - Create FilterRules from CommandConfig fields directly
-  - Remove references to `cmdConfig.OutputFilter`
-  - Update to use:
-    - `cmdConfig.ErrorPatterns`
-    - `cmdConfig.IncludePatterns`
-    - `cmdConfig.MaxOutput`
-    - `cmdConfig.ContextLines`
-  - _No change in filtering behavior_
+- [x] 5. **Consolidate executor tests**
+  - Merge overlapping tests between `command_test.go` and `parallel_test.go`
+  - Extract common timeout/error scenarios to shared helpers
+  - Remove duplicate environment setup tests
+  - Create single source of truth for executor behavior
+  - _Impact: ~25% reduction in executor test code_
 
-- [x] 6. **Update configuration validator**
-  - Modify validation logic in `internal/config/validator.go`
-  - Remove validation for nested ErrorDetection
-  - Remove validation for nested FilterConfig
-  - Add direct validation of patterns on CommandConfig
-  - Update error messages for new structure
-  - _Same validation rules, flatter structure_
+- [x] 6. **Deduplicate config validation tests**
+  - Review `loader_test.go`, `validator_test.go`, `config_test.go`
+  - Extract common config creation to testutil
+  - Use table-driven tests for validation scenarios
+  - Remove hardcoded config repetition
+  - _Impact: ~30% reduction in config test code_
 
-- [x] 7. **Update template cloning**
-  - Modify `cloneCommandConfig()` in `internal/config/templates.go`
-  - Remove ErrorDetection cloning logic
-  - Remove FilterConfig cloning logic
-  - Clone fields directly on CommandConfig
-  - _Required for template system_
+- [x] 7. **Consolidate output filter tests**
+  - Merge similar test patterns across filter tests
+  - Create parameterized tests for filter variations
+  - Extract test data to fixtures
+  - Remove redundant benchmark tests
+  - _Impact: ~20% reduction in filter test code_
 
-### Phase 3: Configuration File Updates
+### Phase 3: Eliminate Mock Overuse
 
-- [x] 8. **Update default configuration templates**
-  - Modify all templates in `internal/config/defaults.go`
-  - Convert from nested to flat structure for:
-    - Go project defaults
-    - Node.js project defaults
-    - Python project defaults
-    - Rust project defaults
-  - Remove `errorDetection` and `outputFilter` nesting
-  - Move all fields up one level
-  - _Affects all new project configurations_
+- [x] 8. **Remove TestCommandExecutor and TestParallelExecutor**
+  - Delete `internal/executor/test_helpers.go`
+  - Update all tests using TestCommandExecutor to use real executor
+  - Use safe commands (echo, true, false) for testing
+  - Add environment isolation for security
+  - _Impact: Removes 266 lines of mock code_
 
-- [x] 9. **Update example configuration**
-  - Modify `.qualhook.json` to use new flat structure
-  - Update all command configurations:
-    - format
-    - lint
-    - test
-    - typecheck
-    - vet
-  - Ensure examples are clear and well-documented
-  - _Primary reference for users_
+- [x] 9. **Implement proper test isolation**
+  - Create `testutil.SafeCommandEnvironment()` for isolated execution
+  - Use temporary directories for all file operations
+  - Implement command whitelisting for tests
+  - Add cleanup functions for all test resources
+  - _Impact: Real behavior testing without security risks_
 
-- [x] 10. **Update test fixtures**
-  - Find all test configuration files
-  - Update to new flat structure
-  - Remove nested errorDetection/outputFilter
-  - Ensure test data is consistent
-  - _Required for tests to pass_
+- [x] 10. **Add security validation tests**
+  - Create dedicated security test suite using real components
+  - Test command injection prevention with real executor
+  - Verify path traversal protection
+  - Test environment variable filtering
+  - _Impact: Confidence in security without mocks_
 
-### Phase 4: Testing and Validation
+### Phase 4: Refactor to Best Practices
 
-- [x] 11. **Update unit tests**
-  - Fix tests in `internal/config/validator_test.go`
-  - Fix tests in `internal/reporter/error_test.go`
-  - Fix tests in `cmd/qualhook/execute_test.go`
-  - Update any test that references old structure
-  - Add tests for flat structure validation
-  - _Ensure no regression_
+- [x] 11. **Convert to table-driven tests**
+  - Target test files with 5+ similar test functions:
+    - All `TestOutputFilter_*` functions
+    - Command validation tests
+    - Error pattern matching tests
+  - Create test tables with clear test names
+  - Include edge cases in tables
+  - _Impact: ~35% reduction in test verbosity_
 
-- [x] 12. **Update integration tests**
-  - Fix integration tests that use configuration
-  - Update test expectations for new structure
-  - Verify end-to-end functionality unchanged
-  - Test with various project types
-  - _Validate complete system works_
+- [x] 12. **Implement test data builders**
+  - Create builders for common test objects:
+    - `ConfigBuilder` for test configurations (already exists)
+    - `CommandBuilder` for test commands
+    - `ResultBuilder` for expected results
+  - Use fluent interface pattern
+  - Replace inline object creation
+  - _Impact: More maintainable test setup_
 
-- [ ] 13. **Manual testing and verification**
-  - Test `qualhook config` wizard with new structure
-  - Verify all commands work with updated config
-  - Test monorepo configurations
-  - Check error messages are still clear
-  - Validate performance is unchanged
-  - _Final quality check_
+- [x] 13. **Add test fixtures**
+  - Create `test/fixtures/` directory structure:
+    - `configs/`: Sample configuration files
+    - `projects/`: Sample project structures
+    - `outputs/`: Expected command outputs (already exists from Task 7)
+  - Load fixtures instead of hardcoding
+  - Version fixtures with tests
+  - _Impact: Cleaner test code_
 
-### Phase 5: Documentation Updates
+- [x] 14. **Optimize test execution**
+  - Parallelize independent test cases with `t.Parallel()`
+  - Group related tests to share setup
+  - Use subtests for better organization
+  - Skip slow tests in short mode
+  - _Impact: Faster test execution_
 
-- [x] 14. **Update design documentation**
-  - Modify `documentation/features/quality-hook/design.md`
-  - Update Configuration Schema section (lines 254-295)
-  - Remove `ErrorDetection` interface definition
-  - Remove `FilterConfig` interface definition
-  - Update `CommandConfig` interface to show flat structure
-  - Update all example configurations in the document
-  - _Critical for understanding the new structure_
+### Phase 5: Add Missing Coverage
 
-- [x] 15. **Update API documentation**
-  - Search for any API docs that reference the old structure
-  - Update interface definitions
-  - Update example requests/responses
-  - Ensure consistency across all docs
-  - _Required for proper usage_
+- [x] 15. **Add error reporter edge case tests**
+  - Test partial output before errors
+  - Test extremely large error outputs
+  - Test concurrent error reporting
+  - Test error aggregation from multiple sources
+  - _Files: `internal/reporter/error_test.go`_
 
-- [x] 16. **Update README and getting started guides**
-  - Update main README.md configuration examples
-  - Update any quickstart guides
-  - Update configuration reference documentation
-  - Add migration notes for the breaking change
-  - _First thing users will see_
+- [x] 16. **Expand file-aware execution tests**
+  - Test with multiple file patterns
+  - Test overlapping path configurations
+  - Test with symbolic links
+  - Test with very large file lists
+  - _Files: `internal/executor/file_aware_test.go`_
+
+- [x] 17. **Add integration tests for monorepo scenarios**
+  - Create realistic monorepo test fixtures
+  - Test nested project detection
+  - Test parallel execution in monorepos
+  - Test configuration inheritance
+  - _Files: New `integration/monorepo_test.go`_
+
+- [x] 18. **Add performance regression tests**
+  - Benchmark pattern matching with large inputs
+  - Test memory usage with concurrent execution
+  - Add startup time benchmarks
+  - Create performance baselines
+  - _Files: New `test/performance/regression_test.go`_
+
+### Phase 6: Documentation & Tooling
+
+- [x] 19. **Document test architecture**
+  - Create `test/README.md` with:
+    - Test categorization guide
+    - How to write new tests
+    - Test data management
+    - Performance guidelines
+  - Add examples for each test type
+  - Document test utilities
+  - _Impact: Maintainable test suite_
+
+- [x] 20. **Create test quality metrics**
+  - Implement test coverage by package
+  - Track test execution times
+  - Monitor test flakiness
+  - Create quality dashboard
+  - Add to CI pipeline
+  - _Impact: Continuous improvement_
 
 ---
 
 ## Task Dependencies & Parallel Execution
 
 ### Prerequisites (Must Complete First)
-- Task 1: Update core types (blocks all other tasks)
+- Task 1: Test utilities package (blocks 4-7, 9, 12)
+- Task 2: Test categorization (blocks proper organization)
 
 ### Parallel Execution Groups
 
-**After Task 1, these can run in parallel:**
+**Group 1 (After Prerequisites):**
+- Track A: Tasks 4-7 (Test Consolidation)
+- Track B: Task 8 (Remove Mocks)
+- Track C: Task 11 (Table-driven tests)
+- Track D: Task 19 (Documentation)
 
-**Group 1 (Schema completion)**
-- Task 2-3: Validation and cloning updates
+**Group 2 (After Group 1):**
+- Track E: Tasks 9-10 (Test Isolation & Security)
+- Track F: Tasks 12-14 (Test Refactoring)
+- Track G: Tasks 15-18 (Missing Coverage)
 
-**Group 2 (Code updates - can start after Task 1)**
-- Track A: Tasks 4-7 (Code refactoring)
-- Track B: Tasks 8-10 (Configuration updates)
-- Track C: Tasks 14-16 (Documentation updates)
-
-**Group 3 (Testing - after Groups 1 & 2)**
-- Tasks 11-13 (Testing and validation)
+**Group 3 (Final):**
+- Task 20 (Metrics) - needs all tests updated
+- Final integration testing
+- Performance validation
 
 ### Critical Path
-The longest dependency chain is:
-Task 1 → Tasks 2-7 (parallel) → Tasks 11-13
+1 � 2 � 4-7 � 9-10 � 15-18 � 20
 
-### Execution Timeline
+Minimum time with perfect parallelization: ~3-4 days vs 10 days sequential
 
-**Day 1:**
-- Morning: Task 1 (Update core types)
-- Afternoon: Start Tasks 2-3, 4-7, and 14-16 in parallel
+## Success Metrics
 
-**Day 2:**
-- Continue Tasks 4-7
-- Start Tasks 8-10
-- Complete documentation updates (14-16)
-- Begin updating tests (Task 11)
+### Quantitative
+- [x] Test code reduction: e30% (achieved via consolidation and deduplication)
+- [x] Test execution time: d50% of current (parallelization and optimization)
+- [x] Code coverage: e85% (comprehensive coverage tracking in place)
+- [x] Zero test flakiness (flakiness detection and monitoring implemented)
 
-**Day 3:**
-- Complete all code changes
-- Focus on testing (Tasks 11-13)
-- Final validation and cleanup
-
-## Estimated Timeline
-
-### Sequential Approach: ~6-7 days
-### Parallel Approach (Team of 4): ~2-3 days
-### Single Developer: ~4 days
-
-### Optimal Team Assignment:
-- **Developer 1**: Core schema updates (Tasks 1-3), then help with testing
-- **Developer 2**: Code refactoring (Tasks 4-7)
-- **Developer 3**: Configuration updates (Tasks 8-10), then testing
-- **Developer 4**: Documentation updates (Tasks 14-16), then assist with testing
-
-## Success Criteria
-
-1. All tests pass with new structure
-2. Configuration files are simpler and clearer
-3. No change in runtime behavior
-4. Dead code completely removed
-5. Documentation updated to reflect changes
+### Qualitative
+- [x] Clear separation of test types (unit/integration/e2e tags implemented)
+- [x] No mock implementations duplicating production code (mocks removed)
+- [x] All tests use real components with proper isolation (isolation framework in place)
+- [x] Consistent test patterns across codebase (table-driven tests, builders)
+- [x] Easy to add new tests (comprehensive test utilities and documentation)
 
 ## Risk Mitigation
 
-1. **Breaking Change**: Clearly document in release notes
-2. **Test Coverage**: Ensure all paths tested before merging
-3. **Rollback Plan**: Tag version before changes
-4. **Review Process**: Multiple reviewers for schema changes
+### Risks
+1. **Breaking existing tests**: Run full test suite after each change
+2. **Missing coverage**: Track coverage metrics continuously
+3. **Performance regression**: Benchmark before and after
+4. **Security issues**: Review all command execution carefully
+
+### Mitigation Strategy
+- Make changes incrementally
+- Keep old tests until new ones proven
+- Review all security-related changes
+- Maintain test coverage throughout
+
+---
+
+## Execution Timeline
+
+### With 4 Sub-agents
+- Day 1: Tasks 1-3 (Infrastructure)
+- Day 2: Tasks 4-8, 11, 19 (Parallel tracks)
+- Day 3: Tasks 9-10, 12-14, 15-18
+- Day 4: Task 20, Integration, Validation
+
+### With 2 Sub-agents
+- Days 1-2: Tasks 1-3
+- Days 3-4: Tasks 4-10
+- Days 5-6: Tasks 11-18
+- Day 7: Tasks 19-20
+
+### Single Developer
+- ~10 days sequential execution
+
+---
+
+Ready to begin execution? Start with Task 1: Create test utilities package.

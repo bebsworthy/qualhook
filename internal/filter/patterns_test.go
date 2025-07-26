@@ -1,3 +1,5 @@
+//go:build unit
+
 package filter
 
 import (
@@ -163,6 +165,7 @@ func TestPatternCache_Clear(t *testing.T) {
 }
 
 func TestPatternValidator_Validate(t *testing.T) {
+	t.Parallel()
 	validator := NewPatternValidator(nil)
 
 	tests := []struct {
@@ -376,33 +379,3 @@ func TestPatternSet_FindAll(t *testing.T) {
 	}
 }
 
-func BenchmarkPatternCache_GetOrCompile(b *testing.B) {
-	cache, _ := NewPatternCache()
-	pattern := &config.RegexPattern{Pattern: "error.*warning", Flags: "i"}
-
-	// Pre-warm the cache
-	_, _ = cache.GetOrCompile(pattern)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, _ = cache.GetOrCompile(pattern)
-	}
-}
-
-func BenchmarkPatternSet_MatchAny(b *testing.B) {
-	patterns := []*config.RegexPattern{
-		{Pattern: "error", Flags: "i"},
-		{Pattern: "warning", Flags: "i"},
-		{Pattern: "^\\s*\\d+:\\d+"},
-		{Pattern: "failed"},
-		{Pattern: "exception"},
-	}
-
-	set, _ := NewPatternSet(patterns, nil)
-	input := "This is a line with an ERROR message"
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = set.MatchAny(input)
-	}
-}

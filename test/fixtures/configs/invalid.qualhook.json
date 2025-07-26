@@ -1,0 +1,17 @@
+{
+  "version": "",
+  "commands": {
+    "missing-command": {
+      "files": ["**/*.js"]
+    },
+    "invalid-files": {
+      "command": "echo test",
+      "files": "not-an-array"
+    },
+    "empty-command": {
+      "command": "",
+      "files": ["**/*.js"]
+    }
+  },
+  "invalid-field": 123
+}

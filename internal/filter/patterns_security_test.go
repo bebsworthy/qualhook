@@ -1,3 +1,5 @@
+//go:build unit
+
 package filter
 
 import (
@@ -211,7 +213,7 @@ func TestPatternCache_SafePatterns(t *testing.T) {
 		},
 		{
 			name:    "file path pattern",
-			pattern: `^([a-zA-Z]:)?[/\\]?(?:[^/\\]+[/\\])*[^/\\]+\.[a-zA-Z]+$`,
+			pattern: `^([a-zA-Z]:)?[/\]?(?:[^/\]+[/\])*[^/\]+\.[a-zA-Z]+$`,
 			test:    "/home/user/project/file.go",
 			match:   true,
 		},
@@ -326,7 +328,7 @@ func TestPatternValidation_SecurityPatterns(t *testing.T) {
 		},
 		{
 			name:    "Path traversal detection",
-			pattern: `\.\.[\\/]`,
+			pattern: `\.\.[\/]`,
 			purpose: "detect directory traversal",
 			valid:   true,
 		},

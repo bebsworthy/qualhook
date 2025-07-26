@@ -1,3 +1,5 @@
+//go:build unit
+
 package main
 
 import (
@@ -9,6 +11,7 @@ import (
 )
 
 func TestExecuteCommand(t *testing.T) {
+	t.Parallel()
 	// Create temp directory
 	tempDir := t.TempDir()
 	oldDir, _ := os.Getwd()
@@ -100,6 +103,7 @@ func TestExecuteCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Note: executeCommand calls os.Exit on error, which we can't easily test
 			// In a real scenario, we'd refactor executeCommand to return an error
 			// instead of calling os.Exit directly
@@ -116,6 +120,7 @@ func TestExecuteCommand(t *testing.T) {
 }
 
 func TestExecuteCommand_WithHookInput(t *testing.T) {
+	t.Parallel()
 	// Create temp directory with test files
 	tempDir := t.TempDir()
 

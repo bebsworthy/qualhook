@@ -1,0 +1,65 @@
+[
+  {
+    "timestamp": "2025-07-26T05:15:13Z",
+    "coverage": 3.20,
+    "quality_score": 0,
+    "test_count": 49,
+    "flaky_count": 40
+  },
+  {
+    "timestamp": "2025-07-26T05:25:19Z",
+    "coverage": 3.20,
+    "quality_score": 0,
+    "test_count": 49,
+    "flaky_count": 40
+  },
+  {
+    "timestamp": "2025-07-26T05:26:39Z",
+    "coverage": 54.14,
+    "quality_score": 0,
+    "test_count": 49,
+    "flaky_count": 940
+  },
+  {
+    "timestamp": "2025-07-26T05:28:56Z",
+    "coverage": 54.14,
+    "quality_score": 0,
+    "test_count": 49,
+    "flaky_count": 940
+  },
+  {
+    "timestamp": "2025-07-26T05:42:54Z",
+    "coverage": 65.95,
+    "quality_score": 0,
+    "test_count": 49,
+    "flaky_count": 940
+  },
+  {
+    "timestamp": "2025-07-26T05:46:35Z",
+    "coverage": 65.95,
+    "quality_score": 118.31,
+    "test_count": 49,
+    "flaky_count": 0
+  },
+  {
+    "timestamp": "2025-07-26T05:47:34Z",
+    "coverage": 65.95,
+    "quality_score": 118.31,
+    "test_count": 49,
+    "flaky_count": 0
+  },
+  {
+    "timestamp": "2025-07-26T05:52:46Z",
+    "coverage": 65.95,
+    "quality_score": 117.98,
+    "test_count": 49,
+    "flaky_count": 0
+  },
+  {
+    "timestamp": "2025-07-26T06:36:32Z",
+    "coverage": 65.95,
+    "quality_score": 118.31,
+    "test_count": 49,
+    "flaky_count": 0
+  }
+]

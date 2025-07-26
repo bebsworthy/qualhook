@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "qualhook typecheck"
+          },
+          {
+            "type": "command",
+            "command": "qualhook lint"
+          },
+          {
+            "type": "command",
+            "command": "qualhook test"
+          }
+        ]
+      }
+    ]
+  }
+}

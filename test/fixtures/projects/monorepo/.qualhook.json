@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint:all": {
+      "command": "npm",
+      "args": ["run", "lint:all"],
+      "files": ["packages/**/*.js"]
+    },
+    "test:all": {
+      "command": "npm",
+      "args": ["run", "test:all"],
+      "files": ["packages/**/*.test.js"]
+    }
+  }
+}

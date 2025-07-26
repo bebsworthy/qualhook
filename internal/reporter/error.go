@@ -127,6 +127,11 @@ func (r *ErrorReporter) formatExecutionError(result executor.ComponentExecResult
 
 // hasErrors checks if a component result contains errors
 func (r *ErrorReporter) hasErrors(result executor.ComponentExecResult) bool {
+	// Check if ExecResult exists
+	if result.ExecResult == nil {
+		return false
+	}
+
 	// Check exit code
 	if result.CommandConfig != nil && len(result.CommandConfig.ExitCodes) > 0 {
 		for _, code := range result.CommandConfig.ExitCodes {

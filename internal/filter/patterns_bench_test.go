@@ -1,31 +1,13 @@
+//go:build unit
+
 // Package filter provides pattern compilation and caching functionality.
 package filter
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	config "github.com/bebsworthy/qualhook/pkg/config"
-)
-
-// Common test patterns for benchmarking
-var (
-	benchmarkPatterns = []*config.RegexPattern{
-		{Pattern: `error`, Flags: "i"},
-		{Pattern: `\d+:\d+`, Flags: ""},
-		{Pattern: `warning|error|fatal`, Flags: "i"},
-		{Pattern: `^[A-Z]+\s+\d+:\d+:\d+`, Flags: ""},
-		{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""},
-		{Pattern: `^.*error.*$`, Flags: "im"},
-		{Pattern: `(Error|Warning|Info):\s+(.+)`, Flags: ""},
-		{Pattern: `\b(TODO|FIXME|XXX)\b`, Flags: ""},
-	}
-
-	// Sample inputs of various sizes
-	smallInput  = "2024-01-15 10:30:45 ERROR: Failed to connect to database"
-	mediumInput = strings.Repeat("2024-01-15 10:30:45 INFO: Processing request\n", 100)
-	largeInput  = strings.Repeat("2024-01-15 10:30:45 DEBUG: Verbose logging output with lots of details\n", 1000)
 )
 
 // BenchmarkPatternCompilation measures the time to compile regex patterns
@@ -88,12 +70,12 @@ func BenchmarkPatternMatching(b *testing.B) {
 		pattern *config.RegexPattern
 		input   string
 	}{
-		{"SimplePattern_SmallInput", &config.RegexPattern{Pattern: `error`, Flags: "i"}, smallInput},
-		{"SimplePattern_LargeInput", &config.RegexPattern{Pattern: `error`, Flags: "i"}, largeInput},
-		{"ComplexPattern_SmallInput", &config.RegexPattern{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""}, smallInput},
-		{"ComplexPattern_LargeInput", &config.RegexPattern{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""}, largeInput},
-		{"AnchoredPattern_SmallInput", &config.RegexPattern{Pattern: `^ERROR:`, Flags: ""}, smallInput},
-		{"AnchoredPattern_LargeInput", &config.RegexPattern{Pattern: `^ERROR:`, Flags: "m"}, largeInput},
+		{"SimplePattern_SmallInput", &config.RegexPattern{Pattern: `error`, Flags: "i"}, SmallInput},
+		{"SimplePattern_LargeInput", &config.RegexPattern{Pattern: `error`, Flags: "i"}, LargeInput},
+		{"ComplexPattern_SmallInput", &config.RegexPattern{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""}, SmallInput},
+		{"ComplexPattern_LargeInput", &config.RegexPattern{Pattern: `\S+\.(go|js|ts|py):\d+:\d+`, Flags: ""}, LargeInput},
+		{"AnchoredPattern_SmallInput", &config.RegexPattern{Pattern: `^ERROR:`, Flags: ""}, SmallInput},
+		{"AnchoredPattern_LargeInput", &config.RegexPattern{Pattern: `^ERROR:`, Flags: "m"}, LargeInput},
 	}
 
 	for _, tc := range testCases {
@@ -120,10 +102,10 @@ func BenchmarkPatternSet(b *testing.B) {
 		patterns []*config.RegexPattern
 		input    string
 	}{
-		{"SmallSet_SmallInput", benchmarkPatterns[:3], smallInput},
-		{"SmallSet_LargeInput", benchmarkPatterns[:3], largeInput},
-		{"LargeSet_SmallInput", benchmarkPatterns, smallInput},
-		{"LargeSet_LargeInput", benchmarkPatterns, largeInput},
+		{"SmallSet_SmallInput", ComplexPatterns[:3], SmallInput},
+		{"SmallSet_LargeInput", ComplexPatterns[:3], LargeInput},
+		{"LargeSet_SmallInput", ComplexPatterns, SmallInput},
+		{"LargeSet_LargeInput", ComplexPatterns, LargeInput},
 	}
 
 	for _, tc := range testCases {
@@ -176,7 +158,7 @@ func BenchmarkConcurrentPatternMatching(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_ = re.MatchString(mediumInput)
+			_ = re.MatchString(MediumInput)
 		}
 	})
 }
@@ -203,13 +185,13 @@ func BenchmarkMemoryUsage(b *testing.B) {
 	})
 
 	b.Run("PatternMatching", func(b *testing.B) {
-		pattern := &config.RegexPattern{Pattern: `\berror\b`, Flags: "i"}
+		pattern := &config.RegexPattern{Pattern: `error`, Flags: "i"}
 		re, _ := pattern.Compile()
 
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			_ = re.FindAllString(largeInput, -1)
+			_ = re.FindAllString(LargeInput, -1)
 		}
 	})
 }

@@ -97,13 +97,15 @@ For more information, see: https://github.com/bebsworthy/qualhook`,
 	// Allow interspersed args for custom commands
 	cmd.Flags().SetInterspersed(false)
 
-	// Add subcommands
+	// Add subcommands - these are defined in their respective files
 	cmd.AddCommand(formatCmd)
 	cmd.AddCommand(lintCmd)
 	cmd.AddCommand(typecheckCmd)
 	cmd.AddCommand(testCmd)
 	cmd.AddCommand(configCmd)
 	cmd.AddCommand(templateCmd)
+	cmd.AddCommand(completionCmd)
+	cmd.AddCommand(manCmd)
 
 	return cmd
 }

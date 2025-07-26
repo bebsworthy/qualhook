@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "commands": {
+    "lint": {
+      "command": "flake8",
+      "args": ["--max-line-length=88"],
+      "files": ["**/*.py"],
+      "exclude": ["venv", "__pycache__", ".pytest_cache"],
+      "errorPatterns": [{"pattern": "E\\d{3}"}, {"pattern": "F\\d{3}"}],
+      "warningPatterns": [{"pattern": "W\\d{3}"}],
+      "outputFormat": "default"
+    },
+    "typecheck": {
+      "command": "mypy",
+      "args": ["--strict"],
+      "files": ["**/*.py"],
+      "exclude": ["tests", "venv"],
+      "errorPatterns": [{"pattern": "error:"}],
+      "warningPatterns": [{"pattern": "warning:"}, {"pattern": "note:"}]
+    },
+    "test": {
+      "command": "pytest",
+      "args": ["-v", "--cov=src", "--cov-report=term-missing"],
+      "files": ["tests/**/*.py", "**/*_test.py"],
+      "errorPatterns": [{"pattern": "FAILED"}, {"pattern": "ERROR"}],
+      "warningPatterns": [{"pattern": "warnings summary"}],
+      "env": {
+        "PYTHONPATH": "src"
+      }
+    },
+    "format": {
+      "command": "black",
+      "args": ["--check"],
+      "files": ["**/*.py"],
+      "exclude": ["venv", "__pycache__"],
+      "errorPatterns": [{"pattern": "would reformat"}],
+      "continueOnError": true
+    }
+  }
+}

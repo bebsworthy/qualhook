@@ -1,3 +1,5 @@
+//go:build unit
+
 // Package filter provides output filtering and processing functionality for qualhook.
 package filter
 
@@ -6,40 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	config "github.com/bebsworthy/qualhook/pkg/config"
+	"github.com/bebsworthy/qualhook/pkg/config"
 )
-
-// Generate test data of various sizes
-func generateOutput(lines int, errorRate float64) string {
-	var builder strings.Builder
-	errorInterval := int(1.0 / errorRate)
-
-	for i := 0; i < lines; i++ {
-		if errorRate > 0 && i%errorInterval == 0 {
-			builder.WriteString(fmt.Sprintf("file.go:%d:10: error: undefined variable 'x'\n", i+1))
-		} else {
-			builder.WriteString(fmt.Sprintf("INFO [%05d] Processing item successfully\n", i))
-		}
-	}
-
-	return builder.String()
-}
 
 // BenchmarkOutputFiltering measures filtering performance with various output sizes
 func BenchmarkOutputFiltering(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-			{Pattern: `\d+:\d+:`, Flags: ""},
-			{Pattern: `failed|failure`, Flags: "i"},
-		},
-		ContextPatterns: []*config.RegexPattern{
-			{Pattern: `warning:`, Flags: "i"},
-			{Pattern: `WARN`, Flags: ""},
-		},
-		ContextLines: 2,
-		MaxLines:    100,
-	}
+	filterRules := TestFilterRules.Complex
 
 	testCases := []struct {
 		name      string
@@ -59,7 +33,7 @@ func BenchmarkOutputFiltering(b *testing.B) {
 
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
-			output := generateOutput(tc.lines, tc.errorRate)
+			output := GenerateTestOutput(tc.lines, tc.errorRate)
 			filter, err := NewOutputFilter(filterRules)
 			if err != nil {
 				b.Fatal(err)
@@ -76,14 +50,7 @@ func BenchmarkOutputFiltering(b *testing.B) {
 
 // BenchmarkStreamFiltering measures streaming filter performance
 func BenchmarkStreamFiltering(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-			{Pattern: `\d+:\d+:`, Flags: ""},
-		},
-		ContextLines: 2,
-		MaxLines:    1000,
-	}
+	filterRules := TestFilterRules.Basic
 
 	testCases := []struct {
 		name  string
@@ -96,7 +63,7 @@ func BenchmarkStreamFiltering(b *testing.B) {
 
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
-			output := generateOutput(tc.lines, 0.1)
+			output := GenerateTestOutput(tc.lines, 0.1)
 			filter, _ := NewOutputFilter(filterRules)
 
 			b.ResetTimer()
@@ -204,14 +171,7 @@ func BenchmarkIntelligentTruncation(b *testing.B) {
 
 // BenchmarkFilterBoth measures performance of filtering both stdout and stderr
 func BenchmarkFilterBoth(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-			{Pattern: `failed`, Flags: "i"},
-		},
-		ContextLines: 2,
-		MaxLines:    200,
-	}
+	filterRules := TestFilterRules.Basic
 
 	testCases := []struct {
 		name        string
@@ -227,8 +187,8 @@ func BenchmarkFilterBoth(b *testing.B) {
 
 	for _, tc := range testCases {
 		b.Run(tc.name, func(b *testing.B) {
-			stdout := generateOutput(tc.stdoutLines, 0.05)
-			stderr := generateOutput(tc.stderrLines, 0.3)
+			stdout := GenerateTestOutput(tc.stdoutLines, 0.05)
+			stderr := GenerateTestOutput(tc.stderrLines, 0.3)
 
 			filter, _ := NewOutputFilter(filterRules)
 
@@ -243,16 +203,10 @@ func BenchmarkFilterBoth(b *testing.B) {
 
 // BenchmarkMemoryUsageFiltering measures memory allocation during filtering
 func BenchmarkMemoryUsageFiltering(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-		},
-		ContextLines: 5,
-		MaxLines:    500,
-	}
+	filterRules := TestFilterRules.Strict
 
 	b.Run("SmallOutput", func(b *testing.B) {
-		output := generateOutput(100, 0.1)
+		output := GenerateTestOutput(100, 0.1)
 		filter, _ := NewOutputFilter(filterRules)
 
 		b.ReportAllocs()
@@ -263,7 +217,7 @@ func BenchmarkMemoryUsageFiltering(b *testing.B) {
 	})
 
 	b.Run("LargeOutput", func(b *testing.B) {
-		output := generateOutput(10000, 0.01)
+		output := GenerateTestOutput(10000, 0.01)
 		filter, _ := NewOutputFilter(filterRules)
 
 		b.ReportAllocs()
@@ -274,7 +228,7 @@ func BenchmarkMemoryUsageFiltering(b *testing.B) {
 	})
 
 	b.Run("Streaming", func(b *testing.B) {
-		output := generateOutput(10000, 0.01)
+		output := GenerateTestOutput(10000, 0.01)
 		filter, _ := NewOutputFilter(filterRules)
 
 		b.ReportAllocs()
@@ -314,18 +268,10 @@ func BenchmarkWorstCaseScenarios(b *testing.B) {
 	})
 
 	b.Run("ComplexPatterns", func(b *testing.B) {
-		output := generateOutput(1000, 0.1)
+		output := GenerateTestOutput(1000, 0.1)
 
 		// Use complex patterns that may be slow
-		filterRules := &FilterRules{
-			ErrorPatterns: []*config.RegexPattern{
-				{Pattern: `.*error.*`, Flags: "i"},
-				{Pattern: `(.*)\s+(\d+):(\d+):\s+(.*)`, Flags: ""},
-				{Pattern: `(?:error|warning|fatal|panic).*(?:failed|failure|exception)`, Flags: "i"},
-			},
-			ContextLines: 3,
-			MaxLines:    200,
-		}
+		filterRules := TestFilterRules.Complex
 
 		filter, _ := NewOutputFilter(filterRules)
 

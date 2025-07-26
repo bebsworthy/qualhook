@@ -1,0 +1,9 @@
+start
+before error 1
+ERROR 1
+after error 1
+middle
+before error 2
+ERROR 2
+after error 2
+end

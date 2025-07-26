@@ -1,3 +1,5 @@
+//go:build test || unit || integration || e2e
+
 package executor
 
 // Test command constants

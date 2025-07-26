@@ -1,3 +1,5 @@
+//go:build unit
+
 // Package main provides the entry point for the qualhook CLI tool.
 package main
 

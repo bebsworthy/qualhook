@@ -1,3 +1,5 @@
+//go:build integration
+
 package security
 
 import (
@@ -78,6 +80,7 @@ func TestSecurityIntegration_CommandExecution(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
+			t.Parallel()
 			// Validate command
 			cmdErr := validator.ValidateCommand(scenario.command, scenario.args)
 
@@ -301,6 +304,10 @@ func TestSecurityIntegration_ConfigurationValidation(t *testing.T) {
 
 // TestSecurityIntegration_DefenseInDepth tests multiple layers of security
 func TestSecurityIntegration_DefenseInDepth(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+	t.Parallel()
 	validator := NewSecurityValidator()
 
 	// Test that multiple security layers catch different attack vectors

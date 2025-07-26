@@ -1,3 +1,5 @@
+//go:build unit
+
 // Package filter provides output filtering and processing functionality for qualhook.
 package filter
 
@@ -5,24 +7,11 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-
-	config "github.com/bebsworthy/qualhook/pkg/config"
 )
 
 // BenchmarkOptimizedFiltering compares original vs optimized filtering
 func BenchmarkOptimizedFiltering(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-			{Pattern: `\d+:\d+:`, Flags: ""},
-			{Pattern: `failed|failure`, Flags: "i"},
-		},
-		ContextPatterns: []*config.RegexPattern{
-			{Pattern: `warning:`, Flags: "i"},
-		},
-		ContextLines: 2,
-		MaxLines:    1000,
-	}
+	filterRules := TestFilterRules.Complex
 
 	testCases := []struct {
 		name      string
@@ -36,7 +25,7 @@ func BenchmarkOptimizedFiltering(b *testing.B) {
 	}
 
 	for _, tc := range testCases {
-		output := generateOutput(tc.lines, tc.errorRate)
+		output := GenerateTestOutput(tc.lines, tc.errorRate)
 
 		b.Run(tc.name+"_Original", func(b *testing.B) {
 			filter, _ := NewOutputFilter(filterRules)
@@ -62,13 +51,7 @@ func BenchmarkOptimizedFiltering(b *testing.B) {
 
 // BenchmarkStreamingComparison compares streaming implementations
 func BenchmarkStreamingComparison(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error:`, Flags: "i"},
-		},
-		ContextLines: 2,
-		MaxLines:    500,
-	}
+	filterRules := TestFilterRules.Strict
 
 	// Generate 1MB of output
 	var builder strings.Builder
@@ -113,13 +96,7 @@ func BenchmarkWorstCaseOptimized(b *testing.B) {
 	}
 	output := builder.String()
 
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `ERROR:`, Flags: ""},
-		},
-		ContextLines: 5,
-		MaxLines:    100, // Much smaller than input
-	}
+	filterRules := TestFilterRules.Strict
 
 	b.Run("Original_AllMatch", func(b *testing.B) {
 		filter, _ := NewOutputFilter(filterRules)
@@ -144,18 +121,12 @@ func BenchmarkWorstCaseOptimized(b *testing.B) {
 
 // BenchmarkMemoryScaling tests how memory scales with input size
 func BenchmarkMemoryScaling(b *testing.B) {
-	filterRules := &FilterRules{
-		ErrorPatterns: []*config.RegexPattern{
-			{Pattern: `error`, Flags: "i"},
-		},
-		ContextLines: 2,
-		MaxLines:    100,
-	}
+	filterRules := TestFilterRules.Basic
 
 	sizes := []int{100, 1000, 10000, 100000}
 
 	for _, size := range sizes {
-		output := generateOutput(size, 0.01)
+		output := GenerateTestOutput(size, 0.01)
 
 		b.Run(fmt.Sprintf("Original_%dLines", size), func(b *testing.B) {
 			filter, _ := NewOutputFilter(filterRules)

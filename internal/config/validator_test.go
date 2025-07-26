@@ -1,3 +1,5 @@
+//go:build unit
+
 package config
 
 import (
@@ -6,117 +8,97 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bebsworthy/qualhook/internal/testutil"
 	"github.com/bebsworthy/qualhook/pkg/config"
 )
 
 func TestValidator_Validate(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 	// Don't check command existence in tests
 	validator.CheckCommands = false
 
 	tests := []struct {
-		name    string
-		config  *config.Config
-		wantErr bool
-		errMsg  string
+		name      string
+		buildFunc func() *config.Config
+		wantErr   bool
+		errMsg    string
 	}{
 		{
 			name: "valid config",
-			config: &config.Config{
-				Version: "1.0",
-				Commands: map[string]*config.CommandConfig{
-					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint"},
-						ExitCodes: []int{1},
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "\\d+:\\d+\\s+error", Flags: ""},
-						},
-						MaxOutput: 100,
-						Timeout: 5000,
-					},
-				},
+			buildFunc: func() *config.Config {
+				return testutil.NewConfigBuilder().
+					WithCommand("lint", &config.CommandConfig{
+						Command:       "npm",
+						Args:          []string{"run", "lint"},
+						ExitCodes:     []int{1},
+						ErrorPatterns: []*config.RegexPattern{{Pattern: "\\d+:\\d+\\s+error", Flags: ""}},
+						MaxOutput:     100,
+						Timeout:       5000,
+					}).
+					Build()
 			},
 			wantErr: false,
 		},
 		{
 			name: "timeout too short",
-			config: &config.Config{
-				Version: "1.0",
-				Commands: map[string]*config.CommandConfig{
-					"test": {
-						Command: "npm",
-						Args:    []string{"test"},
-						Timeout: 50, // Too short
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "fail", Flags: "i"},
-						},
-					},
-				},
+			buildFunc: func() *config.Config {
+				return testutil.NewConfigBuilder().
+					WithCommand("test", &config.CommandConfig{
+						Command:       "npm",
+						Args:          []string{"test"},
+						Timeout:       50, // Too short
+						ErrorPatterns: []*config.RegexPattern{{Pattern: "fail", Flags: "i"}},
+					}).
+					Build()
 			},
 			wantErr: true,
 			errMsg:  "timeout 50ms is too short",
 		},
 		{
 			name: "timeout too long",
-			config: &config.Config{
-				Version: "1.0",
-				Commands: map[string]*config.CommandConfig{
-					"test": {
-						Command: "npm",
-						Args:    []string{"test"},
-						Timeout: 3700000, // More than 1 hour
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "fail", Flags: "i"},
-						},
-					},
-				},
+			buildFunc: func() *config.Config {
+				return testutil.NewConfigBuilder().
+					WithCommand("test", &config.CommandConfig{
+						Command:       "npm",
+						Args:          []string{"test"},
+						Timeout:       3700000, // More than 1 hour
+						ErrorPatterns: []*config.RegexPattern{{Pattern: "fail", Flags: "i"}},
+					}).
+					Build()
 			},
 			wantErr: true,
 			errMsg:  "exceeds maximum allowed",
 		},
 		{
 			name: "dangerous regex pattern",
-			config: &config.Config{
-				Version: "1.0",
-				Commands: map[string]*config.CommandConfig{
-					"lint": {
-						Command: "eslint",
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "(.*)*", Flags: ""}, // Catastrophic backtracking
-						},
-					},
-				},
+			buildFunc: func() *config.Config {
+				return testutil.NewConfigBuilder().
+					WithCommand("lint", &config.CommandConfig{
+						Command:       "eslint",
+						ErrorPatterns: []*config.RegexPattern{{Pattern: "(.*)*", Flags: ""}}, // Catastrophic backtracking
+					}).
+					Build()
 			},
 			wantErr: true,
 			errMsg:  "catastrophic backtracking",
 		},
 		{
 			name: "invalid path pattern",
-			config: &config.Config{
-				Version: "1.0",
-				Commands: map[string]*config.CommandConfig{
-					"build": {
-						Command: "make",
-						ErrorPatterns: []*config.RegexPattern{
-							{Pattern: "error", Flags: "i"},
-						},
-					},
-				},
-				Paths: []*config.PathConfig{
-					{
+			buildFunc: func() *config.Config {
+				return testutil.NewConfigBuilder().
+					WithSimpleCommand("build", "make").
+					WithPath(&config.PathConfig{
 						Path: "../outside", // Parent directory reference
 						Commands: map[string]*config.CommandConfig{
 							"build": {
-								Command: "make",
-								Args:    []string{"all"},
-								ErrorPatterns: []*config.RegexPattern{
-									{Pattern: "error", Flags: "i"},
-								},
+								Command:       "make",
+								Args:          []string{"all"},
+								ErrorPatterns: []*config.RegexPattern{{Pattern: "error", Flags: "i"}},
 							},
 						},
-					},
-				},
+					}).
+					Build()
 			},
 			wantErr: true,
 			errMsg:  "directory traversal",
@@ -125,7 +107,9 @@ func TestValidator_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validator.Validate(tt.config)
+			t.Parallel()
+			cfg := tt.buildFunc()
+			err := validator.Validate(cfg)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -137,6 +121,7 @@ func TestValidator_Validate(t *testing.T) {
 }
 
 func TestValidator_ValidateCommand(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 	validator.CheckCommands = false
 
@@ -178,6 +163,7 @@ func TestValidator_ValidateCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			v := validator
 			if tt.errMsg == "not in allowed list" {
 				v = validatorWithAllowList
@@ -195,6 +181,7 @@ func TestValidator_ValidateCommand(t *testing.T) {
 }
 
 func TestValidator_CheckDangerousRegex(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 
 	tests := []struct {
@@ -214,15 +201,17 @@ func TestValidator_CheckDangerousRegex(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			err := validator.checkDangerousRegex(tt.pattern)
+			t.Parallel()
+			err := validator.CheckDangerousRegex(tt.pattern)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("checkDangerousRegex(%q) error = %v, wantErr %v", tt.pattern, err, tt.wantErr)
+				t.Errorf("CheckDangerousRegex(%q) error = %v, wantErr %v", tt.pattern, err, tt.wantErr)
 			}
 		})
 	}
 }
 
 func TestValidator_IsTooGenericPattern(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 
 	tests := []struct {
@@ -243,6 +232,7 @@ func TestValidator_IsTooGenericPattern(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.pattern, func(t *testing.T) {
+			t.Parallel()
 			re, err := regexp.Compile(tt.pattern)
 			if err != nil {
 				t.Fatalf("Failed to compile pattern %q: %v", tt.pattern, err)
@@ -257,6 +247,7 @@ func TestValidator_IsTooGenericPattern(t *testing.T) {
 }
 
 func TestValidator_ValidatePathPattern(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 
 	tests := []struct {
@@ -276,6 +267,7 @@ func TestValidator_ValidatePathPattern(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.pattern, func(t *testing.T) {
+			t.Parallel()
 			err := validator.validatePathPattern(tt.pattern)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("validatePathPattern(%q) error = %v, wantErr %v", tt.pattern, err, tt.wantErr)
@@ -288,6 +280,7 @@ func TestValidator_ValidatePathPattern(t *testing.T) {
 }
 
 func TestValidator_SuggestFixes(t *testing.T) {
+	t.Parallel()
 	validator := NewValidator()
 
 	tests := []struct {
@@ -325,6 +318,7 @@ func TestValidator_SuggestFixes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.errMsg, func(t *testing.T) {
+			t.Parallel()
 			suggestions := validator.SuggestFixes(fmt.Errorf("%s", tt.errMsg))
 
 			for _, want := range tt.wantSuggest {
@@ -344,6 +338,7 @@ func TestValidator_SuggestFixes(t *testing.T) {
 }
 
 func TestValidator_IsCommandAllowed(t *testing.T) {
+	t.Parallel()
 	validator := &Validator{
 		AllowedCommands: []string{"npm", "go", "python", "cargo"},
 	}

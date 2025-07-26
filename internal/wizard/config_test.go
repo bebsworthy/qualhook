@@ -1,3 +1,5 @@
+//go:build unit
+
 package wizard
 
 import (
@@ -10,6 +12,7 @@ import (
 )
 
 func TestNewConfigWizard(t *testing.T) {
+	t.Parallel()
 	wizard, err := NewConfigWizard()
 	if err != nil {
 		t.Fatalf("NewConfigWizard() failed: %v", err)
@@ -26,6 +29,7 @@ func TestNewConfigWizard(t *testing.T) {
 }
 
 func TestRun_ExistingConfig(t *testing.T) {
+	t.Parallel()
 	// Create temp directory with existing config
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "qualhook.json")
@@ -57,6 +61,7 @@ func TestRun_ExistingConfig(t *testing.T) {
 }
 
 func TestValidateConfig(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		config  *pkgconfig.Config

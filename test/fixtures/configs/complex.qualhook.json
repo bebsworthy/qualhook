@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "extends": "./base.qualhook.json",
+  "commands": {
+    "lint": {
+      "command": "eslint",
+      "args": ["--fix", "--ext", ".js,.jsx,.ts,.tsx"],
+      "files": ["src/**/*.{js,jsx,ts,tsx}"],
+      "exclude": ["node_modules", "dist", "build"],
+      "errorPatterns": [{"pattern": "error"}, {"pattern": "^\\s*\\d+:\\d+\\s+error"}],
+      "warningPatterns": [{"pattern": "warning"}, {"pattern": "^\\s*\\d+:\\d+\\s+warning"}],
+      "outputFormat": "stylish",
+      "parallel": true,
+      "continueOnError": false
+    },
+    "typecheck": {
+      "command": "tsc",
+      "args": ["--noEmit"],
+      "files": ["**/*.ts", "**/*.tsx"],
+      "errorPatterns": [{"pattern": "error TS\\d+:"}],
+      "cwd": ".",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "test": {
+      "command": "jest",
+      "args": ["--coverage", "--passWithNoTests"],
+      "files": ["**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"],
+      "errorPatterns": [{"pattern": "FAIL"}, {"pattern": "✕"}],
+      "warningPatterns": [{"pattern": "WARN"}],
+      "timeout": 30000
+    },
+    "format": {
+      "command": "prettier",
+      "args": ["--write"],
+      "files": ["**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"],
+      "exclude": ["node_modules", "dist", ".git"],
+      "continueOnError": true
+    }
+  },
+  "settings": {
+    "parallelism": 4,
+    "showProgress": true,
+    "colors": true,
+    "logLevel": "info"
+  }
+}
