@@ -65,10 +65,8 @@ func (v *SecurityValidator) ValidateCommand(command string, args []string) error
 	}
 
 	// Validate all arguments
-	for i, arg := range args {
-		if err := v.checkForShellInjection(arg); err != nil {
-			return fmt.Errorf("potential shell injection in argument %d: %w", i, err)
-		}
+	if err := v.validateArguments(baseCommand, args); err != nil {
+		return err
 	}
 
 	// Check for dangerous command patterns
@@ -219,6 +217,88 @@ func (v *SecurityValidator) checkForShellInjection(input string) error {
 	return nil
 }
 
+// checkForShellInjectionExceptNewlines is like checkForShellInjection but allows newlines
+func (v *SecurityValidator) checkForShellInjectionExceptNewlines(input string) error {
+	// Check for null bytes first (special case)
+	if strings.Contains(input, "\x00") {
+		return fmt.Errorf("contains null byte")
+	}
+
+	// List of dangerous characters and patterns (excluding newlines)
+	dangerousPatterns := []string{
+		";", "&&", "||", "|", "`", "$(",
+		"${", "\\x00",
+		">>", "<<", ">", "<",
+	}
+
+	for _, pattern := range dangerousPatterns {
+		if strings.Contains(input, pattern) {
+			return fmt.Errorf("contains potentially dangerous pattern '%s'", pattern)
+		}
+	}
+
+	// Check for encoded characters
+	if strings.Contains(input, "%") {
+		// Could be URL encoding attempt
+		if strings.Contains(input, "%3B") || // ;
+			strings.Contains(input, "%7C") || // |
+			strings.Contains(input, "%26") || // &
+			strings.Contains(input, "%24") { // $
+			return fmt.Errorf("contains encoded shell metacharacters")
+		}
+	}
+
+	return nil
+}
+
+// validateArguments validates command arguments with special handling for AI tools
+func (v *SecurityValidator) validateArguments(baseCommand string, args []string) error {
+	for i, arg := range args {
+		var err error
+		if isAIToolPromptArg(baseCommand, i, args) {
+			// Allow newlines in AI prompts, but check for other dangerous patterns
+			err = v.checkForShellInjectionExceptNewlines(arg)
+		} else {
+			err = v.checkForShellInjection(arg)
+		}
+		
+		if err != nil {
+			return fmt.Errorf("potential shell injection in argument %d: %w", i, err)
+		}
+	}
+	return nil
+}
+
+// isAIToolPromptArg checks if an argument is an AI tool prompt that needs special handling
+func isAIToolPromptArg(baseCommand string, argIndex int, args []string) bool {
+	if !isAITool(baseCommand) {
+		return false
+	}
+	
+	// Claude takes prompt as direct argument (position 0)
+	if baseCommand == "claude" && argIndex == 0 {
+		return true
+	}
+	
+	// Gemini and others take prompt after --prompt flag
+	if argIndex > 0 && args[argIndex-1] == "--prompt" {
+		return true
+	}
+	
+	return false
+}
+
+// isAITool checks if a command is an AI tool
+func isAITool(command string) bool {
+	aiTools := []string{"claude", "gemini"}
+	for _, tool := range aiTools {
+		if command == tool {
+			return true
+		}
+	}
+	return false
+}
+
 // checkDangerousCommands checks for inherently dangerous commands
 func (v *SecurityValidator) checkDangerousCommands(command string, args []string) error {
 	baseCmd := filepath.Base(command)
@@ -317,6 +397,8 @@ func getDefaultAllowedCommands() map[string]bool {
 		"tsc", "typescript",
 		// Shell utilities (safe subset)
 		"echo", "pwd", "which", "where", "type",
+		// AI tools
+		"claude", "gemini",
 	}
 
 	allowed := make(map[string]bool)
