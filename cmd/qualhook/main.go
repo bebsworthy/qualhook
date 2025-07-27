@@ -103,6 +103,7 @@ For more information, see: https://github.com/bebsworthy/qualhook`,
 	cmd.AddCommand(typecheckCmd)
 	cmd.AddCommand(testCmd)
 	cmd.AddCommand(configCmd)
+	cmd.AddCommand(aiConfigCmd)
 	cmd.AddCommand(templateCmd)
 	cmd.AddCommand(completionCmd)
 	cmd.AddCommand(manCmd)
@@ -126,7 +127,7 @@ func main() {
 	if len(os.Args) > 1 && !strings.HasPrefix(os.Args[1], "-") {
 		// Check if it's a known command
 		cmdName := os.Args[1]
-		knownCommands := []string{"format", "lint", "typecheck", "test", "config", "template", "help", "completion", "man"}
+		knownCommands := []string{"format", "lint", "typecheck", "test", "config", "ai-config", "template", "help", "completion", "man"}
 		isKnown := false
 		for _, known := range knownCommands {
 			if cmdName == known {

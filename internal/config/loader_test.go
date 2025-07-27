@@ -354,10 +354,10 @@ func TestLoader_LoadFixtures(t *testing.T) {
 			checkCommand: "check",
 		},
 		{
-			name:         "invalid config",
-			fixtureName:  "invalid",
-			expectValid:  false,
-			expectError:  "version is required",
+			name:        "invalid config",
+			fixtureName: "invalid",
+			expectValid: false,
+			expectError: "version is required",
 		},
 	}
 
@@ -370,20 +370,20 @@ func TestLoader_LoadFixtures(t *testing.T) {
 			if err := os.WriteFile(configPath, configContent, 0644); err != nil {
 				t.Fatalf("Failed to write config: %v", err)
 			}
-			
+
 			// Create loader pointing to temp directory
 			loader := &Loader{
 				SearchPaths: []string{tempDir},
 			}
-			
+
 			// Try to load the config
 			cfg, err := loader.Load()
-			
+
 			if tt.expectValid {
 				if err != nil {
 					t.Fatalf("Failed to load valid config: %v", err)
 				}
-				
+
 				// Check that expected command exists
 				if tt.checkCommand != "" {
 					if _, exists := cfg.Commands[tt.checkCommand]; !exists {
@@ -394,7 +394,7 @@ func TestLoader_LoadFixtures(t *testing.T) {
 				if err == nil {
 					t.Fatal("Expected error loading invalid config, got nil")
 				}
-				
+
 				// Verify error message contains expected text
 				if tt.expectError != "" && !strings.Contains(err.Error(), tt.expectError) {
 					t.Errorf("Expected error containing %q, got %q", tt.expectError, err.Error())
@@ -442,20 +442,20 @@ func TestLoader_ProjectFixtures(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Get project fixture path
 			projectPath := testutil.ProjectFixture(t, tt.projectType)
-			
+
 			// Create loader for project directory
 			loader := &Loader{
 				SearchPaths: []string{projectPath},
 			}
-			
+
 			// Load config
 			cfg, err := loader.Load()
-			
+
 			if tt.expectConfig {
 				if err != nil {
 					t.Fatalf("Failed to load config from project fixture: %v", err)
 				}
-				
+
 				// Verify expected command exists
 				if _, exists := cfg.Commands[tt.checkCommand]; !exists {
 					t.Errorf("Expected command %q not found in project config", tt.checkCommand)

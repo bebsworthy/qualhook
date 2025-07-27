@@ -36,5 +36,4 @@
 //	// Run a safe test command
 //	cmd := testutil.SafeTestCommand("Hello, World!")
 //	stdout, stderr, exitCode := testutil.RunCommand(t, cmd)
-//
 package testutil

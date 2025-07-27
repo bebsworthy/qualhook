@@ -70,11 +70,11 @@ func (t *Tracker) StartRun(id string) *TestRun {
 func (t *Tracker) FinishRun(run *TestRun) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	
+
 	run.EndTime = time.Now()
 	run.Duration = run.EndTime.Sub(run.StartTime)
 	run.Results = t.results
-	
+
 	t.runs = append(t.runs, *run)
 }
 
@@ -82,14 +82,14 @@ func (t *Tracker) FinishRun(run *TestRun) {
 func (t *Tracker) GetStats() TestStats {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	
+
 	stats := TestStats{
 		TotalTests:   len(t.results),
 		ByCategory:   make(map[string]CategoryStats),
 		ByPackage:    make(map[string]PackageStats),
 		SlowestTests: make([]TestResult, 0),
 	}
-	
+
 	// Calculate statistics
 	for _, result := range t.results {
 		// Update category stats
@@ -103,7 +103,7 @@ func (t *Tracker) GetStats() TestStats {
 		}
 		catStats.TotalDuration += result.Duration
 		stats.ByCategory[result.Category] = catStats
-		
+
 		// Update package stats
 		pkgStats := stats.ByPackage[result.Package]
 		pkgStats.Total++
@@ -115,7 +115,7 @@ func (t *Tracker) GetStats() TestStats {
 		}
 		pkgStats.TotalDuration += result.Duration
 		stats.ByPackage[result.Package] = pkgStats
-		
+
 		// Update totals
 		if result.Passed {
 			stats.Passed++
@@ -125,10 +125,10 @@ func (t *Tracker) GetStats() TestStats {
 		}
 		stats.TotalDuration += result.Duration
 	}
-	
+
 	// Find slowest tests
 	stats.SlowestTests = t.findSlowestTests(10)
-	
+
 	return stats
 }
 
@@ -137,11 +137,11 @@ func (t *Tracker) findSlowestTests(n int) []TestResult {
 	if len(t.results) == 0 {
 		return []TestResult{}
 	}
-	
+
 	// Create a copy and sort by duration
 	sorted := make([]TestResult, len(t.results))
 	copy(sorted, t.results)
-	
+
 	// Simple bubble sort for small datasets
 	for i := 0; i < len(sorted)-1; i++ {
 		for j := 0; j < len(sorted)-i-1; j++ {
@@ -150,11 +150,11 @@ func (t *Tracker) findSlowestTests(n int) []TestResult {
 			}
 		}
 	}
-	
+
 	if n > len(sorted) {
 		n = len(sorted)
 	}
-	
+
 	return sorted[:n]
 }
 
@@ -162,20 +162,20 @@ func (t *Tracker) findSlowestTests(n int) []TestResult {
 func (t *Tracker) SaveResults(filename string) error {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	
+
 	data, err := json.MarshalIndent(t.runs, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal results: %w", err)
 	}
-	
+
 	if err := os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
-	
+
 	if err := os.WriteFile(filename, data, 0600); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -183,38 +183,38 @@ func (t *Tracker) SaveResults(filename string) error {
 func (t *Tracker) LoadResults(filename string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	
+
 	data, err := os.ReadFile(filename) // #nosec G304 - filename provided by caller
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
-	
+
 	var runs []TestRun
 	if err := json.Unmarshal(data, &runs); err != nil {
 		return fmt.Errorf("failed to unmarshal results: %w", err)
 	}
-	
+
 	t.runs = runs
-	
+
 	// Rebuild results from runs
 	t.results = make([]TestResult, 0)
 	for _, run := range runs {
 		t.results = append(t.results, run.Results...)
 	}
-	
+
 	return nil
 }
 
 // TestStats represents aggregated test statistics
 type TestStats struct {
-	TotalTests    int                       `json:"total_tests"`
-	Passed        int                       `json:"passed"`
-	Failed        int                       `json:"failed"`
-	Skipped       int                       `json:"skipped"`
-	TotalDuration time.Duration             `json:"total_duration"`
-	ByCategory    map[string]CategoryStats  `json:"by_category"`
-	ByPackage     map[string]PackageStats   `json:"by_package"`
-	SlowestTests  []TestResult              `json:"slowest_tests"`
+	TotalTests    int                      `json:"total_tests"`
+	Passed        int                      `json:"passed"`
+	Failed        int                      `json:"failed"`
+	Skipped       int                      `json:"skipped"`
+	TotalDuration time.Duration            `json:"total_duration"`
+	ByCategory    map[string]CategoryStats `json:"by_category"`
+	ByPackage     map[string]PackageStats  `json:"by_package"`
+	SlowestTests  []TestResult             `json:"slowest_tests"`
 }
 
 // CategoryStats represents statistics for a test category
@@ -250,7 +250,7 @@ func (s *TestStats) CalculateAverages() {
 			s.ByCategory[cat] = stats
 		}
 	}
-	
+
 	for pkg, stats := range s.ByPackage {
 		if stats.Total > 0 {
 			stats.AvgDuration = stats.TotalDuration / time.Duration(stats.Total)

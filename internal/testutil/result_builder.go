@@ -103,25 +103,25 @@ func (b *ResultBuilder) Build() executor.ExecResult {
 // Returns nil if they match, or an error describing the differences.
 func (b *ResultBuilder) AssertEqual(actual executor.ExecResult) error {
 	expected := b.result
-	
+
 	var diffs []string
-	
+
 	if expected.Stdout != actual.Stdout {
 		diffs = append(diffs, fmt.Sprintf("stdout: expected %q, got %q", expected.Stdout, actual.Stdout))
 	}
-	
+
 	if expected.Stderr != actual.Stderr {
 		diffs = append(diffs, fmt.Sprintf("stderr: expected %q, got %q", expected.Stderr, actual.Stderr))
 	}
-	
+
 	if expected.ExitCode != actual.ExitCode {
 		diffs = append(diffs, fmt.Sprintf("exit code: expected %d, got %d", expected.ExitCode, actual.ExitCode))
 	}
-	
+
 	if expected.TimedOut != actual.TimedOut {
 		diffs = append(diffs, fmt.Sprintf("timed out: expected %v, got %v", expected.TimedOut, actual.TimedOut))
 	}
-	
+
 	// For errors, we only check if both are nil or both are non-nil
 	expectedHasError := expected.Error != nil
 	actualHasError := actual.Error != nil
@@ -132,11 +132,11 @@ func (b *ResultBuilder) AssertEqual(actual executor.ExecResult) error {
 			diffs = append(diffs, fmt.Sprintf("error: expected nil, got %q", actual.Error))
 		}
 	}
-	
+
 	if len(diffs) > 0 {
 		return fmt.Errorf("result mismatch:\n  %s", diffs[0])
 	}
-	
+
 	return nil
 }
 

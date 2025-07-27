@@ -107,11 +107,11 @@ func TestExecute_CommandSpecific(t *testing.T) {
 	executor := NewCommandExecutor(10 * time.Second)
 
 	tests := []struct {
-		name           string
-		setup          func() (cmd string, args []string, opts ExecOptions, cleanup func())
-		wantErr        bool
-		wantExitCode   int
-		wantInErr      string
+		name         string
+		setup        func() (cmd string, args []string, opts ExecOptions, cleanup func())
+		wantErr      bool
+		wantExitCode int
+		wantInErr    string
 	}{
 		{
 			name: "working directory",
@@ -129,7 +129,7 @@ func TestExecute_CommandSpecific(t *testing.T) {
 				if runtime.GOOS == osWindows {
 					cmd = cmdCommand
 				}
-				return cmd, []string{}, 
+				return cmd, []string{},
 					ExecOptions{WorkingDir: "/this/does/not/exist/12345"}, nil
 			},
 			wantErr:   true,

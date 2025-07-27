@@ -9,11 +9,11 @@ import (
 // TestErrorRecoveryDirectly tests error recovery mechanisms directly
 func TestErrorRecoveryDirectly(t *testing.T) {
 	ctx := context.Background()
-	
+
 	tests := []struct {
-		name             string
-		simulateError    func() error
-		expectRecovery   bool
+		name              string
+		simulateError     func() error
+		expectRecovery    bool
 		expectSuggestions int
 	}{
 		{
@@ -71,31 +71,31 @@ func TestErrorRecoveryDirectly(t *testing.T) {
 			expectSuggestions: 4,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.simulateError()
-			
+
 			// Check if it's an ErrorWithRecovery
 			var errWithRecovery *ErrorWithRecovery
 			if !errors.As(err, &errWithRecovery) && tt.expectRecovery {
 				t.Errorf("Expected ErrorWithRecovery but got %T", err)
 				return
 			}
-			
+
 			if tt.expectRecovery {
 				// Check suggestions count
 				if len(errWithRecovery.RecoverySuggestions) < tt.expectSuggestions {
-					t.Errorf("Expected at least %d suggestions, got %d", 
+					t.Errorf("Expected at least %d suggestions, got %d",
 						tt.expectSuggestions, len(errWithRecovery.RecoverySuggestions))
 				}
-				
+
 				// Check if error is properly formatted
 				formatted := FormatErrorWithSuggestions(err)
 				if formatted == "" {
 					t.Error("Expected formatted error message")
 				}
-				
+
 				// For partial data case, check if data is preserved
 				if errWithRecovery.PartialData != nil {
 					if partialMap, ok := errWithRecovery.PartialData.(map[string]bool); ok {
@@ -107,16 +107,16 @@ func TestErrorRecoveryDirectly(t *testing.T) {
 			}
 		})
 	}
-	
+
 	_ = ctx
 }
 
 // TestErrorMessageQuality tests that error messages are helpful
 func TestErrorMessageQuality(t *testing.T) {
 	errorScenarios := []struct {
-		name          string
-		err           error
-		mustContain   []string
+		name           string
+		err            error
+		mustContain    []string
 		mustNotContain []string
 	}{
 		{
@@ -166,18 +166,18 @@ func TestErrorMessageQuality(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, scenario := range errorScenarios {
 		t.Run(scenario.name, func(t *testing.T) {
 			formatted := FormatErrorWithSuggestions(scenario.err)
-			
+
 			// Check must contain
 			for _, expected := range scenario.mustContain {
 				if !contains(formatted, expected) {
 					t.Errorf("Error message should contain %q but doesn't:\n%s", expected, formatted)
 				}
 			}
-			
+
 			// Check must not contain
 			for _, forbidden := range scenario.mustNotContain {
 				if contains(formatted, forbidden) {
@@ -191,11 +191,11 @@ func TestErrorMessageQuality(t *testing.T) {
 // TestErrorTypeClassification tests that errors are properly classified
 func TestErrorTypeClassification(t *testing.T) {
 	tests := []struct {
-		name           string
-		err            error
-		expectedType   AIErrorType
-		isRetryable    bool
-		hasRecovery    bool
+		name         string
+		err          error
+		expectedType AIErrorType
+		isRetryable  bool
+		hasRecovery  bool
 	}{
 		{
 			name:         "network errors are execution failures",
@@ -227,13 +227,13 @@ func TestErrorTypeClassification(t *testing.T) {
 			hasRecovery:  false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Check error type
 			var aiErr *AIError
 			var errWithRecovery *ErrorWithRecovery
-			
+
 			switch {
 			case errors.As(tt.err, &errWithRecovery):
 				if errWithRecovery.Type != tt.expectedType {
@@ -252,7 +252,7 @@ func TestErrorTypeClassification(t *testing.T) {
 			default:
 				t.Errorf("Expected AI error type but got %T", tt.err)
 			}
-			
+
 			// Check retryability
 			if IsRetryableError(tt.err) != tt.isRetryable {
 				t.Errorf("Expected IsRetryableError = %v", tt.isRetryable)
@@ -264,10 +264,10 @@ func TestErrorTypeClassification(t *testing.T) {
 // TestPartialConfigExtraction tests partial configuration extraction
 func TestPartialConfigExtraction(t *testing.T) {
 	tests := []struct {
-		name             string
-		response         string
-		expectCommands   int
-		expectRecovery   bool
+		name           string
+		response       string
+		expectCommands int
+		expectRecovery bool
 	}{
 		{
 			name: "extract from JSON fragment",
@@ -297,15 +297,15 @@ func TestPartialConfigExtraction(t *testing.T) {
 			expectRecovery: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			commands, hint := ExtractPartialConfig(tt.response, nil)
-			
+
 			if len(commands) != tt.expectCommands {
 				t.Errorf("Expected %d commands, got %d", tt.expectCommands, len(commands))
 			}
-			
+
 			if tt.expectRecovery && hint == "" {
 				t.Error("Expected recovery hint but got none")
 			} else if !tt.expectRecovery && hint != "" {

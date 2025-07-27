@@ -85,10 +85,10 @@ func GenerateMixedOutput(lines int) string {
 
 // TestFilterRules provides common filter rule configurations
 var TestFilterRules = struct {
-	Basic    *FilterRules
-	Complex  *FilterRules
-	Strict   *FilterRules
-	Minimal  *FilterRules
+	Basic   *FilterRules
+	Complex *FilterRules
+	Strict  *FilterRules
+	Minimal *FilterRules
 }{
 	Basic: &FilterRules{
 		ErrorPatterns: BasicErrorPatterns[:2], // error, warning

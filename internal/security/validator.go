@@ -261,7 +261,7 @@ func (v *SecurityValidator) validateArguments(baseCommand string, args []string)
 		} else {
 			err = v.checkForShellInjection(arg)
 		}
-		
+
 		if err != nil {
 			return fmt.Errorf("potential shell injection in argument %d: %w", i, err)
 		}
@@ -274,17 +274,17 @@ func isAIToolPromptArg(baseCommand string, argIndex int, args []string) bool {
 	if !isAITool(baseCommand) {
 		return false
 	}
-	
+
 	// Claude takes prompt as direct argument (position 0)
 	if baseCommand == "claude" && argIndex == 0 {
 		return true
 	}
-	
+
 	// Gemini and others take prompt after --prompt flag
 	if argIndex > 0 && args[argIndex-1] == "--prompt" {
 		return true
 	}
-	
+
 	return false
 }
 

@@ -445,7 +445,7 @@ func TestValidate_ResourceExhaustion(t *testing.T) {
 				Version: "1.0",
 				Commands: map[string]*config.CommandConfig{
 					"test": {
-						Command: "echo",
+						Command:       "echo",
 						ErrorPatterns: make([]*config.RegexPattern, 0),
 						MaxOutput:     100,
 					},

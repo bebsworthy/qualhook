@@ -45,22 +45,22 @@ build-all: ## Build for multiple platforms
 .PHONY: test
 test: ## Run all tests
 	@echo "Running all tests..."
-	$(GOTEST) -v -race -tags="unit,integration,e2e" -coverprofile=coverage.out $$(go list ./... | grep -v /test/fixtures/)
+	$(GOTEST) -v -race -timeout 5m -tags="unit,integration,e2e" -coverprofile=coverage.out $$(go list ./... | grep -v /test/fixtures/)
 
 .PHONY: test-unit
 test-unit: ## Run unit tests only
 	@echo "Running unit tests..."
-	$(GOTEST) -v -race -tags=unit -coverprofile=coverage-unit.out $$(go list ./... | grep -v /test/fixtures/)
+	$(GOTEST) -v -race -timeout 2m -tags=unit -coverprofile=coverage-unit.out $$(go list ./... | grep -v /test/fixtures/)
 
 .PHONY: test-integration
 test-integration: ## Run integration tests only
 	@echo "Running integration tests..."
-	$(GOTEST) -v -race -tags=integration -coverprofile=coverage-integration.out $$(go list ./... | grep -v /test/fixtures/)
+	$(GOTEST) -v -race -timeout 3m -tags=integration -coverprofile=coverage-integration.out $$(go list ./... | grep -v /test/fixtures/)
 
 .PHONY: test-e2e
 test-e2e: ## Run end-to-end tests only
 	@echo "Running end-to-end tests..."
-	$(GOTEST) -v -race -tags=e2e -coverprofile=coverage-e2e.out $$(go list ./... | grep -v /test/fixtures/)
+	$(GOTEST) -v -race -timeout 3m -tags=e2e -coverprofile=coverage-e2e.out $$(go list ./... | grep -v /test/fixtures/)
 
 .PHONY: test-coverage
 test-coverage: test ## Run tests with coverage report

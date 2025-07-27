@@ -158,7 +158,7 @@ func TestParallelExecutorWithBuilders(t *testing.T) {
 		cmd1 := testutil.NewCommandBuilder().Echo("first").Build()
 		cmd2 := testutil.NewCommandBuilder().Echo("second").Build()
 		cmd3 := testutil.NewCommandBuilder().Echo("third").Build()
-		
+
 		commands := []executor.ParallelCommand{
 			{
 				ID:      "cmd1",

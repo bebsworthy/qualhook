@@ -8,18 +8,18 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/bebsworthy/qualhook/internal/ai"
 	"github.com/bebsworthy/qualhook/internal/executor"
 	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 	"github.com/spf13/cobra"
-	"github.com/AlecAivazis/survey/v2"
 )
 
 var (
-	aiTool       string
-	aiTimeout    time.Duration
-	noTest       bool
-	aiForceFlag  bool
+	aiTool      string
+	aiTimeout   time.Duration
+	noTest      bool
+	aiForceFlag bool
 )
 
 // aiConfigCmd represents the ai-config command
@@ -94,7 +94,7 @@ func runAIConfig(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		switch action {
 		case "cancel":
 			fmt.Println("Configuration generation canceled.")
@@ -147,7 +147,7 @@ func runAIConfig(cmd *cobra.Command, args []string) error {
 	fmt.Println("  qualhook lint      # Run linting")
 	fmt.Println("  qualhook typecheck # Check types")
 	fmt.Println("  qualhook test      # Run tests")
-	
+
 	// Show custom commands if any
 	if len(cfg.Commands) > 4 {
 		fmt.Println("\nCustom commands detected:")
@@ -167,23 +167,23 @@ func runAIConfig(cmd *cobra.Command, args []string) error {
 // promptForExistingConfig asks the user what to do with existing configuration
 func promptForExistingConfig() (string, error) {
 	fmt.Println("\n⚠️  A .qualhook.json file already exists.")
-	
+
 	options := []string{
 		"Overwrite with new AI-generated configuration",
 		"Merge with existing configuration (coming soon)",
 		"Cancel and keep existing configuration",
 	}
-	
+
 	var choice string
 	prompt := &survey.Select{
 		Message: "What would you like to do?",
 		Options: options,
 	}
-	
+
 	if err := survey.AskOne(prompt, &choice); err != nil {
 		return "", fmt.Errorf("failed to get user choice: %w", err)
 	}
-	
+
 	switch choice {
 	case options[0]:
 		return "overwrite", nil
@@ -201,13 +201,13 @@ func confirmSaveConfiguration() bool {
 		Message: "Save this configuration to .qualhook.json?",
 		Default: true,
 	}
-	
+
 	// If survey fails, default to not saving for safety
 	if err := survey.AskOne(prompt, &confirm); err != nil {
 		fmt.Printf("Failed to get confirmation: %v\n", err)
 		return false
 	}
-	
+
 	return confirm
 }
 
@@ -216,9 +216,9 @@ func displayConfigSummary(cfg *pkgconfig.Config) {
 	if cfg.ProjectType != "" {
 		fmt.Printf("   Project Type: %s\n", cfg.ProjectType)
 	}
-	
+
 	fmt.Printf("   Commands Configured: %d\n", len(cfg.Commands))
-	
+
 	// List configured commands
 	if len(cfg.Commands) > 0 {
 		fmt.Println("   Commands:")
@@ -226,7 +226,7 @@ func displayConfigSummary(cfg *pkgconfig.Config) {
 			fmt.Printf("     • %s: %s %v\n", name, cmd.Command, cmd.Args)
 		}
 	}
-	
+
 	// Show monorepo information if applicable
 	if len(cfg.Paths) > 0 {
 		fmt.Printf("   Monorepo Paths: %d\n", len(cfg.Paths))
@@ -244,12 +244,12 @@ func saveConfiguration(cfg *pkgconfig.Config, configPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to serialize configuration: %w", err)
 	}
-	
+
 	// Write to file
 	if err := os.WriteFile(configPath, data, 0600); err != nil {
 		return fmt.Errorf("failed to write configuration file: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -258,7 +258,7 @@ func handleAIError(err error) error {
 	// Check if it's an ErrorWithRecovery (which embeds AIError)
 	if recoveryErr, ok := err.(*ai.ErrorWithRecovery); ok {
 		fmt.Fprintf(os.Stderr, "\n❌ AI Configuration Error: %s\n", recoveryErr.Message)
-		
+
 		// Show recovery suggestions if available
 		suggestions := recoveryErr.RecoverySuggestions
 		if len(suggestions) > 0 {
@@ -267,25 +267,25 @@ func handleAIError(err error) error {
 				fmt.Fprintf(os.Stderr, "   • %s\n", suggestion)
 			}
 		}
-		
+
 		// Suggest fallback to manual configuration
 		fmt.Fprintf(os.Stderr, "\n📝 You can always configure manually using:\n")
 		fmt.Fprintf(os.Stderr, "   qualhook config\n")
-		
+
 		return fmt.Errorf("AI configuration failed")
 	}
-	
+
 	// Check if it's a regular AI error
 	if aiErr, ok := err.(*ai.AIError); ok {
 		fmt.Fprintf(os.Stderr, "\n❌ AI Configuration Error: %s\n", aiErr.Message)
-		
+
 		// Suggest fallback to manual configuration
 		fmt.Fprintf(os.Stderr, "\n📝 You can always configure manually using:\n")
 		fmt.Fprintf(os.Stderr, "   qualhook config\n")
-		
+
 		return fmt.Errorf("AI configuration failed")
 	}
-	
+
 	// Generic error handling
 	return fmt.Errorf("failed to generate configuration: %w", err)
 }

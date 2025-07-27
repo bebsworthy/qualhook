@@ -51,12 +51,12 @@
       ],
       "prompt": "Fix the failing Go tests below:",
       "timeout": 300000,
-      "exitCodes": [
-        1
-      ],
       "errorPatterns": [
+         {
+          "pattern": "^FAIL"
+        },
         {
-          "pattern": "--- FAIL:"
+          "pattern": "^--- FAIL:"
         },
         {
           "pattern": "\\s+Error:"

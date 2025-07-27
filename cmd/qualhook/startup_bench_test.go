@@ -53,13 +53,13 @@ func BenchmarkConfigLoading(b *testing.B) {
 		Version: "1.0",
 		Commands: map[string]*pkgconfig.CommandConfig{
 			"format": {
-				Command: "prettier",
-				Args:    []string{"--write", "."},
+				Command:   "prettier",
+				Args:      []string{"--write", "."},
 				ExitCodes: []int{1},
 			},
 			"lint": {
-				Command: "eslint",
-				Args:    []string{"."},
+				Command:   "eslint",
+				Args:      []string{"."},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*pkgconfig.RegexPattern{
 					{Pattern: `\d+ errors?`, Flags: "i"},
@@ -228,8 +228,8 @@ func BenchmarkEndToEnd(b *testing.B) {
 		Version: "1.0",
 		Commands: map[string]*pkgconfig.CommandConfig{
 			"test": {
-				Command: "echo",
-				Args:    []string{"test output"},
+				Command:   "echo",
+				Args:      []string{"test output"},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*pkgconfig.RegexPattern{
 					{Pattern: "error", Flags: "i"},

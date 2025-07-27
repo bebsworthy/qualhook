@@ -14,11 +14,11 @@ import (
 
 // testRunner implements the TestRunner interface for validating commands
 type testRunner struct {
-	executor *executor.CommandExecutor
+	executor commandExecutor
 }
 
 // NewTestRunner creates a new test runner instance
-func NewTestRunner(exec *executor.CommandExecutor) TestRunner {
+func NewTestRunner(exec commandExecutor) TestRunner {
 	return &testRunner{
 		executor: exec,
 	}
@@ -267,7 +267,7 @@ func (t *testRunner) modifyAndRetestCommand(originalCmd *config.CommandConfig) (
 		fmt.Printf("✅ Modified command executed successfully!\n")
 	} else {
 		fmt.Printf("❌ Modified command still failed (exit code: %d)\n", result.FinalCommand.ExitCodes[0])
-		
+
 		// Ask if user wants to try again
 		tryAgain := false
 		tryAgainPrompt := &survey.Confirm{

@@ -191,7 +191,7 @@ func TestCommandConfig_Validate(t *testing.T) {
 		{
 			name: "negative context lines",
 			config: &CommandConfig{
-				Command: "npm",
+				Command:      "npm",
 				ContextLines: -1,
 			},
 			wantErr: true,
@@ -200,16 +200,16 @@ func TestCommandConfig_Validate(t *testing.T) {
 		{
 			name: "valid with all fields",
 			config: &CommandConfig{
-				Command: "npm",
-				Args:    []string{"run", "lint"},
+				Command:   "npm",
+				Args:      []string{"run", "lint"},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*RegexPattern{
 					{Pattern: "error", Flags: "i"},
 				},
 				ContextLines: 2,
 				MaxOutput:    100,
-				Prompt:  "Fix the errors:",
-				Timeout: 60000,
+				Prompt:       "Fix the errors:",
+				Timeout:      60000,
 			},
 			wantErr: false,
 		},
@@ -291,7 +291,6 @@ func TestPathConfig_Validate(t *testing.T) {
 		})
 	}
 }
-
 
 func TestRegexPattern_Validate(t *testing.T) {
 	tests := []struct {
@@ -513,8 +512,8 @@ func TestSaveConfig(t *testing.T) {
 
 func TestCommandConfig_Clone(t *testing.T) {
 	original := &CommandConfig{
-		Command: "npm",
-		Args:    []string{"run", "lint"},
+		Command:   "npm",
+		Args:      []string{"run", "lint"},
 		ExitCodes: []int{1, 2},
 		ErrorPatterns: []*RegexPattern{
 			{Pattern: "error", Flags: "i"},
@@ -524,8 +523,8 @@ func TestCommandConfig_Clone(t *testing.T) {
 		},
 		ContextLines: 2,
 		MaxOutput:    100,
-		Prompt:  "Fix errors:",
-		Timeout: 60000,
+		Prompt:       "Fix errors:",
+		Timeout:      60000,
 	}
 
 	clone := original.Clone()
@@ -573,7 +572,6 @@ func TestCommandConfig_Clone(t *testing.T) {
 	}
 }
 
-
 func TestConfig_ComplexValidation(t *testing.T) {
 	// Test a complex monorepo configuration
 	config := newTestConfigBuilder().
@@ -615,7 +613,7 @@ func TestConfig_ComplexValidation(t *testing.T) {
 			},
 		}).
 		build()
-	
+
 	// Set ProjectType after building
 	config.ProjectType = "monorepo"
 

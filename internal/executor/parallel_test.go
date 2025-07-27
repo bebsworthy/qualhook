@@ -181,10 +181,10 @@ func TestParallelExecute_WithFailures(t *testing.T) {
 	// Mix of successful and failing commands
 	success := func() (string, []string) { return pc.echo("success") }
 	fail := func() (string, []string) { return pc.exit(1) }
-	
+
 	sCmd, sArgs := success()
 	fCmd, fArgs := fail()
-	
+
 	commands := []ParallelCommand{
 		{
 			ID:      "success",
@@ -313,7 +313,7 @@ func TestExecuteWithAggregation(t *testing.T) {
 	cmd1, args1 := pc.echo("message 1")
 	cmd2, args2 := pc.echo("message 2")
 	cmdF, argsF := pc.exit(1)
-	
+
 	commands := []ParallelCommand{
 		{
 			ID:      "success-1",
@@ -512,7 +512,7 @@ func TestParallelExecute_ErrorHandlingPreservesOutput(t *testing.T) {
 	exit42Cmd, exit42Args := pc.exit(42)
 	stderrCmd, stderrArgs := pc.stderr("Error message before failure")
 	sleepCmd, sleepArgs := pc.sleep(5)
-	
+
 	tests := []struct {
 		name          string
 		command       ParallelCommand

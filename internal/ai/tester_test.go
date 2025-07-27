@@ -89,7 +89,7 @@ func createTestExecutor() *executor.CommandExecutor {
 func TestNewTestRunner(t *testing.T) {
 	exec := createTestExecutor()
 	runner := NewTestRunner(exec)
-	
+
 	assert.NotNil(t, runner)
 	assert.Implements(t, (*TestRunner)(nil), runner)
 }
@@ -286,7 +286,7 @@ func TestCommandExecutionOptions(t *testing.T) {
 	}
 
 	result := runner.executeCommand(cmd)
-	
+
 	// Verify the result structure
 	assert.NotNil(t, result)
 	assert.NotNil(t, result.FinalCommand)

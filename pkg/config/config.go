@@ -18,15 +18,15 @@ type Config struct {
 
 // CommandConfig defines configuration for a single command
 type CommandConfig struct {
-	Command         string           `json:"command"`
-	Args            []string         `json:"args,omitempty"`
-	Prompt          string           `json:"prompt,omitempty"`
-	Timeout         int              `json:"timeout,omitempty"` // milliseconds
-	ExitCodes       []int            `json:"exitCodes,omitempty"`
-	ErrorPatterns   []*RegexPattern  `json:"errorPatterns,omitempty"`
-	ContextLines    int              `json:"contextLines,omitempty"`
-	MaxOutput       int              `json:"maxOutput,omitempty"`
-	IncludePatterns []*RegexPattern  `json:"includePatterns,omitempty"`
+	Command         string          `json:"command"`
+	Args            []string        `json:"args,omitempty"`
+	Prompt          string          `json:"prompt,omitempty"`
+	Timeout         int             `json:"timeout,omitempty"` // milliseconds
+	ExitCodes       []int           `json:"exitCodes,omitempty"`
+	ErrorPatterns   []*RegexPattern `json:"errorPatterns,omitempty"`
+	ContextLines    int             `json:"contextLines,omitempty"`
+	MaxOutput       int             `json:"maxOutput,omitempty"`
+	IncludePatterns []*RegexPattern `json:"includePatterns,omitempty"`
 }
 
 // PathConfig defines path-specific configuration for monorepo support
@@ -35,7 +35,6 @@ type PathConfig struct {
 	Extends  string                    `json:"extends,omitempty"`
 	Commands map[string]*CommandConfig `json:"commands"`
 }
-
 
 // RegexPattern represents a regex pattern with optional flags
 type RegexPattern struct {
@@ -119,7 +118,6 @@ func (p *PathConfig) Validate() error {
 
 	return nil
 }
-
 
 // Validate performs validation on the RegexPattern
 func (r *RegexPattern) Validate() error {
@@ -248,4 +246,3 @@ func (c *CommandConfig) Clone() *CommandConfig {
 
 	return clone
 }
-

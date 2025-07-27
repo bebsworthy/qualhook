@@ -2,15 +2,19 @@
 package wizard
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/bebsworthy/qualhook/internal/ai"
 	"github.com/bebsworthy/qualhook/internal/config"
 	"github.com/bebsworthy/qualhook/internal/debug"
 	"github.com/bebsworthy/qualhook/internal/detector"
+	"github.com/bebsworthy/qualhook/internal/executor"
 	pkgconfig "github.com/bebsworthy/qualhook/pkg/config"
 )
 
@@ -18,6 +22,7 @@ import (
 type ConfigWizard struct {
 	projectDetector *detector.ProjectDetector
 	defaults        *config.DefaultConfigs
+	aiIntegration   *AIIntegration
 }
 
 // NewConfigWizard creates a new configuration wizard
@@ -27,9 +32,13 @@ func NewConfigWizard() (*ConfigWizard, error) {
 		return nil, fmt.Errorf("failed to load default configs: %w", err)
 	}
 
+	// Create command executor for AI integration
+	exec := executor.NewCommandExecutor(2 * time.Minute)
+
 	return &ConfigWizard{
 		projectDetector: detector.New(),
 		defaults:        defaults,
+		aiIntegration:   NewAIIntegration(exec),
 	}, nil
 }
 
@@ -80,6 +89,28 @@ func (w *ConfigWizard) Run(outputPath string, force bool) error {
 		return err
 	}
 
+	// Review all commands with AI enhancement options
+	ctx := context.Background()
+	customCommands := make(map[string]*pkgconfig.CommandConfig)
+	// Extract custom commands from main commands
+	standardCmds := []string{"format", "lint", "typecheck", "test"}
+	for name, cmd := range cfg.Commands {
+		isStandard := false
+		for _, std := range standardCmds {
+			if name == std {
+				isStandard = true
+				break
+			}
+		}
+		if !isStandard {
+			customCommands[name] = cmd
+		}
+	}
+
+	if err := w.aiIntegration.ReviewCommands(ctx, cfg.Commands, customCommands); err != nil {
+		return err
+	}
+
 	// Validate and save configuration
 	if err := w.validateAndSave(cfg, outputPath); err != nil {
 		return err
@@ -109,6 +140,37 @@ func (w *ConfigWizard) createFromDefault(projectType string) (*pkgconfig.Config,
 	}
 
 	return w.defaults.GetConfig(pType)
+}
+
+// createWithAIAssistance creates a configuration using AI assistance
+func (w *ConfigWizard) createWithAIAssistance() (*pkgconfig.Config, error) {
+	fmt.Println("\n🤖 Using AI assistance to generate configuration...")
+	fmt.Println("The AI will analyze your project and suggest appropriate commands.")
+
+	// Get current directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current directory: %w", err)
+	}
+
+	// Use the existing AI integration's assistant
+	options := ai.AIOptions{
+		WorkingDir:   cwd,
+		Interactive:  true,
+		TestCommands: true,
+		Timeout:      5 * time.Minute,
+	}
+
+	// Generate configuration using AI
+	ctx := context.Background()
+	cfg, err := w.aiIntegration.assistant.GenerateConfig(ctx, options)
+	if err != nil {
+		fmt.Printf("\n❌ AI configuration failed: %v\n", err)
+		fmt.Println("Falling back to manual configuration...")
+		return w.createManualConfiguration()
+	}
+
+	return cfg, nil
 }
 
 // createManualConfiguration creates a configuration through manual input
@@ -258,7 +320,7 @@ func (w *ConfigWizard) configureMonorepoPaths(cfg *pkgconfig.Config, info *detec
 					}
 
 					pathConfig.Commands[cmdName] = &pkgconfig.CommandConfig{
-						Command: command,
+						Command:   command,
 						ExitCodes: []int{1},
 						ErrorPatterns: []*pkgconfig.RegexPattern{
 							{Pattern: "error", Flags: "i"},
@@ -358,21 +420,42 @@ func (w *ConfigWizard) displayDetectionResults(detectedTypes []detector.ProjectT
 
 // createConfiguration creates configuration based on detected project types
 func (w *ConfigWizard) createConfiguration(detectedTypes []detector.ProjectType) (*pkgconfig.Config, error) {
-	if len(detectedTypes) == 0 {
-		fmt.Println("📝 No project type detected. Let's create a custom configuration.")
-		return w.createManualConfiguration()
+	var projectType string
+	if len(detectedTypes) > 0 {
+		projectType = detectedTypes[0].Name
+		fmt.Printf("📦 Detected project type: %s\n", projectType)
+	} else {
+		fmt.Println("📝 No project type detected.")
 	}
 
-	useDefault := false
-	prompt := &survey.Confirm{
-		Message: fmt.Sprintf("Would you like to use the default configuration for %s?", detectedTypes[0].Name),
-		Default: true,
+	// Offer configuration options
+	var configMethod string
+	options := []string{
+		"Use default configuration",
+		"Use AI assistance",
+		"Configure manually",
 	}
-	if err := survey.AskOne(prompt, &useDefault); err != nil {
+
+	if len(detectedTypes) == 0 {
+		// Remove default option if no project type detected
+		options = options[1:]
+	}
+
+	selectPrompt := &survey.Select{
+		Message: "How would you like to configure qualhook?",
+		Options: options,
+		Default: options[0],
+	}
+	if err := survey.AskOne(selectPrompt, &configMethod); err != nil {
 		return nil, err
 	}
 
-	if !useDefault {
+	switch configMethod {
+	case "Use default configuration":
+		// Continue with existing default logic
+	case "Use AI assistance":
+		return w.createWithAIAssistance()
+	case "Configure manually":
 		return w.createManualConfiguration()
 	}
 
@@ -639,7 +722,7 @@ func (w *ConfigWizard) configureCustomCommands(cfg *pkgconfig.Config) error {
 		}
 
 		cfg.Commands[cmdName] = &pkgconfig.CommandConfig{
-			Command: command,
+			Command:   command,
 			ExitCodes: []int{1},
 			ErrorPatterns: []*pkgconfig.RegexPattern{
 				{Pattern: "error", Flags: "i"},

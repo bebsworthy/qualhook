@@ -378,4 +378,3 @@ func TestPatternSet_FindAll(t *testing.T) {
 		t.Errorf("Pattern 1: expected 2 error matches, got %v", errors)
 	}
 }
-

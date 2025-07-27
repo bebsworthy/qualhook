@@ -33,7 +33,7 @@ func ExampleGetToolSelectionPrompt() {
 		{Name: "claude", Version: "1.0.0", Available: true},
 		{Name: "gemini", Version: "2.3.4", Available: true},
 	}
-	
+
 	prompt := ai.GetToolSelectionPrompt(tools)
 	fmt.Print(prompt)
 	// User would input their choice here

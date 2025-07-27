@@ -73,8 +73,8 @@ func TestValidateConfig(t *testing.T) {
 				Version: "1.0",
 				Commands: map[string]*pkgconfig.CommandConfig{
 					"lint": {
-						Command: "npm",
-						Args:    []string{"run", "lint"},
+						Command:   "npm",
+						Args:      []string{"run", "lint"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*pkgconfig.RegexPattern{
 							{Pattern: "error"},

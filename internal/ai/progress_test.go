@@ -154,15 +154,15 @@ func TestProgressIndicator_WaitForCancellation(t *testing.T) {
 
 func TestProgressIndicator_ConcurrentAccess(t *testing.T) {
 	p := newMockProgressIndicator()
-	
+
 	var wg sync.WaitGroup
-	
+
 	// Start multiple goroutines that interact with the progress indicator
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
 		go func(_ int) {
 			defer wg.Done()
-			
+
 			// Each goroutine performs multiple operations
 			for j := 0; j < 5; j++ {
 				p.Start("Concurrent start")
@@ -173,9 +173,9 @@ func TestProgressIndicator_ConcurrentAccess(t *testing.T) {
 			}
 		}(i)
 	}
-	
+
 	wg.Wait()
-	
+
 	// Final state should be stopped
 	if p.isRunning() {
 		t.Error("Progress indicator should be stopped after concurrent access")
@@ -242,33 +242,33 @@ func TestProgressIndicator_RealImplementation(t *testing.T) {
 
 	// Test that Start initializes properly
 	p.Start("Testing real implementation")
-	
+
 	// Give it enough time for the display loop to update
 	// The display loop updates every 100ms
 	time.Sleep(150 * time.Millisecond)
-	
+
 	// Check that running is set
 	p.mu.Lock()
 	running := p.running
 	p.mu.Unlock()
-	
+
 	if !running {
 		t.Error("Real implementation should be running after Start")
 	}
 
 	// Test Update
 	p.Update("Updated message")
-	
+
 	// Give time for another update cycle
 	time.Sleep(150 * time.Millisecond)
-	
+
 	// Stop and verify cleanup
 	p.Stop()
-	
+
 	p.mu.Lock()
 	finalRunning := p.running
 	p.mu.Unlock()
-	
+
 	if finalRunning {
 		t.Error("Real implementation should not be running after Stop")
 	}

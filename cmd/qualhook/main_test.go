@@ -140,8 +140,8 @@ func TestTryCustomCommand(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"custom-cmd": {
-				Command: "echo",
-				Args:    []string{"custom command executed"},
+				Command:   "echo",
+				Args:      []string{"custom command executed"},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*config.RegexPattern{
 					{Pattern: "error"},

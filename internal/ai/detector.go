@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bebsworthy/qualhook/internal/executor"
@@ -24,9 +25,9 @@ type toolDetector struct {
 }
 
 // NewToolDetector creates a new tool detector
-func NewToolDetector(commandExecutor *executor.CommandExecutor) ToolDetector {
+func NewToolDetector(executor commandExecutor) ToolDetector {
 	return &toolDetector{
-		executor:      commandExecutor,
+		executor:      executor,
 		cacheDuration: 5 * time.Minute, // Cache results for 5 minutes
 	}
 }
@@ -38,20 +39,29 @@ func (d *toolDetector) DetectTools() ([]Tool, error) {
 		return d.detectedTools, nil
 	}
 
-	tools := []Tool{}
-	
-	// Check for Claude CLI
-	claudeTool := d.detectClaude()
-	tools = append(tools, claudeTool)
-	
-	// Check for Gemini CLI
-	geminiTool := d.detectGemini()
-	tools = append(tools, geminiTool)
-	
+	// Use concurrent detection for better performance
+	tools := make([]Tool, 2)
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	// Check for Claude CLI concurrently
+	go func() {
+		defer wg.Done()
+		tools[0] = d.detectClaude()
+	}()
+
+	// Check for Gemini CLI concurrently
+	go func() {
+		defer wg.Done()
+		tools[1] = d.detectGemini()
+	}()
+
+	wg.Wait()
+
 	// Update cache
 	d.detectedTools = tools
 	d.lastDetection = time.Now()
-	
+
 	return tools, nil
 }
 
@@ -61,14 +71,14 @@ func (d *toolDetector) IsToolAvailable(toolName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	
+
 	toolNameLower := strings.ToLower(toolName)
 	for _, tool := range tools {
 		if strings.ToLower(tool.Name) == toolNameLower && tool.Available {
 			return true, nil
 		}
 	}
-	
+
 	return false, nil
 }
 
@@ -96,13 +106,13 @@ func (d *toolDetector) detectTool(name, command string) Tool {
 		Name:    name,
 		Command: command,
 	}
-	
+
 	// Try to get version
 	options := executor.ExecOptions{
 		Timeout:    5 * time.Second,
 		InheritEnv: true,
 	}
-	
+
 	// Try command --version
 	result, err := d.executor.Execute(command, []string{"--version"}, options)
 	if err == nil && result.ExitCode == 0 {
@@ -110,7 +120,7 @@ func (d *toolDetector) detectTool(name, command string) Tool {
 		tool.Version = extractVersion(result.Stdout)
 		return tool
 	}
-	
+
 	// Try command version (without --)
 	result, err = d.executor.Execute(command, []string{"version"}, options)
 	if err == nil && result.ExitCode == 0 {
@@ -118,7 +128,7 @@ func (d *toolDetector) detectTool(name, command string) Tool {
 		tool.Version = extractVersion(result.Stdout)
 		return tool
 	}
-	
+
 	// If both version commands fail, check if we can at least run the command
 	// This handles the case where the tool exists but doesn't have a version flag
 	result, err = d.executor.Execute(command, []string{"--help"}, options)
@@ -126,7 +136,7 @@ func (d *toolDetector) detectTool(name, command string) Tool {
 		tool.Available = true
 		return tool
 	}
-	
+
 	// Command not available
 	tool.Available = false
 	return tool
@@ -140,14 +150,14 @@ func extractVersion(output string) string {
 	if len(matches) > 1 {
 		return matches[1]
 	}
-	
+
 	// Look for simple version patterns (e.g., "1.2")
 	simplePattern := regexp.MustCompile(`v?(\d+\.\d+)`)
 	matches = simplePattern.FindStringSubmatch(output)
 	if len(matches) > 1 {
 		return matches[1]
 	}
-	
+
 	// Clean up output to use as version if no pattern matches
 	output = strings.TrimSpace(output)
 	lines := strings.Split(output, "\n")
@@ -162,7 +172,7 @@ func extractVersion(output string) string {
 			return firstLine
 		}
 	}
-	
+
 	return ""
 }
 
@@ -180,7 +190,7 @@ func GetAvailableTools(tools []Tool) []Tool {
 // FormatToolsStatus formats the status of detected tools for display
 func FormatToolsStatus(tools []Tool) string {
 	var status strings.Builder
-	
+
 	status.WriteString("AI Tool Detection Results:\n")
 	for _, tool := range tools {
 		status.WriteString(fmt.Sprintf("\n%s:\n", tool.Name))
@@ -195,6 +205,6 @@ func FormatToolsStatus(tools []Tool) string {
 			status.WriteString("  Install: Run 'qualhook ai-config' for installation instructions\n")
 		}
 	}
-	
+
 	return status.String()
 }

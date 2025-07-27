@@ -68,7 +68,7 @@ func (ui *InteractiveUI) SelectTool(availableTools []Tool) (string, error) {
 // ReviewConfiguration displays a configuration summary for review
 func (ui *InteractiveUI) ReviewConfiguration(cfg *config.Config) error {
 	fmt.Println("\n=== Generated Configuration Summary ===")
-	
+
 	// Display project type if set
 	if cfg.ProjectType != "" {
 		fmt.Printf("Project Type: %s\n", cfg.ProjectType)
@@ -76,7 +76,7 @@ func (ui *InteractiveUI) ReviewConfiguration(cfg *config.Config) error {
 
 	// Display standard commands
 	ui.displayCommands(cfg)
-	
+
 	// Display monorepo paths if configured
 	if len(cfg.Paths) > 0 {
 		ui.displayMonorepoConfig(cfg.Paths)
@@ -89,7 +89,7 @@ func (ui *InteractiveUI) ReviewConfiguration(cfg *config.Config) error {
 // displayCommands shows standard and custom commands
 func (ui *InteractiveUI) displayCommands(cfg *config.Config) {
 	standardCommands := []string{"format", "lint", "typecheck", "test"}
-	
+
 	fmt.Println("\nCommands:")
 	// Display standard commands
 	for _, cmdType := range standardCommands {
@@ -99,7 +99,7 @@ func (ui *InteractiveUI) displayCommands(cfg *config.Config) {
 			fmt.Printf("  %s: <not configured>\n", cmdType)
 		}
 	}
-	
+
 	// Display custom commands
 	customCommands := make([]string, 0)
 	for name := range cfg.Commands {
@@ -107,7 +107,7 @@ func (ui *InteractiveUI) displayCommands(cfg *config.Config) {
 			customCommands = append(customCommands, name)
 		}
 	}
-	
+
 	if len(customCommands) > 0 {
 		fmt.Println("\nCustom Commands:")
 		for _, name := range customCommands {
@@ -336,7 +336,7 @@ func (ui *InteractiveUI) ShowAIProgress(message string) {
 // ShowAIError displays an AI-related error with helpful context
 func (ui *InteractiveUI) ShowAIError(err error, toolName string) {
 	fmt.Printf("\n⚠️  AI assistance error with %s: %v\n", toolName, err)
-	
+
 	// Provide specific guidance based on error type
 	switch {
 	case strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "not available"):

@@ -72,7 +72,7 @@ func Example_partialConfigExtraction() {
 	`
 
 	partialCommands, recoveryHint := ai.ExtractPartialConfig(response, nil)
-	
+
 	fmt.Printf("Found %d partial commands\n", len(partialCommands))
 	if recoveryHint != "" {
 		fmt.Println("Recovery hint available")
@@ -87,10 +87,10 @@ func Example_partialConfigExtraction() {
 func Example_networkErrorHandling() {
 	// Simulate various network errors
 	networkErr := errors.New("dial tcp: lookup api.example.com: no such host")
-	
+
 	// Handle the network error
 	handled := ai.HandleNetworkError(networkErr)
-	
+
 	// Check if it was recognized as a network error
 	var errWithRecovery *ai.ErrorWithRecovery
 	if errors.As(handled, &errWithRecovery) {
@@ -108,7 +108,7 @@ func Example_networkErrorHandling() {
 // Example_installInstructions demonstrates getting platform-specific installation instructions
 func Example_installInstructions() {
 	tools := []string{"claude", "gemini", "unknown"}
-	
+
 	for _, tool := range tools {
 		instructions := ai.GetInstallInstructions(tool)
 		fmt.Printf("%s: %v\n", tool, instructions != "")
@@ -124,10 +124,10 @@ func Example_installInstructions() {
 func Example_errorSanitization() {
 	// Create an error with sensitive information
 	sensitiveErr := errors.New("Authentication failed with key sk-1234567890abcdef")
-	
+
 	// Sanitize the error
 	sanitized := ai.SanitizeErrorMessage(sensitiveErr)
-	
+
 	// The sensitive information should be removed
 	fmt.Println(sanitized.Error())
 
@@ -139,7 +139,7 @@ func Example_errorSanitization() {
 func Example_assistantErrorHandling() {
 	// This example shows the expected error handling flow
 	ctx := context.Background()
-	
+
 	// Mock scenario where no AI tools are available
 	// In real usage, this would be handled by the assistant
 	options := ai.AIOptions{

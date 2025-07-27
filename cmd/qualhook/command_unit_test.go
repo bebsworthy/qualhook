@@ -251,7 +251,6 @@ func TestTemplateSubcommands(t *testing.T) {
 	}
 }
 
-
 // TestRootCommandStructure tests the root command structure
 func TestRootCommandStructure(t *testing.T) {
 	rootCmd := newRootCmd()

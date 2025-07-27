@@ -10,7 +10,7 @@ import (
 func TestResultBuilder(t *testing.T) {
 	t.Run("default values", func(t *testing.T) {
 		result := NewResultBuilder().Build()
-		
+
 		if result.Stdout != "" {
 			t.Errorf("Expected empty stdout, got %q", result.Stdout)
 		}
@@ -52,7 +52,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("with error message", func(t *testing.T) {
 		result := NewResultBuilder().WithErrorMessage("custom error").Build()
-		
+
 		if result.Error == nil || result.Error.Error() != "custom error" {
 			t.Errorf("Expected error 'custom error', got %v", result.Error)
 		}
@@ -60,7 +60,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("timed out", func(t *testing.T) {
 		result := NewResultBuilder().TimedOut().Build()
-		
+
 		if !result.TimedOut {
 			t.Errorf("Expected TimedOut to be true")
 		}
@@ -77,7 +77,7 @@ func TestResultBuilder(t *testing.T) {
 			WithError(errors.New("existing error")).
 			TimedOut().
 			Build()
-		
+
 		if !result.TimedOut {
 			t.Errorf("Expected TimedOut to be true")
 		}
@@ -88,7 +88,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		result := NewResultBuilder().Success().Build()
-		
+
 		if result.ExitCode != 0 {
 			t.Errorf("Expected exit code 0, got %d", result.ExitCode)
 		}
@@ -102,7 +102,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("success with stdout", func(t *testing.T) {
 		result := NewResultBuilder().Success("success output").Build()
-		
+
 		if result.Stdout != "success output" {
 			t.Errorf("Expected stdout 'success output', got %q", result.Stdout)
 		}
@@ -113,7 +113,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("failure", func(t *testing.T) {
 		result := NewResultBuilder().Failure().Build()
-		
+
 		if result.ExitCode != 1 {
 			t.Errorf("Expected exit code 1, got %d", result.ExitCode)
 		}
@@ -124,7 +124,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("failure with stderr", func(t *testing.T) {
 		result := NewResultBuilder().Failure("error message").Build()
-		
+
 		if result.Stderr != "error message" {
 			t.Errorf("Expected stderr 'error message', got %q", result.Stderr)
 		}
@@ -135,7 +135,7 @@ func TestResultBuilder(t *testing.T) {
 
 	t.Run("failure with code", func(t *testing.T) {
 		result := NewResultBuilder().FailureWithCode(127, "command not found").Build()
-		
+
 		if result.ExitCode != 127 {
 			t.Errorf("Expected exit code 127, got %d", result.ExitCode)
 		}
@@ -149,7 +149,7 @@ func TestResultBuilder(t *testing.T) {
 			WithStdout("output").
 			WithStderr("error").
 			WithExitCode(1)
-		
+
 		actual := executor.ExecResult{
 			Stdout:   "output",
 			Stderr:   "error",
@@ -157,7 +157,7 @@ func TestResultBuilder(t *testing.T) {
 			TimedOut: false,
 			Error:    nil,
 		}
-		
+
 		if err := builder.AssertEqual(actual); err != nil {
 			t.Errorf("Expected results to match, got error: %v", err)
 		}
@@ -166,7 +166,7 @@ func TestResultBuilder(t *testing.T) {
 	t.Run("assert equal - stdout mismatch", func(t *testing.T) {
 		builder := NewResultBuilder().WithStdout("expected")
 		actual := executor.ExecResult{Stdout: "actual"}
-		
+
 		err := builder.AssertEqual(actual)
 		if err == nil {
 			t.Errorf("Expected error for stdout mismatch")
@@ -180,7 +180,7 @@ func TestResultBuilder(t *testing.T) {
 	t.Run("assert equal - exit code mismatch", func(t *testing.T) {
 		builder := NewResultBuilder().WithExitCode(0)
 		actual := executor.ExecResult{ExitCode: 1}
-		
+
 		err := builder.AssertEqual(actual)
 		if err == nil {
 			t.Errorf("Expected error for exit code mismatch")
@@ -194,7 +194,7 @@ func TestResultBuilder(t *testing.T) {
 	t.Run("assert equal - error mismatch", func(t *testing.T) {
 		builder := NewResultBuilder().WithError(errors.New("expected error"))
 		actual := executor.ExecResult{Error: nil}
-		
+
 		err := builder.AssertEqual(actual)
 		if err == nil {
 			t.Errorf("Expected error for error mismatch")
@@ -207,7 +207,7 @@ func TestResultBuilder(t *testing.T) {
 			Stdout:   "output",
 			ExitCode: 0,
 		}
-		
+
 		// This should not panic
 		expected.MustEqual(t, actual)
 	})
@@ -218,11 +218,11 @@ func TestResultBuilder(t *testing.T) {
 			Stdout:   "actual",
 			ExitCode: 0,
 		}
-		
+
 		// Create a mock test context to capture the failure
 		mockT := &mockTestContext{}
 		expected.MustEqual(mockT, actual)
-		
+
 		if !mockT.failed {
 			t.Errorf("Expected MustEqual to call t.Fatalf on mismatch")
 		}
@@ -232,7 +232,7 @@ func TestResultBuilder(t *testing.T) {
 // mockTestContext implements testing.TB for testing
 type mockTestContext struct {
 	testing.TB
-	failed bool
+	failed  bool
 	message string
 }
 

@@ -13,17 +13,17 @@ import (
 func ExampleNewToolDetector() {
 	// Create a command executor with a 30-second timeout
 	cmdExecutor := executor.NewCommandExecutor(30 * time.Second)
-	
+
 	// Create a tool detector
 	detector := ai.NewToolDetector(cmdExecutor)
-	
+
 	// Detect available AI tools
 	tools, err := detector.DetectTools()
 	if err != nil {
 		fmt.Printf("Error detecting tools: %v\n", err)
 		return
 	}
-	
+
 	// Check which tools are available
 	for _, tool := range tools {
 		if tool.Available {
@@ -32,7 +32,7 @@ func ExampleNewToolDetector() {
 			fmt.Printf("%s is not installed\n", tool.Name)
 		}
 	}
-	
+
 	// Check if a specific tool is available
 	claudeAvailable, _ := detector.IsToolAvailable("claude")
 	if !claudeAvailable {
@@ -56,11 +56,11 @@ func ExampleFormatToolsStatus() {
 			Available: false,
 		},
 	}
-	
+
 	// Format and display the status
 	status := ai.FormatToolsStatus(tools)
 	fmt.Println(status)
-	
+
 	// Output:
 	// AI Tool Detection Results:
 	//
@@ -81,15 +81,15 @@ func ExampleGetAvailableTools() {
 		{Name: "gemini", Available: false},
 		{Name: "gpt", Available: true},
 	}
-	
+
 	// Get only available tools
 	availableTools := ai.GetAvailableTools(allTools)
-	
+
 	fmt.Printf("Available tools: %d of %d\n", len(availableTools), len(allTools))
 	for _, tool := range availableTools {
 		fmt.Printf("- %s\n", tool.Name)
 	}
-	
+
 	// Output:
 	// Available tools: 2 of 3
 	// - claude

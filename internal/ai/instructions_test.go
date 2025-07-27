@@ -50,7 +50,7 @@ func TestGetInstallInstructions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := GetInstallInstructions(tt.tool)
-			
+
 			for _, expected := range tt.contains {
 				if !strings.Contains(result, expected) {
 					t.Errorf("Expected result to contain %q, but it didn't.\nGot: %s", expected, result)
@@ -62,10 +62,10 @@ func TestGetInstallInstructions(t *testing.T) {
 
 func TestGetInstallInstructions_PlatformSpecific(t *testing.T) {
 	platform := runtime.GOOS
-	
+
 	// Test Claude
 	claudeInstructions := GetInstallInstructions("claude")
-	
+
 	switch platform {
 	case osDarwin:
 		if !strings.Contains(claudeInstructions, "brew") {
@@ -80,10 +80,10 @@ func TestGetInstallInstructions_PlatformSpecific(t *testing.T) {
 			t.Error("Windows Claude instructions should mention PowerShell")
 		}
 	}
-	
+
 	// Test Gemini
 	geminiInstructions := GetInstallInstructions("gemini")
-	
+
 	switch platform {
 	case osDarwin:
 		if !strings.Contains(geminiInstructions, "brew") && !strings.Contains(geminiInstructions, "npm") {
@@ -132,7 +132,7 @@ func TestFormatToolNotFoundError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := FormatToolNotFoundError(tt.tool, tt.err)
-			
+
 			for _, expected := range tt.contains {
 				if !strings.Contains(result, expected) {
 					t.Errorf("Expected result to contain %q, but it didn't.\nGot: %s", expected, result)
@@ -144,7 +144,7 @@ func TestFormatToolNotFoundError(t *testing.T) {
 
 func TestFormatNoToolsAvailableError(t *testing.T) {
 	result := FormatNoToolsAvailableError()
-	
+
 	expectedContents := []string{
 		"No AI tools available",
 		"Option 1: Install Claude CLI",
@@ -152,13 +152,13 @@ func TestFormatNoToolsAvailableError(t *testing.T) {
 		"claude auth login",
 		"gemini auth login",
 	}
-	
+
 	for _, expected := range expectedContents {
 		if !strings.Contains(result, expected) {
 			t.Errorf("Expected result to contain %q, but it didn't.\nGot: %s", expected, result)
 		}
 	}
-	
+
 	// Should not contain the redundant "is not installed" messages
 	if strings.Contains(result, "Claude CLI is not installed") {
 		t.Error("Should not contain redundant 'Claude CLI is not installed' message")
@@ -173,16 +173,16 @@ func TestGetToolSelectionPrompt(t *testing.T) {
 		{Name: "claude", Version: "1.0.0", Available: true},
 		{Name: "gemini", Version: "2.3.4", Available: true},
 	}
-	
+
 	result := GetToolSelectionPrompt(tools)
-	
+
 	expectedContents := []string{
 		"Multiple AI tools are available",
 		"1. claude (v1.0.0)",
 		"2. gemini (v2.3.4)",
 		"Enter your choice (1-2):",
 	}
-	
+
 	for _, expected := range expectedContents {
 		if !strings.Contains(result, expected) {
 			t.Errorf("Expected result to contain %q, but it didn't.\nGot: %s", expected, result)
@@ -192,7 +192,7 @@ func TestGetToolSelectionPrompt(t *testing.T) {
 
 func TestGetHelpDocumentation(t *testing.T) {
 	result := GetHelpDocumentation()
-	
+
 	expectedContents := []string{
 		"AI-Assisted Configuration",
 		"qualhook ai-config",
@@ -202,7 +202,7 @@ func TestGetHelpDocumentation(t *testing.T) {
 		"Security:",
 		"Example:",
 	}
-	
+
 	for _, expected := range expectedContents {
 		if !strings.Contains(result, expected) {
 			t.Errorf("Expected help documentation to contain %q, but it didn't", expected)

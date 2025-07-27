@@ -82,14 +82,14 @@
 
 ## Phase 4: Wizard Enhancement
 
-- [ ] 11. Create wizard AI integration
+- [x] 11. Create wizard AI integration
   - Create `internal/wizard/ai_integration.go`
   - Implement `ReviewCommands()` with AI options
   - Add AI assistance option to command configuration
   - Maintain backward compatibility
   - _Requirements: 1.1-1.7_
 
-- [ ] 12. Modify existing wizard flow
+- [x] 12. Modify existing wizard flow
   - Update `internal/wizard/config.go`
   - Add mandatory command review for all types
   - Include custom command addition support
@@ -106,7 +106,7 @@
   - Handle existing config merge/overwrite
   - _Requirements: 3.1-3.5_
 
-- [ ] 14. Register and test CLI command
+- [x] 14. Register and test CLI command
   - Add command to `cmd/qualhook/main.go`
   - Write integration tests for ai-config command
   - Test with mock AI tools
@@ -122,7 +122,7 @@
   - Support various test scenarios
   - _Requirements: Testing Strategy_
 
-- [ ] 16. Write comprehensive integration tests
+- [x] 16. Write comprehensive integration tests
   - Create `internal/ai/integration_test.go`
   - Test end-to-end ai-config flow
   - Test wizard AI enhancement
@@ -138,7 +138,7 @@
   - Include in help documentation
   - _Requirements: 2.2, 5.2_
 
-- [ ] 18. Optimize performance
+- [x] 18. Optimize performance
   - Implement concurrent tool detection
   - Add response caching for retries
   - Clean up resources properly
@@ -147,7 +147,7 @@
 
 ## Testing Checklist
 
-- [ ] 19. Verify all acceptance criteria
+- [x] 19. Verify all acceptance criteria
   - Test each requirement's acceptance criteria
   - Ensure proper user consent flow
   - Verify command testing works correctly

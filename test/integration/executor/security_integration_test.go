@@ -341,9 +341,9 @@ func TestSecurityValidation_EnvironmentFiltering_RealExecution(t *testing.T) {
 					}
 
 					// Verify malicious patterns were filtered
-					if strings.Contains(result.Stdout, "$(") || 
-					   strings.Contains(result.Stdout, "`") || 
-					   strings.Contains(result.Stdout, "\x00") {
+					if strings.Contains(result.Stdout, "$(") ||
+						strings.Contains(result.Stdout, "`") ||
+						strings.Contains(result.Stdout, "\x00") {
 						t.Errorf("Malicious pattern found in environment output")
 					}
 				})
@@ -519,11 +519,11 @@ func TestSecurityValidation_CommandWhitelist_RealExecution(t *testing.T) {
 func TestSecurityValidation_TimeoutProtection_RealExecution(t *testing.T) {
 	// Skip tests that require direct access to securityValidator
 	t.Skip("Cannot access unexported securityValidator field from integration test")
-	
+
 	/* Commented out - requires access to unexported field
 	testutil.WithIsolatedEnvironment(t, func(env *testutil.TestEnvironment) {
 		cmdExecutor := executor.NewCommandExecutor(10 * time.Second)
-		
+
 		t.Run("very short timeout", func(t *testing.T) {
 			err := cmdExecutor.securityValidator.ValidateTimeout(50 * time.Millisecond)
 			if err == nil {
@@ -561,7 +561,7 @@ func TestSecurityValidation_TimeoutProtection_RealExecution(t *testing.T) {
 
 // TestSecurityValidation_ResourceLimits_RealExecution tests resource limit validation
 func TestSecurityValidation_ResourceLimits_RealExecution(t *testing.T) {
-	// Skip this test - securityValidator is unexported  
+	// Skip this test - securityValidator is unexported
 	t.Skip("Cannot access unexported securityValidator field from integration test")
 }
 
@@ -754,12 +754,12 @@ func TestSecurityValidation_ComplexScenarios(t *testing.T) {
 			defer os.Unsetenv("SECRET_DATA")
 
 			expansionAttacks := []struct {
-				name string
-				args []string
+				name        string
+				args        []string
 				shouldBlock bool
 			}{
-				{"direct expansion", []string{"$SECRET_DATA"}, false}, // Safe - literal string
-				{"braced expansion", []string{"${SECRET_DATA}"}, true}, // Blocked - contains ${}
+				{"direct expansion", []string{"$SECRET_DATA"}, false},                      // Safe - literal string
+				{"braced expansion", []string{"${SECRET_DATA}"}, true},                     // Blocked - contains ${}
 				{"command with expansion", []string{"echo $SECRET_DATA > leak.txt"}, true}, // Blocked - contains >
 			}
 
@@ -789,7 +789,7 @@ func TestSecurityValidation_ComplexScenarios(t *testing.T) {
 		t.Run("file descriptor manipulation", func(t *testing.T) {
 			fdAttacks := []string{
 				"2>&1",
-				"1>&2", 
+				"1>&2",
 				">&2",
 				"2>/dev/null",
 				">/dev/null 2>&1",

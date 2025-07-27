@@ -64,10 +64,10 @@ var performanceBaselines = struct {
 	PatternSetLarge:     2000,    // 2K ops/sec for pattern sets on large input
 
 	// Memory baselines (max bytes per operation)
-	MemorySmallCommand:   1024,      // 1KB per small command
-	MemoryLargeCommand:   1048576,   // 1MB per large command output
-	MemoryConcurrent:     10485760,  // 10MB for concurrent execution
-	MemoryPatternCompile: 10240,     // 10KB per pattern compilation
+	MemorySmallCommand:   1024,     // 1KB per small command
+	MemoryLargeCommand:   1048576,  // 1MB per large command output
+	MemoryConcurrent:     10485760, // 10MB for concurrent execution
+	MemoryPatternCompile: 10240,    // 10KB per pattern compilation
 
 	// Concurrent execution baselines
 	ConcurrentThroughput: 100,       // 100 ops/sec minimum
@@ -110,11 +110,11 @@ func newTestRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
-	
+
 	// Disable output for performance testing
 	cmd.SetOut(os.NewFile(0, os.DevNull))
 	cmd.SetErr(os.NewFile(0, os.DevNull))
-	
+
 	// Add minimal subcommands for testing
 	cmd.AddCommand(&cobra.Command{
 		Use:   "test",
@@ -123,7 +123,7 @@ func newTestRootCmd() *cobra.Command {
 			return nil
 		},
 	})
-	
+
 	return cmd
 }
 

@@ -128,15 +128,15 @@ func (platformCommand) stderr(message string) (string, []string) {
 // assertExecResult verifies common execution result properties
 func assertExecResult(t *testing.T, result *ExecResult, expectedExitCode int, expectedStdout, expectedStderr string) {
 	t.Helper()
-	
+
 	if result.ExitCode != expectedExitCode {
 		t.Errorf("expected exit code %d, got %d", expectedExitCode, result.ExitCode)
 	}
-	
+
 	if expectedStdout != "" && !contains(result.Stdout, expectedStdout) {
 		t.Errorf("expected stdout to contain %q, got %q", expectedStdout, result.Stdout)
 	}
-	
+
 	if expectedStderr != "" && !contains(result.Stderr, expectedStderr) {
 		t.Errorf("expected stderr to contain %q, got %q", expectedStderr, result.Stderr)
 	}
@@ -144,7 +144,7 @@ func assertExecResult(t *testing.T, result *ExecResult, expectedExitCode int, ex
 
 // contains is a simple string contains helper to avoid importing strings in test files
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 ||
 		(len(s) > 0 && len(substr) > 0 && findSubstring(s, substr) >= 0))
 }
 
@@ -160,7 +160,7 @@ func findSubstring(s, substr string) int {
 // createTempDir creates a temporary directory for testing
 func createTempDir(t *testing.T) (string, func()) {
 	t.Helper()
-	
+
 	dir := t.TempDir()
 	return dir, func() {
 		// Cleanup is handled by t.TempDir()

@@ -556,13 +556,13 @@ func TestProjectDetector_MonorepoSubProjects(t *testing.T) {
 
 	// Create a lerna monorepo with different project types
 	files := map[string]string{
-		"lerna.json":                      `{"version": "1.0.0"}`,
-		"package.json":                    `{"name": "monorepo"}`,
-		"packages/web/package.json":       `{"name": "web"}`,
-		"packages/web/tsconfig.json":      `{}`,
-		"packages/api/go.mod":             `module api`,
-		"packages/api/go.sum":             ``,
-		"packages/cli/Cargo.toml":         `[package]
+		"lerna.json":                 `{"version": "1.0.0"}`,
+		"package.json":               `{"name": "monorepo"}`,
+		"packages/web/package.json":  `{"name": "web"}`,
+		"packages/web/tsconfig.json": `{}`,
+		"packages/api/go.mod":        `module api`,
+		"packages/api/go.sum":        ``,
+		"packages/cli/Cargo.toml": `[package]
 name = "cli"`,
 		"packages/scripts/pyproject.toml": `[tool.poetry]
 name = "scripts"`,

@@ -23,7 +23,6 @@ func (m *mockToolDetectorWithError) IsToolAvailable(toolName string) (bool, erro
 	return false, m.err
 }
 
-
 type mockParserWithError struct {
 	err            error
 	partialSuccess bool
@@ -151,37 +150,37 @@ func TestAssistantErrorRecovery(t *testing.T) {
 			if tt.name == "network error during execution" || tt.name == "timeout error" || tt.name == "partial response recovery" {
 				t.Skip("Skipping test that requires real executor")
 			}
-			
+
 			// Create assistant with mocks
-			mockExec := executor.NewCommandExecutor(2 * time.Minute)
+			mockExec := executor.NewCommandExecutor(5 * time.Second)
 			assistant := NewAssistant(mockExec).(*assistantImpl)
-			
+
 			// Setup mocks
 			tt.setupMocks(assistant)
-			
+
 			// Execute
 			ctx := context.Background()
 			cfg, err := assistant.GenerateConfig(ctx, tt.options)
-			
+
 			// Check error expectations
 			if tt.expectError && err == nil {
 				t.Error("Expected error but got none")
 			} else if !tt.expectError && err != nil {
 				t.Errorf("Expected no error but got: %v", err)
 			}
-			
+
 			if err != nil && tt.checkRecovery {
 				// Check if it's an ErrorWithRecovery
 				var errWithRecovery *ErrorWithRecovery
 				var aiErr *AIError
-				
+
 				switch {
 				case errors.As(err, &errWithRecovery):
 					// Check error type
 					if errWithRecovery.Type != tt.errorType {
 						t.Errorf("Expected error type %v, got %v", tt.errorType, errWithRecovery.Type)
 					}
-					
+
 					// Check recovery suggestions
 					if len(errWithRecovery.RecoverySuggestions) == 0 {
 						t.Error("Expected recovery suggestions but got none")
@@ -195,7 +194,7 @@ func TestAssistantErrorRecovery(t *testing.T) {
 					t.Errorf("Expected AI error type but got: %T", err)
 				}
 			}
-			
+
 			// Check partial success case
 			if !tt.expectError && cfg != nil {
 				if len(cfg.Commands) == 0 {
@@ -255,7 +254,7 @@ func TestErrorFormattingIntegration(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
 			formatted := FormatErrorWithSuggestions(scenario.err)
-			
+
 			for _, expected := range scenario.expectFormatted {
 				if !contains(formatted, expected) {
 					t.Errorf("Expected formatted error to contain %q, got:\n%s", expected, formatted)
@@ -268,10 +267,10 @@ func TestErrorFormattingIntegration(t *testing.T) {
 // TestRetryLogic tests the retry decision logic
 func TestRetryLogic(t *testing.T) {
 	tests := []struct {
-		name              string
-		simulateError     func() error
-		expectRetryable   bool
-		maxRetries        int
+		name               string
+		simulateError      func() error
+		expectRetryable    bool
+		maxRetries         int
 		expectFinalSuccess bool
 	}{
 		{
@@ -306,12 +305,12 @@ func TestRetryLogic(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.simulateError()
-			
+
 			// Check if error is retryable
 			if IsRetryableError(err) != tt.expectRetryable {
 				t.Errorf("Expected IsRetryableError = %v, got %v", tt.expectRetryable, IsRetryableError(err))
 			}
-			
+
 			// Simulate retry logic
 			retries := 0
 			for retries < tt.maxRetries && IsRetryableError(err) {
@@ -319,7 +318,7 @@ func TestRetryLogic(t *testing.T) {
 				// In real scenario, we'd wait and retry
 				err = tt.simulateError() // Will keep failing in this test
 			}
-			
+
 			// Verify retry behavior
 			if tt.expectRetryable && retries == 0 {
 				t.Error("Expected retries but none occurred")
@@ -333,8 +332,8 @@ func TestRetryLogic(t *testing.T) {
 // TestSensitiveDataHandling tests that sensitive data is properly sanitized
 func TestSensitiveDataHandling(t *testing.T) {
 	sensitiveErrors := []struct {
-		name          string
-		originalError string
+		name           string
+		originalError  string
 		shouldSanitize bool
 	}{
 		{
@@ -358,17 +357,17 @@ func TestSensitiveDataHandling(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := errors.New(test.originalError)
 			sanitized := SanitizeErrorMessage(err)
-			
+
 			if test.shouldSanitize {
 				// Should not contain original sensitive data
 				if sanitized.Error() == test.originalError {
 					t.Error("Expected error to be sanitized but it wasn't")
 				}
-				
+
 				// Should indicate sanitization
-				if !contains(sanitized.Error(), "[REDACTED]") && 
-				   !contains(sanitized.Error(), "[USER_PATH]") && 
-				   !contains(sanitized.Error(), "sensitive information removed") {
+				if !contains(sanitized.Error(), "[REDACTED]") &&
+					!contains(sanitized.Error(), "[USER_PATH]") &&
+					!contains(sanitized.Error(), "sensitive information removed") {
 					t.Error("Sanitized error should indicate sanitization occurred")
 				}
 			} else if sanitized.Error() != test.originalError {

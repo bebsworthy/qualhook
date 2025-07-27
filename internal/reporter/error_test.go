@@ -567,7 +567,7 @@ func TestReport_EdgeCases(t *testing.T) {
 		// Test that partial output is captured when a command fails mid-execution
 		partialOutput := strings.Repeat("Starting test run...\n", 10)
 		errorOutput := "FATAL ERROR: Segmentation fault at line 42"
-		
+
 		results := []executor.ComponentExecResult{
 			{
 				Command: "test",
@@ -746,7 +746,7 @@ func TestReport_ConcurrentErrorReporting(t *testing.T) {
 	t.Run("concurrent error aggregation simulation", func(t *testing.T) {
 		// Simulate errors coming from multiple parallel executors
 		var results []executor.ComponentExecResult
-		
+
 		// Simulate 5 components with errors
 		for i := 0; i < 5; i++ {
 			results = append(results, executor.ComponentExecResult{
@@ -848,8 +848,8 @@ func TestReport_ErrorAggregationFromMultipleSources(t *testing.T) {
 			},
 			// Execution error
 			{
-				Path:           "tools",
-				Command:        "custom-check",
+				Path:    "tools",
+				Command: "custom-check",
 				ExecutionError: &executor.ExecError{
 					Type:    executor.ErrorTypeCommandNotFound,
 					Command: "custom-check",
@@ -859,7 +859,7 @@ func TestReport_ErrorAggregationFromMultipleSources(t *testing.T) {
 		}
 
 		report := reporter.Report(results)
-		
+
 		// Should report execution error with exit code 1
 		if report.ExitCode != 1 {
 			t.Errorf("expected exit code 1 for execution error, got %d", report.ExitCode)
@@ -912,7 +912,7 @@ func TestReport_ErrorAggregationFromMultipleSources(t *testing.T) {
 		}
 
 		report := reporter.Report(results)
-		
+
 		if report.ExitCode != 2 {
 			t.Errorf("expected exit code 2 for quality errors, got %d", report.ExitCode)
 		}
@@ -997,7 +997,7 @@ func TestReport_ErrorAggregationFromMultipleSources(t *testing.T) {
 		}
 
 		report := reporter.Report(results)
-		
+
 		if report.ExitCode != 2 {
 			t.Errorf("expected exit code 2, got %d", report.ExitCode)
 		}

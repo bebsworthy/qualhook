@@ -10,7 +10,7 @@ import (
 // GetInstallInstructions returns platform-specific installation instructions for the given AI tool
 func GetInstallInstructions(toolName string) string {
 	platform := runtime.GOOS
-	
+
 	switch strings.ToLower(toolName) {
 	case "claude":
 		return getClaudeInstructions(platform)
@@ -24,9 +24,9 @@ func GetInstallInstructions(toolName string) string {
 // getClaudeInstructions returns Claude CLI installation instructions for the platform
 func getClaudeInstructions(platform string) string {
 	var instructions strings.Builder
-	
+
 	instructions.WriteString("Claude CLI is not installed. Installation instructions:\n\n")
-	
+
 	switch platform {
 	case "darwin": // macOS
 		instructions.WriteString("macOS:\n")
@@ -37,7 +37,7 @@ func getClaudeInstructions(platform string) string {
 		instructions.WriteString("     Then add to PATH\n\n")
 		instructions.WriteString("  3. Authenticate:\n")
 		instructions.WriteString("     claude auth login\n")
-		
+
 	case "linux":
 		instructions.WriteString("Linux:\n")
 		instructions.WriteString("  1. Download the latest release:\n")
@@ -48,7 +48,7 @@ func getClaudeInstructions(platform string) string {
 		instructions.WriteString("     curl -fsSL https://claude.ai/install.sh | sh\n\n")
 		instructions.WriteString("  3. Authenticate:\n")
 		instructions.WriteString("     claude auth login\n")
-		
+
 	case "windows":
 		instructions.WriteString("Windows:\n")
 		instructions.WriteString("  1. Using PowerShell (as Administrator):\n")
@@ -59,21 +59,21 @@ func getClaudeInstructions(platform string) string {
 		instructions.WriteString("     - Add the directory to your PATH\n\n")
 		instructions.WriteString("  3. Authenticate:\n")
 		instructions.WriteString("     claude auth login\n")
-		
+
 	default:
 		instructions.WriteString(fmt.Sprintf("Platform %s:\n", platform))
 		instructions.WriteString("  Visit https://claude.ai/cli for installation instructions\n")
 	}
-	
+
 	return instructions.String()
 }
 
 // getGeminiInstructions returns Gemini CLI installation instructions for the platform
 func getGeminiInstructions(platform string) string {
 	var instructions strings.Builder
-	
+
 	instructions.WriteString("Gemini CLI is not installed. Installation instructions:\n\n")
-	
+
 	switch platform {
 	case "darwin": // macOS
 		instructions.WriteString("macOS:\n")
@@ -86,7 +86,7 @@ func getGeminiInstructions(platform string) string {
 		instructions.WriteString("     gemini auth login\n")
 		instructions.WriteString("     # Or set API key:\n")
 		instructions.WriteString("     export GEMINI_API_KEY=\"your-api-key\"\n")
-		
+
 	case "linux":
 		instructions.WriteString("Linux:\n")
 		instructions.WriteString("  1. Install via npm:\n")
@@ -99,7 +99,7 @@ func getGeminiInstructions(platform string) string {
 		instructions.WriteString("     gemini auth login\n")
 		instructions.WriteString("     # Or set API key:\n")
 		instructions.WriteString("     export GEMINI_API_KEY=\"your-api-key\"\n")
-		
+
 	case "windows":
 		instructions.WriteString("Windows:\n")
 		instructions.WriteString("  1. Using npm:\n")
@@ -111,52 +111,52 @@ func getGeminiInstructions(platform string) string {
 		instructions.WriteString("     gemini auth login\n")
 		instructions.WriteString("     # Or set API key:\n")
 		instructions.WriteString("     set GEMINI_API_KEY=your-api-key\n")
-		
+
 	default:
 		instructions.WriteString(fmt.Sprintf("Platform %s:\n", platform))
 		instructions.WriteString("  Visit https://ai.google/tools/gemini-cli for installation instructions\n")
 	}
-	
+
 	return instructions.String()
 }
 
 // FormatToolNotFoundError formats an error message when an AI tool is not found
 func FormatToolNotFoundError(toolName string, err error) string {
 	var msg strings.Builder
-	
+
 	msg.WriteString(fmt.Sprintf("AI tool '%s' not found", toolName))
-	
+
 	if err != nil {
 		msg.WriteString(fmt.Sprintf(": %v", err))
 	}
-	
+
 	msg.WriteString("\n\n")
 	msg.WriteString(GetInstallInstructions(toolName))
 	msg.WriteString("\nAfter installation, run this command again.")
-	
+
 	return msg.String()
 }
 
 // FormatNoToolsAvailableError formats an error when no AI tools are available
 func FormatNoToolsAvailableError() string {
 	var msg strings.Builder
-	
+
 	msg.WriteString("No AI tools available. Please install Claude or Gemini CLI.\n\n")
 	msg.WriteString("Option 1: Install Claude CLI\n")
 	msg.WriteString(strings.TrimPrefix(GetInstallInstructions("claude"), "Claude CLI is not installed. Installation instructions:\n\n"))
 	msg.WriteString("\n")
 	msg.WriteString("Option 2: Install Gemini CLI\n")
 	msg.WriteString(strings.TrimPrefix(GetInstallInstructions("gemini"), "Gemini CLI is not installed. Installation instructions:\n\n"))
-	
+
 	return msg.String()
 }
 
 // GetToolSelectionPrompt formats a prompt for tool selection
 func GetToolSelectionPrompt(availableTools []Tool) string {
 	var msg strings.Builder
-	
+
 	msg.WriteString("Multiple AI tools are available. Please select one:\n\n")
-	
+
 	for i, tool := range availableTools {
 		msg.WriteString(fmt.Sprintf("%d. %s", i+1, tool.Name))
 		if tool.Version != "" {
@@ -164,9 +164,9 @@ func GetToolSelectionPrompt(availableTools []Tool) string {
 		}
 		msg.WriteString("\n")
 	}
-	
+
 	msg.WriteString("\nEnter your choice (1-%d): ")
-	
+
 	return fmt.Sprintf(msg.String(), len(availableTools))
 }
 

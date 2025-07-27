@@ -26,10 +26,10 @@ func ExampleProgressIndicator() {
 		// Simulate different phases of work
 		time.Sleep(500 * time.Millisecond)
 		progress.Update("Detecting project type")
-		
+
 		time.Sleep(500 * time.Millisecond)
 		progress.Update("Generating configuration")
-		
+
 		time.Sleep(500 * time.Millisecond)
 		done <- true
 	}()

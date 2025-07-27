@@ -19,29 +19,29 @@ type CoverageAnalyzer struct {
 
 // CoverageProfile represents coverage data for a test category
 type CoverageProfile struct {
-	Category     string                    `json:"category"`
-	TotalLines   int                       `json:"total_lines"`
-	CoveredLines int                       `json:"covered_lines"`
-	Percentage   float64                   `json:"percentage"`
+	Category     string                     `json:"category"`
+	TotalLines   int                        `json:"total_lines"`
+	CoveredLines int                        `json:"covered_lines"`
+	Percentage   float64                    `json:"percentage"`
 	Packages     map[string]PackageCoverage `json:"packages"`
 }
 
 // PackageCoverage represents coverage for a single package
 type PackageCoverage struct {
-	Package      string  `json:"package"`
-	TotalLines   int     `json:"total_lines"`
-	CoveredLines int     `json:"covered_lines"`
-	Percentage   float64 `json:"percentage"`
+	Package      string         `json:"package"`
+	TotalLines   int            `json:"total_lines"`
+	CoveredLines int            `json:"covered_lines"`
+	Percentage   float64        `json:"percentage"`
 	Files        []FileCoverage `json:"files"`
 }
 
 // FileCoverage represents coverage for a single file
 type FileCoverage struct {
-	Filename     string  `json:"filename"`
-	TotalLines   int     `json:"total_lines"`
-	CoveredLines int     `json:"covered_lines"`
-	Percentage   float64 `json:"percentage"`
-	UncoveredLines []int `json:"uncovered_lines,omitempty"`
+	Filename       string  `json:"filename"`
+	TotalLines     int     `json:"total_lines"`
+	CoveredLines   int     `json:"covered_lines"`
+	Percentage     float64 `json:"percentage"`
+	UncoveredLines []int   `json:"uncovered_lines,omitempty"`
 }
 
 // NewCoverageAnalyzer creates a new coverage analyzer
@@ -52,6 +52,7 @@ func NewCoverageAnalyzer() *CoverageAnalyzer {
 }
 
 // ParseCoverageFile parses a Go coverage profile file
+//
 //nolint:gocyclo // Complex function parsing various coverage profile formats
 func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 	file, err := os.Open(filename) // #nosec G304 - filename comes from coverage profile
@@ -59,17 +60,17 @@ func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 		return fmt.Errorf("failed to open coverage file: %w", err)
 	}
 	defer func() { _ = file.Close() }() //nolint:errcheck
-	
+
 	if _, exists := ca.profiles[category]; !exists {
 		ca.profiles[category] = &CoverageProfile{
 			Category: category,
 			Packages: make(map[string]PackageCoverage),
 		}
 	}
-	
+
 	profile := ca.profiles[category]
 	scanner := bufio.NewScanner(file)
-	
+
 	// Skip the mode line
 	if scanner.Scan() {
 		line := scanner.Text()
@@ -77,20 +78,20 @@ func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 			return fmt.Errorf("invalid coverage file format")
 		}
 	}
-	
+
 	// Parse coverage data
 	// Format: github.com/user/pkg/file.go:startLine.startCol,endLine.endCol numStmt count
 	lineRegex := regexp.MustCompile(`^(.+):(\d+)\.(\d+),(\d+)\.(\d+)\s+(\d+)\s+(\d+)$`)
-	
+
 	fileData := make(map[string]map[int]bool) // file -> line -> covered
-	
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		matches := lineRegex.FindStringSubmatch(line)
 		if matches == nil {
 			continue
 		}
-		
+
 		file := matches[1]
 		startLine, err := strconv.Atoi(matches[2])
 		if err != nil {
@@ -104,11 +105,11 @@ func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 		if err != nil {
 			continue
 		}
-		
+
 		if _, exists := fileData[file]; !exists {
 			fileData[file] = make(map[int]bool)
 		}
-		
+
 		// Mark lines as covered or not
 		for line := startLine; line <= endLine; line++ {
 			if count > 0 {
@@ -118,25 +119,25 @@ func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 			}
 		}
 	}
-	
+
 	// Process the collected data
 	for file, lines := range fileData {
 		pkg := getPackageFromFile(file)
-		
+
 		if _, exists := profile.Packages[pkg]; !exists {
 			profile.Packages[pkg] = PackageCoverage{
 				Package: pkg,
 				Files:   make([]FileCoverage, 0),
 			}
 		}
-		
+
 		fileCov := FileCoverage{
 			Filename:       file,
 			TotalLines:     len(lines),
 			CoveredLines:   0,
 			UncoveredLines: make([]int, 0),
 		}
-		
+
 		for line, covered := range lines {
 			if covered {
 				fileCov.CoveredLines++
@@ -144,36 +145,36 @@ func (ca *CoverageAnalyzer) ParseCoverageFile(filename, category string) error {
 				fileCov.UncoveredLines = append(fileCov.UncoveredLines, line)
 			}
 		}
-		
+
 		sort.Ints(fileCov.UncoveredLines)
-		
+
 		if fileCov.TotalLines > 0 {
 			fileCov.Percentage = float64(fileCov.CoveredLines) / float64(fileCov.TotalLines) * 100
 		}
-		
+
 		pkgCov := profile.Packages[pkg]
 		pkgCov.Files = append(pkgCov.Files, fileCov)
 		pkgCov.TotalLines += fileCov.TotalLines
 		pkgCov.CoveredLines += fileCov.CoveredLines
 		profile.Packages[pkg] = pkgCov
 	}
-	
+
 	// Calculate package percentages
 	for pkg, pkgCov := range profile.Packages {
 		if pkgCov.TotalLines > 0 {
 			pkgCov.Percentage = float64(pkgCov.CoveredLines) / float64(pkgCov.TotalLines) * 100
 			profile.Packages[pkg] = pkgCov
 		}
-		
+
 		profile.TotalLines += pkgCov.TotalLines
 		profile.CoveredLines += pkgCov.CoveredLines
 	}
-	
+
 	// Calculate overall percentage
 	if profile.TotalLines > 0 {
 		profile.Percentage = float64(profile.CoveredLines) / float64(profile.TotalLines) * 100
 	}
-	
+
 	return scanner.Err()
 }
 
@@ -192,7 +193,7 @@ func (ca *CoverageAnalyzer) GetSummaryReport() CoverageSummary {
 		OverallCoverage:  0,
 		PackageSummaries: make(map[string]PackageSummary),
 	}
-	
+
 	// Aggregate by category
 	for category, profile := range ca.profiles {
 		summary.Categories[category] = CategorySummary{
@@ -202,37 +203,37 @@ func (ca *CoverageAnalyzer) GetSummaryReport() CoverageSummary {
 			Percentage:   profile.Percentage,
 			PackageCount: len(profile.Packages),
 		}
-		
+
 		summary.TotalLines += profile.TotalLines
 		summary.TotalCovered += profile.CoveredLines
-		
+
 		// Aggregate by package across categories
 		for pkg, pkgCov := range profile.Packages {
 			if _, exists := summary.PackageSummaries[pkg]; !exists {
 				summary.PackageSummaries[pkg] = PackageSummary{
-					Package:         pkg,
+					Package:            pkg,
 					CoverageByCategory: make(map[string]float64),
 				}
 			}
-			
+
 			pkgSummary := summary.PackageSummaries[pkg]
 			pkgSummary.CoverageByCategory[category] = pkgCov.Percentage
 			summary.PackageSummaries[pkg] = pkgSummary
 		}
 	}
-	
+
 	// Calculate overall coverage
 	if summary.TotalLines > 0 {
 		summary.OverallCoverage = float64(summary.TotalCovered) / float64(summary.TotalLines) * 100
 	}
-	
+
 	return summary
 }
 
 // FindUncoveredCode identifies code that lacks test coverage
 func (ca *CoverageAnalyzer) FindUncoveredCode() []UncoveredCode {
 	uncovered := make([]UncoveredCode, 0)
-	
+
 	for category, profile := range ca.profiles {
 		for _, pkgCov := range profile.Packages {
 			for _, fileCov := range pkgCov.Files {
@@ -248,12 +249,12 @@ func (ca *CoverageAnalyzer) FindUncoveredCode() []UncoveredCode {
 			}
 		}
 	}
-	
+
 	// Sort by coverage percentage (lowest first)
 	sort.Slice(uncovered, func(i, j int) bool {
 		return uncovered[i].Percentage < uncovered[j].Percentage
 	})
-	
+
 	return uncovered
 }
 
@@ -283,10 +284,10 @@ type PackageSummary struct {
 
 // UncoveredCode represents code without test coverage
 type UncoveredCode struct {
-	Category       string `json:"category"`
-	Package        string `json:"package"`
-	File           string `json:"file"`
-	UncoveredLines []int  `json:"uncovered_lines"`
+	Category       string  `json:"category"`
+	Package        string  `json:"package"`
+	File           string  `json:"file"`
+	UncoveredLines []int   `json:"uncovered_lines"`
 	Percentage     float64 `json:"percentage"`
 }
 
@@ -332,11 +333,11 @@ for category in unit integration e2e; do
     fi
 done
 `
-	
+
 	scriptPath := filepath.Join(outputDir, "collect_coverage.sh")
 	if err := os.WriteFile(scriptPath, []byte(script), 0600); err != nil {
 		return fmt.Errorf("failed to write coverage script: %w", err)
 	}
-	
+
 	return nil
 }

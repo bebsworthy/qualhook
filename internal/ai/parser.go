@@ -12,28 +12,28 @@ import (
 
 // aiResponse represents the expected JSON structure from AI tools
 type aiResponse struct {
-	Version     string                  `json:"version"`
-	ProjectType string                  `json:"projectType"`
-	Monorepo    *monorepoInfo           `json:"monorepo,omitempty"`
-	Commands    map[string]*aiCommand   `json:"commands"`
-	Paths       []aiPathConfig          `json:"paths,omitempty"`
+	Version        string                `json:"version"`
+	ProjectType    string                `json:"projectType"`
+	Monorepo       *monorepoInfo         `json:"monorepo,omitempty"`
+	Commands       map[string]*aiCommand `json:"commands"`
+	Paths          []aiPathConfig        `json:"paths,omitempty"`
 	CustomCommands map[string]*aiCommand `json:"customCommands,omitempty"`
 }
 
 // monorepoInfo contains monorepo detection information
 type monorepoInfo struct {
-	Detected    bool     `json:"detected"`
-	Type        string   `json:"type"`
-	Workspaces  []string `json:"workspaces"`
+	Detected   bool     `json:"detected"`
+	Type       string   `json:"type"`
+	Workspaces []string `json:"workspaces"`
 }
 
 // aiCommand represents a command configuration from AI
 type aiCommand struct {
-	Command       string              `json:"command"`
-	Args          []string            `json:"args,omitempty"`
-	ErrorPatterns []aiRegexPattern    `json:"errorPatterns,omitempty"`
-	ExitCodes     []int               `json:"exitCodes,omitempty"`
-	Explanation   string              `json:"explanation,omitempty"`
+	Command       string           `json:"command"`
+	Args          []string         `json:"args,omitempty"`
+	ErrorPatterns []aiRegexPattern `json:"errorPatterns,omitempty"`
+	ExitCodes     []int            `json:"exitCodes,omitempty"`
+	Explanation   string           `json:"explanation,omitempty"`
 }
 
 // aiRegexPattern represents a regex pattern from AI
@@ -140,13 +140,13 @@ func (p *ResponseParserImpl) ParseCommandResponse(response string) (*CommandSugg
 			Pattern: pattern.Pattern,
 			Flags:   pattern.Flags,
 		}
-		
+
 		// Validate the pattern
 		if err := regexPattern.Validate(); err != nil {
 			// Skip invalid patterns but log them
 			continue
 		}
-		
+
 		suggestion.ErrorPatterns = append(suggestion.ErrorPatterns, *regexPattern)
 	}
 
@@ -175,12 +175,12 @@ func (p *ResponseParserImpl) extractJSON(response string) string {
 	if json := p.extractFromCodeBlock(response); json != "" {
 		return json
 	}
-	
+
 	// Try raw JSON extraction
 	if json := p.extractRawJSON(response); json != "" {
 		return json
 	}
-	
+
 	return ""
 }
 
@@ -190,12 +190,12 @@ func (p *ResponseParserImpl) extractFromCodeBlock(response string) string {
 	if json := p.extractMarkedCodeBlock(response, "```json", 7); json != "" {
 		return json
 	}
-	
+
 	// Look for any code blocks that contain JSON
 	if json := p.extractGenericCodeBlock(response); json != "" {
 		return json
 	}
-	
+
 	return ""
 }
 
@@ -204,7 +204,7 @@ func (p *ResponseParserImpl) extractMarkedCodeBlock(response, marker string, off
 	if !strings.Contains(response, marker) {
 		return ""
 	}
-	
+
 	start := strings.Index(response, marker)
 	end := strings.Index(response[start+offset:], "```")
 	if end > 0 {
@@ -218,7 +218,7 @@ func (p *ResponseParserImpl) extractGenericCodeBlock(response string) string {
 	if !strings.Contains(response, "```") {
 		return ""
 	}
-	
+
 	start := strings.Index(response, "```")
 	end := strings.Index(response[start+3:], "```")
 	if end > 0 {
@@ -238,7 +238,7 @@ func (p *ResponseParserImpl) extractRawJSON(response string) string {
 	if strings.HasPrefix(trimmed, "{") {
 		return trimmed
 	}
-	
+
 	// Then try to find JSON that starts at the beginning of a line
 	return p.extractJSONFromLines(response)
 }
@@ -264,23 +264,23 @@ func (p *ResponseParserImpl) extractCompleteJSON(jsonStr string) string {
 	lastBrace := -1
 	inString := false
 	escape := false
-	
+
 	for j, ch := range jsonStr {
 		if escape {
 			escape = false
 			continue
 		}
-		
+
 		if ch == '\\' {
 			escape = true
 			continue
 		}
-		
+
 		if ch == '"' && !escape {
 			inString = !inString
 			continue
 		}
-		
+
 		if !inString {
 			if ch == '{' {
 				depth++
@@ -293,14 +293,14 @@ func (p *ResponseParserImpl) extractCompleteJSON(jsonStr string) string {
 			}
 		}
 	}
-	
+
 	if lastBrace > 0 {
 		return strings.TrimSpace(jsonStr[:lastBrace+1])
 	} else if depth > 0 {
 		// Incomplete JSON, return what we have for recovery
 		return jsonStr
 	}
-	
+
 	return ""
 }
 
@@ -308,7 +308,7 @@ func (p *ResponseParserImpl) extractCompleteJSON(jsonStr string) string {
 func (p *ResponseParserImpl) recoverPartialResponse(jsonStr string) (*aiResponse, error) {
 	// Try to fix common JSON issues
 	fixed := p.fixCommonJSONIssues(jsonStr)
-	
+
 	var partial aiResponse
 	if err := json.Unmarshal([]byte(fixed), &partial); err == nil {
 		// Set default version if not provided
@@ -336,25 +336,25 @@ func (p *ResponseParserImpl) fixCommonJSONIssues(jsonStr string) string {
 	// Remove trailing commas
 	fixed := strings.ReplaceAll(jsonStr, ",]", "]")
 	fixed = strings.ReplaceAll(fixed, ",}", "}")
-	
+
 	// Fix trailing commas before newlines
 	fixed = strings.ReplaceAll(fixed, ",\n}", "\n}")
 	fixed = strings.ReplaceAll(fixed, ",\n]", "\n]")
-	
+
 	// Fix unescaped quotes in strings (basic attempt)
 	// This is a simplified fix and may not handle all cases
-	
+
 	// Add missing closing braces/brackets if needed
 	openBraces := strings.Count(fixed, "{") - strings.Count(fixed, "}")
 	for i := 0; i < openBraces; i++ {
 		fixed += "}"
 	}
-	
+
 	openBrackets := strings.Count(fixed, "[") - strings.Count(fixed, "]")
 	for i := 0; i < openBrackets; i++ {
 		fixed += "]"
 	}
-	
+
 	return fixed
 }
 
@@ -365,13 +365,13 @@ func (p *ResponseParserImpl) extractCommandsSection(jsonStr string) string {
 	if start < 0 {
 		return ""
 	}
-	
+
 	// Find the opening brace
 	openIdx := strings.Index(jsonStr[start:], "{")
 	if openIdx < 0 {
 		return ""
 	}
-	
+
 	// Find the matching closing brace
 	depth := 0
 	closeIdx := -1
@@ -386,11 +386,11 @@ func (p *ResponseParserImpl) extractCommandsSection(jsonStr string) string {
 			}
 		}
 	}
-	
+
 	if closeIdx > 0 {
 		return jsonStr[start+openIdx : closeIdx+1]
 	}
-	
+
 	return ""
 }
 
@@ -400,12 +400,12 @@ func (p *ResponseParserImpl) parseSimpleCommand(response string) (*CommandSugges
 	lines := strings.Split(response, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		
+
 		// Skip empty lines and obvious non-commands
 		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
 			continue
 		}
-		
+
 		// Skip lines that are clearly not commands but don't skip lines ending with :
 		if strings.HasPrefix(strings.ToLower(line), "to ") ||
 			strings.HasPrefix(strings.ToLower(line), "run ") ||
@@ -413,7 +413,7 @@ func (p *ResponseParserImpl) parseSimpleCommand(response string) (*CommandSugges
 			(strings.HasSuffix(line, ".") && !strings.Contains(line, " ")) {
 			continue
 		}
-		
+
 		// Look for lines that might be commands
 		parts := strings.Fields(line)
 		if len(parts) > 0 && p.looksLikeCommand(parts[0]) {
@@ -424,7 +424,7 @@ func (p *ResponseParserImpl) parseSimpleCommand(response string) (*CommandSugges
 			}, nil
 		}
 	}
-	
+
 	return nil, &AIError{
 		Type:    ErrTypeResponseInvalid,
 		Message: "no valid command found in response",
@@ -440,14 +440,14 @@ func (p *ResponseParserImpl) looksLikeCommand(s string) bool {
 		"eslint", "prettier", "black", "rustfmt", "gofmt",
 		"tsc", "mypy", "pylint", "rubocop",
 	}
-	
+
 	s = strings.ToLower(s)
 	for _, cmd := range commonCommands {
 		if strings.HasPrefix(s, cmd) {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -458,12 +458,12 @@ func (p *ResponseParserImpl) convertToConfig(aiResp *aiResponse) *pkgconfig.Conf
 		ProjectType: aiResp.ProjectType,
 		Commands:    make(map[string]*pkgconfig.CommandConfig),
 	}
-	
+
 	// Set version from response if provided
 	if aiResp.Version != "" {
 		cfg.Version = aiResp.Version
 	}
-	
+
 	// Convert standard commands
 	for name, cmd := range aiResp.Commands {
 		cmdConfig, err := p.convertCommand(cmd)
@@ -473,7 +473,7 @@ func (p *ResponseParserImpl) convertToConfig(aiResp *aiResponse) *pkgconfig.Conf
 		}
 		cfg.Commands[name] = cmdConfig
 	}
-	
+
 	// Convert custom commands
 	for name, cmd := range aiResp.CustomCommands {
 		cmdConfig, err := p.convertCommand(cmd)
@@ -483,14 +483,14 @@ func (p *ResponseParserImpl) convertToConfig(aiResp *aiResponse) *pkgconfig.Conf
 		}
 		cfg.Commands[name] = cmdConfig
 	}
-	
+
 	// Convert path configurations for monorepo
 	for _, pathCfg := range aiResp.Paths {
 		path := &pkgconfig.PathConfig{
 			Path:     pathCfg.Path,
 			Commands: make(map[string]*pkgconfig.CommandConfig),
 		}
-		
+
 		for name, cmd := range pathCfg.Commands {
 			cmdConfig, err := p.convertCommand(cmd)
 			if err != nil {
@@ -498,10 +498,10 @@ func (p *ResponseParserImpl) convertToConfig(aiResp *aiResponse) *pkgconfig.Conf
 			}
 			path.Commands[name] = cmdConfig
 		}
-		
+
 		cfg.Paths = append(cfg.Paths, path)
 	}
-	
+
 	return cfg
 }
 
@@ -510,35 +510,35 @@ func (p *ResponseParserImpl) convertCommand(cmd *aiCommand) (*pkgconfig.CommandC
 	if cmd.Command == "" {
 		return nil, fmt.Errorf("command cannot be empty")
 	}
-	
+
 	cmdConfig := &pkgconfig.CommandConfig{
 		Command:   cmd.Command,
 		Args:      cmd.Args,
 		ExitCodes: cmd.ExitCodes,
 	}
-	
+
 	// Convert error patterns
 	for _, pattern := range cmd.ErrorPatterns {
 		regexPattern := &pkgconfig.RegexPattern{
 			Pattern: pattern.Pattern,
 			Flags:   pattern.Flags,
 		}
-		
+
 		// Validate the pattern
 		if err := regexPattern.Validate(); err != nil {
 			// Skip invalid patterns
 			continue
 		}
-		
+
 		cmdConfig.ErrorPatterns = append(cmdConfig.ErrorPatterns, regexPattern)
 	}
-	
+
 	// Set reasonable defaults if not provided
 	if len(cmdConfig.ExitCodes) == 0 {
 		// Default to treating any non-zero exit code as failure
 		cmdConfig.ExitCodes = []int{1}
 	}
-	
+
 	return cmdConfig, nil
 }
 
@@ -554,7 +554,7 @@ func (p *ResponseParserImpl) convertRegexPatterns(patterns []pkgconfig.RegexPatt
 // attemptAutoFix tries to fix common validation errors
 func (p *ResponseParserImpl) attemptAutoFix(cfg *pkgconfig.Config, err error) *pkgconfig.Config {
 	errStr := err.Error()
-	
+
 	// Try to fix timeout issues
 	if strings.Contains(errStr, "timeout") {
 		for _, cmd := range cfg.Commands {
@@ -564,13 +564,13 @@ func (p *ResponseParserImpl) attemptAutoFix(cfg *pkgconfig.Config, err error) *p
 				cmd.Timeout = 3600000 // 1 hour max
 			}
 		}
-		
+
 		// Re-validate
 		if err := p.validator.Validate(cfg); err == nil {
 			return cfg
 		}
 	}
-	
+
 	// Try to fix regex pattern issues
 	if strings.Contains(errStr, "regex") || strings.Contains(errStr, "pattern") {
 		for _, cmd := range cfg.Commands {
@@ -582,7 +582,7 @@ func (p *ResponseParserImpl) attemptAutoFix(cfg *pkgconfig.Config, err error) *p
 				}
 			}
 			cmd.ErrorPatterns = validPatterns
-			
+
 			// Do the same for include patterns
 			validInclude := []*pkgconfig.RegexPattern{}
 			for _, pattern := range cmd.IncludePatterns {
@@ -592,12 +592,12 @@ func (p *ResponseParserImpl) attemptAutoFix(cfg *pkgconfig.Config, err error) *p
 			}
 			cmd.IncludePatterns = validInclude
 		}
-		
+
 		// Re-validate
 		if err := p.validator.Validate(cfg); err == nil {
 			return cfg
 		}
 	}
-	
+
 	return nil
 }

@@ -73,9 +73,9 @@ func TestResponseParser_ParseConfigResponse(t *testing.T) {
 			},
 		},
 		{
-			name: "json_in_code_block",
+			name:     "json_in_code_block",
 			response: "Here's the configuration for your project:\n\n```json\n{\n\t\"version\": \"1.0\",\n\t\"projectType\": \"go\",\n\t\"commands\": {\n\t\t\"format\": {\n\t\t\t\"command\": \"gofmt\",\n\t\t\t\"args\": [\"-w\", \".\"],\n\t\t\t\"exitCodes\": [1]\n\t\t}\n\t}\n}\n```\n\nThis configuration will format your Go code.",
-			wantErr: false,
+			wantErr:  false,
 			validateCfg: func(t *testing.T, cfg *pkgconfig.Config) {
 				if cfg.ProjectType != "go" {
 					t.Errorf("expected projectType go, got %s", cfg.ProjectType)
@@ -176,16 +176,16 @@ func TestResponseParser_ParseConfigResponse(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid_json_no_recovery",
+			name:     "invalid_json_no_recovery",
 			response: `This is not JSON at all, just plain text`,
-			wantErr: true,
-			errType: ErrTypeResponseInvalid,
+			wantErr:  true,
+			errType:  ErrTypeResponseInvalid,
 		},
 		{
-			name: "empty_response",
+			name:     "empty_response",
 			response: "",
-			wantErr: true,
-			errType: ErrTypeResponseInvalid,
+			wantErr:  true,
+			errType:  ErrTypeResponseInvalid,
 		},
 		{
 			name: "dangerous_command",
@@ -251,7 +251,7 @@ func TestResponseParser_ParseConfigResponse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg, err := parser.ParseConfigResponse(tt.response)
-			
+
 			if tt.wantErr {
 				if err == nil {
 					t.Error("expected error but got none")
@@ -324,9 +324,9 @@ This will format all files in the current directory.`,
 			},
 		},
 		{
-			name: "command_in_code_block",
+			name:     "command_in_code_block",
 			response: "Run this command:\n```\nnpm test\n```",
-			wantErr: false,
+			wantErr:  false,
 			validate: func(t *testing.T, cmd *CommandSuggestion) {
 				if cmd.Command != "npm" {
 					t.Errorf("expected npm, got %s", cmd.Command)
@@ -337,21 +337,21 @@ This will format all files in the current directory.`,
 			},
 		},
 		{
-			name: "no_command_found",
+			name:     "no_command_found",
 			response: "This response contains no commands at all",
-			wantErr: true,
+			wantErr:  true,
 		},
 		{
-			name: "dangerous_command",
+			name:     "dangerous_command",
 			response: `{"command": "rm", "args": ["-rf", "/"]}`,
-			wantErr: true,
+			wantErr:  true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd, err := parser.ParseCommandResponse(tt.response)
-			
+
 			if tt.wantErr {
 				if err == nil {
 					t.Error("expected error but got none")
@@ -517,7 +517,7 @@ func TestResponseParser_recoverPartialResponse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			resp, err := parser.recoverPartialResponse(tt.input)
-			
+
 			if tt.wantErr {
 				if err == nil {
 					t.Error("expected error but got none")
@@ -596,9 +596,9 @@ func TestResponseParser_attemptAutoFix(t *testing.T) {
 			} else if strings.Contains(tt.name, "regex") {
 				mockErr.WriteString("invalid regex pattern")
 			}
-			
+
 			fixed := parser.attemptAutoFix(tt.cfg, &AIError{Message: mockErr.String()})
-			
+
 			switch {
 			case tt.shouldFix && fixed == nil:
 				t.Error("expected fix but got nil")

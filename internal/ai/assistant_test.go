@@ -17,11 +17,11 @@ func TestAssistant_AIError(t *testing.T) {
 	// Test error creation and unwrapping
 	cause := errors.New("underlying error")
 	err := NewAIError(ErrTypeExecutionFailed, "execution failed", cause)
-	
+
 	assert.Equal(t, "execution failed: underlying error", err.Error())
 	assert.Equal(t, ErrTypeExecutionFailed, err.Type)
 	assert.Equal(t, cause, err.Unwrap())
-	
+
 	// Test error without cause
 	err2 := NewAIError(ErrTypeNoTools, "no tools", nil)
 	assert.Equal(t, "no tools", err2.Error())
@@ -78,7 +78,7 @@ func TestAssistant_extractCommandFromResponse(t *testing.T) {
 			expected: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := extractCommandFromResponse(tt.response, tt.cmdType)
@@ -115,7 +115,7 @@ func TestAssistant_buildAIToolArgs(t *testing.T) {
 			expected: []string{"test prompt"},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.toolName, func(t *testing.T) {
 			result := buildAIToolArgs(tt.toolName, tt.prompt)
@@ -128,9 +128,9 @@ func TestAssistant_NewAssistant(t *testing.T) {
 	// Test that NewAssistant creates a properly initialized assistant
 	exec := executor.NewCommandExecutor(30 * time.Second)
 	assistant := NewAssistant(exec)
-	
+
 	assert.NotNil(t, assistant)
-	
+
 	// Verify it implements the interface
 	var _ = assistant
 }
@@ -139,23 +139,23 @@ func TestAssistant_NoToolsError(t *testing.T) {
 	// This tests the actual implementation with no tools available
 	exec := executor.NewCommandExecutor(2 * time.Second)
 	assistant := NewAssistant(exec).(*assistantImpl)
-	
+
 	// Mock the detector to return no tools
 	assistant.detector = &mockToolDetectorSimple{
 		tools: []Tool{},
 		err:   nil,
 	}
-	
+
 	ctx := context.Background()
 	options := AIOptions{
 		WorkingDir: "/test/project",
 	}
-	
+
 	cfg, err := assistant.GenerateConfig(ctx, options)
-	
+
 	assert.Nil(t, cfg)
 	assert.Error(t, err)
-	
+
 	aiErr, ok := err.(*AIError)
 	require.True(t, ok)
 	assert.Equal(t, ErrTypeNoTools, aiErr.Type)
@@ -189,7 +189,7 @@ func BenchmarkExtractCommandFromResponse(b *testing.B) {
 		test: jest --coverage
 		typecheck: tsc --noEmit
 	`, 10)
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		extractCommandFromResponse(response, "format")

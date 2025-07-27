@@ -25,9 +25,9 @@ func TestMonorepoProjectDetection(t *testing.T) {
 	setupMonorepoFixture(t, tmpDir)
 
 	tests := []struct {
-		name           string
-		expectedTypes  []string
-		expectedPaths  []string
+		name          string
+		expectedTypes []string
+		expectedPaths []string
 	}{
 		{
 			name: "detect nested frontend and backend projects",
@@ -208,7 +208,7 @@ func TestMonorepoParallelExecution(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to map files: %v", err)
 			}
-			
+
 			// Debug: log component groups
 			t.Logf("Component groups found: %d", len(componentGroups))
 			for _, group := range componentGroups {
@@ -222,14 +222,14 @@ func TestMonorepoParallelExecution(t *testing.T) {
 				if tt.name == "test execution for shared library changes" {
 					commandName = "test"
 				}
-				
+
 				if cmdConfig, exists := group.Config[commandName]; exists {
 					// Extract directory from glob pattern
 					workDir := group.Path
 					if strings.Contains(workDir, "**") {
 						workDir = strings.TrimSuffix(workDir, "/**")
 					}
-					
+
 					parallelCmds = append(parallelCmds, executor.ParallelCommand{
 						ID:      commandName + "-" + group.Path,
 						Command: cmdConfig.Command,
@@ -286,9 +286,9 @@ func TestMonorepoParallelExecution(t *testing.T) {
 // TestMonorepoConfigurationInheritance tests configuration loading in monorepo context
 func TestMonorepoConfigurationInheritance(t *testing.T) {
 	// This test verifies that configs can be loaded from different directories
-	// Note: The current config loader doesn't support "extends" field, 
+	// Note: The current config loader doesn't support "extends" field,
 	// so we're just testing basic config loading
-	
+
 	// Create test monorepo structure
 	tmpDir := t.TempDir()
 
@@ -315,7 +315,7 @@ func TestMonorepoConfigurationInheritance(t *testing.T) {
 		t.Fatalf("Failed to get current directory: %v", err)
 	}
 	defer os.Chdir(oldDir)
-	
+
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("Failed to change directory: %v", err)
 	}
@@ -391,9 +391,9 @@ func TestMonorepoFileAwareExecution(t *testing.T) {
 			},
 			commandName: "test",
 			shouldRun: map[string]bool{
-				"frontend": true,  // depends on shared
-				"backend":  true,  // depends on shared
-				"shared":   true,  // changed directly
+				"frontend": true, // depends on shared
+				"backend":  true, // depends on shared
+				"shared":   true, // changed directly
 			},
 		},
 		{
@@ -408,8 +408,8 @@ func TestMonorepoFileAwareExecution(t *testing.T) {
 				},
 			},
 			changedFiles: []string{
-				"packages/frontend/src/app.js",           // not a test file
-				"packages/backend/src/server.test.js",    // test file
+				"packages/frontend/src/app.js",        // not a test file
+				"packages/backend/src/server.test.js", // test file
 			},
 			commandName: "test:unit",
 			shouldRun: map[string]bool{
@@ -442,7 +442,7 @@ func TestMonorepoFileAwareExecution(t *testing.T) {
 				CWD:           tmpDir,
 				HookEventName: "pre-commit",
 			}
-			
+
 			// Note: In a real implementation, we would parse the changed files
 			// and execute commands based on the file patterns. This test
 			// demonstrates the expected behavior.
@@ -522,7 +522,7 @@ func TestMonorepoRealWorldScenarios(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Logf("Scenario: %s", tt.scenario)
-			
+
 			// This is a high-level test demonstrating the workflow
 			// In a real implementation, you would:
 			// 1. Load the monorepo configuration
@@ -530,12 +530,12 @@ func TestMonorepoRealWorldScenarios(t *testing.T) {
 			// 3. Build a dependency graph
 			// 4. Execute commands in the correct order
 			// 5. Handle failures and rollbacks
-			
+
 			// For now, we'll verify the expected flow makes sense
 			if len(tt.expectedFlow) == 0 {
 				t.Errorf("No expected flow defined for scenario")
 			}
-			
+
 			// Verify changed files exist in our test structure
 			for _, file := range tt.changedFiles {
 				expectedPath := filepath.Join(tmpDir, file)
@@ -694,20 +694,20 @@ func setupRealisticMonorepo(t *testing.T, dir string) {
   }
 }`,
 		// Frontend structure
-		"packages/frontend/src/features/dashboard/Dashboard.js": `export default function Dashboard() {}`,
+		"packages/frontend/src/features/dashboard/Dashboard.js":      `export default function Dashboard() {}`,
 		"packages/frontend/src/features/dashboard/Dashboard.test.js": `test("Dashboard", () => {});`,
-		"packages/frontend/src/features/dashboard/Dashboard.css": `.dashboard { }`,
-		"packages/frontend/src/api/client.js": `export const apiClient = {};`,
-		
+		"packages/frontend/src/features/dashboard/Dashboard.css":     `.dashboard { }`,
+		"packages/frontend/src/api/client.js":                        `export const apiClient = {};`,
+
 		// Backend structure
-		"packages/backend/src/api/users.js": `module.exports = { getUsers: () => [] };`,
+		"packages/backend/src/api/users.js":   `module.exports = { getUsers: () => [] };`,
 		"packages/backend/src/server.test.js": `test("Server", () => {});`,
-		
+
 		// Shared structure
-		"packages/shared/src/auth/jwt.js": `export function verifyToken() {}`,
+		"packages/shared/src/auth/jwt.js":      `export function verifyToken() {}`,
 		"packages/shared/src/auth/jwt.test.js": `test("JWT", () => {});`,
-		"packages/shared/src/types/user.ts": `export interface User {}`,
-		"packages/shared/lib/auth.js": `export function authenticate() {}`,
+		"packages/shared/src/types/user.ts":    `export interface User {}`,
+		"packages/shared/lib/auth.js":          `export function authenticate() {}`,
 	}
 
 	for path, content := range structure {

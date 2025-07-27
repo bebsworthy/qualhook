@@ -15,26 +15,26 @@ import (
 
 // SafeCommands provides safe commands for testing across different platforms.
 var SafeCommands = struct {
-	Echo      string
-	True      string
-	False     string
-	Sleep     string
-	Cat       string
-	Touch     string
-	Remove    string
-	MakeDir   string
-	ListDir   string
+	Echo            string
+	True            string
+	False           string
+	Sleep           string
+	Cat             string
+	Touch           string
+	Remove          string
+	MakeDir         string
+	ListDir         string
 	PrintWorkingDir string
 }{
-	Echo:      "echo",
-	True:      getTrueCommand(),
-	False:     getFalseCommand(),
-	Sleep:     "sleep",
-	Cat:       getCatCommand(),
-	Touch:     "touch",
-	Remove:    getRemoveCommand(),
-	MakeDir:   "mkdir",
-	ListDir:   "ls",
+	Echo:            "echo",
+	True:            getTrueCommand(),
+	False:           getFalseCommand(),
+	Sleep:           "sleep",
+	Cat:             getCatCommand(),
+	Touch:           "touch",
+	Remove:          getRemoveCommand(),
+	MakeDir:         "mkdir",
+	ListDir:         "ls",
 	PrintWorkingDir: "pwd",
 }
 
@@ -130,7 +130,7 @@ func RunCommand(t testing.TB, tc TestCommand) (stdout, stderr string, exitCode i
 // RequireCommand skips the test if the command is not available.
 func RequireCommand(t testing.TB, command string) {
 	t.Helper()
-	
+
 	_, err := exec.LookPath(command)
 	if err != nil {
 		t.Skipf("Command %q not found in PATH", command)
@@ -169,7 +169,7 @@ func TempScript(t testing.TB, content string) string {
 // Platform-specific command helpers
 
 const (
-	cmdExe = "cmd"
+	cmdExe    = "cmd"
 	windowsOS = "windows"
 )
 
@@ -271,23 +271,23 @@ func SafeCommandEnvironment(t testing.TB) *TestEnvironment {
 
 	// Default allowed commands - only safe ones
 	allowedCommands := map[string]bool{
-		"echo":   true,
-		"true":   true,
-		"false":  true,
-		"sh":     true,
-		"bash":   true,
-		"cat":    true,
-		"touch":  true,
-		"mkdir":  true,
-		"ls":     true,
-		"pwd":    true,
-		"sleep":  true,
-		"test":   true,
-		"[":      true, // for shell test command
-		"cmd":    true, // Windows cmd
+		"echo":    true,
+		"true":    true,
+		"false":   true,
+		"sh":      true,
+		"bash":    true,
+		"cat":     true,
+		"touch":   true,
+		"mkdir":   true,
+		"ls":      true,
+		"pwd":     true,
+		"sleep":   true,
+		"test":    true,
+		"[":       true, // for shell test command
+		"cmd":     true, // Windows cmd
 		"cmd.exe": true,
-		"type":   true, // Windows cat equivalent
-		"dir":    true, // Windows ls equivalent
+		"type":    true, // Windows cat equivalent
+		"dir":     true, // Windows ls equivalent
 	}
 
 	env := &TestEnvironment{

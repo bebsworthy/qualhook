@@ -20,8 +20,8 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"lint": {
-				Command: "echo",
-				Args:    []string{"root lint"},
+				Command:   "echo",
+				Args:      []string{"root lint"},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*config.RegexPattern{
 					{Pattern: "error", Flags: "i"},
@@ -34,8 +34,8 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 				Path: "frontend/**",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command: "echo",
-						Args:    []string{"frontend lint"},
+						Command:   "echo",
+						Args:      []string{"frontend lint"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error", Flags: "i"},
@@ -48,8 +48,8 @@ func TestFileAwareExecutor_ExecuteForEditedFiles(t *testing.T) {
 				Path: "backend/**",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command: "echo",
-						Args:    []string{"backend lint"},
+						Command:   "echo",
+						Args:      []string{"backend lint"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error", Flags: "i"},
@@ -225,10 +225,10 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"lint": {
-				Command:    "echo",
-				Args:       []string{"root lint"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"root lint"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -236,10 +236,10 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 				Path: "src/**/*.js",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command:    "echo",
-						Args:       []string{"js lint"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"js lint"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -247,10 +247,10 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 				Path: "src/**/*.ts",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command:    "echo",
-						Args:       []string{"ts lint"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"ts lint"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -258,10 +258,10 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 				Path: "**/*.test.*",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command:    "echo",
-						Args:       []string{"test lint"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"test lint"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -278,21 +278,21 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 		wantErr        bool
 	}{
 		{
-			name: "single js file",
-			editedFiles: []string{"src/app.js"},
-			commandName: "lint",
+			name:           "single js file",
+			editedFiles:    []string{"src/app.js"},
+			commandName:    "lint",
 			expectCommands: 1, // Only js lint
 		},
 		{
-			name: "single ts file",
-			editedFiles: []string{"src/components/button.ts"},
-			commandName: "lint",
+			name:           "single ts file",
+			editedFiles:    []string{"src/components/button.ts"},
+			commandName:    "lint",
 			expectCommands: 1, // Only ts lint
 		},
 		{
-			name: "test file matches multiple patterns",
-			editedFiles: []string{"src/app.test.js"},
-			commandName: "lint",
+			name:           "test file matches multiple patterns",
+			editedFiles:    []string{"src/app.test.js"},
+			commandName:    "lint",
 			expectCommands: 1, // Only most specific pattern (test lint)
 		},
 		{
@@ -302,7 +302,7 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 				"src/components/button.ts",
 				"tests/e2e.test.js",
 			},
-			commandName: "lint",
+			commandName:    "lint",
 			expectCommands: 3, // js, ts, and test patterns
 		},
 		{
@@ -311,7 +311,7 @@ func TestFileAwareExecutor_MultipleFilePatterns(t *testing.T) {
 				"README.md",
 				"package.json",
 			},
-			commandName: "lint",
+			commandName:    "lint",
 			expectCommands: 1, // Root lint
 		},
 	}
@@ -344,10 +344,10 @@ func TestFileAwareExecutor_OverlappingPaths(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"test": {
-				Command:    "echo",
-				Args:       []string{"root test"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"root test"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -355,10 +355,10 @@ func TestFileAwareExecutor_OverlappingPaths(t *testing.T) {
 				Path: "src/**",
 				Commands: map[string]*config.CommandConfig{
 					"test": {
-						Command:    "echo",
-						Args:       []string{"src test"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"src test"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -366,10 +366,10 @@ func TestFileAwareExecutor_OverlappingPaths(t *testing.T) {
 				Path: "src/components/**",
 				Commands: map[string]*config.CommandConfig{
 					"test": {
-						Command:    "echo",
-						Args:       []string{"components test"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"components test"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -377,10 +377,10 @@ func TestFileAwareExecutor_OverlappingPaths(t *testing.T) {
 				Path: "src/components/ui/**",
 				Commands: map[string]*config.CommandConfig{
 					"test": {
-						Command:    "echo",
-						Args:       []string{"ui test"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"ui test"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -449,10 +449,10 @@ func TestFileAwareExecutor_VeryLargeFileList(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"analyze": {
-				Command:    "echo",
-				Args:       []string{"analyzing"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"analyzing"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -460,10 +460,10 @@ func TestFileAwareExecutor_VeryLargeFileList(t *testing.T) {
 				Path: "src/**/*.js",
 				Commands: map[string]*config.CommandConfig{
 					"analyze": {
-						Command:    "echo",
-						Args:       []string{"js analyze"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"js analyze"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -471,10 +471,10 @@ func TestFileAwareExecutor_VeryLargeFileList(t *testing.T) {
 				Path: "test/**/*.js",
 				Commands: map[string]*config.CommandConfig{
 					"analyze": {
-						Command:    "echo",
-						Args:       []string{"test analyze"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"test analyze"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -537,10 +537,10 @@ func TestFileAwareExecutor_PatternPriorityAndPrecedence(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"check": {
-				Command:    "echo",
-				Args:       []string{"root check"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"root check"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -548,10 +548,10 @@ func TestFileAwareExecutor_PatternPriorityAndPrecedence(t *testing.T) {
 				Path: "**/*.js", // Generic JS pattern
 				Commands: map[string]*config.CommandConfig{
 					"check": {
-						Command:    "echo",
-						Args:       []string{"generic js check"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"generic js check"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -559,10 +559,10 @@ func TestFileAwareExecutor_PatternPriorityAndPrecedence(t *testing.T) {
 				Path: "src/**/*.js", // More specific src JS pattern
 				Commands: map[string]*config.CommandConfig{
 					"check": {
-						Command:    "echo",
-						Args:       []string{"src js check"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"src js check"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -570,10 +570,10 @@ func TestFileAwareExecutor_PatternPriorityAndPrecedence(t *testing.T) {
 				Path: "src/critical/**/*.js", // Most specific critical JS pattern
 				Commands: map[string]*config.CommandConfig{
 					"check": {
-						Command:    "echo",
-						Args:       []string{"critical js check"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"critical js check"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -583,33 +583,33 @@ func TestFileAwareExecutor_PatternPriorityAndPrecedence(t *testing.T) {
 	executor := NewFileAwareExecutor(testConfig, false)
 
 	tests := []struct {
-		name            string
-		editedFile      string
-		expectedGroups  int
+		name             string
+		editedFile       string
+		expectedGroups   int
 		expectedCommands []string // Expected command args in order of specificity
 	}{
 		{
-			name:            "generic js file",
-			editedFile:      "lib/utils.js",
-			expectedGroups:  1,
+			name:             "generic js file",
+			editedFile:       "lib/utils.js",
+			expectedGroups:   1,
 			expectedCommands: []string{"generic js check"},
 		},
 		{
-			name:            "src js file matches two patterns",
-			editedFile:      "src/components/header.js",
-			expectedGroups:  1,
+			name:             "src js file matches two patterns",
+			editedFile:       "src/components/header.js",
+			expectedGroups:   1,
 			expectedCommands: []string{"src js check"}, // Most specific match
 		},
 		{
-			name:            "critical js file matches all patterns",
-			editedFile:      "src/critical/auth.js",
-			expectedGroups:  1,
+			name:             "critical js file matches all patterns",
+			editedFile:       "src/critical/auth.js",
+			expectedGroups:   1,
 			expectedCommands: []string{"critical js check"}, // Most specific match
 		},
 		{
-			name:            "non-js file",
-			editedFile:      "src/styles.css",
-			expectedGroups:  1,
+			name:             "non-js file",
+			editedFile:       "src/styles.css",
+			expectedGroups:   1,
 			expectedCommands: []string{"root check"},
 		},
 	}
@@ -660,10 +660,10 @@ func TestFileAwareExecutor_EmptyAndNilEdgeCases(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"validate": {
-				Command:    "echo",
-				Args:       []string{"validating"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"validating"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -748,10 +748,10 @@ func TestFileAwareExecutor_SymbolicLinks(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"scan": {
-				Command:    "echo",
-				Args:       []string{"scanning"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"scanning"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -759,10 +759,10 @@ func TestFileAwareExecutor_SymbolicLinks(t *testing.T) {
 				Path: "src/**/*.js",
 				Commands: map[string]*config.CommandConfig{
 					"scan": {
-						Command:    "echo",
-						Args:       []string{"src scan"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"src scan"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -770,10 +770,10 @@ func TestFileAwareExecutor_SymbolicLinks(t *testing.T) {
 				Path: "lib/**/*.js",
 				Commands: map[string]*config.CommandConfig{
 					"scan": {
-						Command:    "echo",
-						Args:       []string{"lib scan"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"lib scan"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -843,10 +843,10 @@ func TestFileAwareExecutor_ConcurrentFileMapping(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"process": {
-				Command:    "echo",
-				Args:       []string{"processing"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"processing"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -854,10 +854,10 @@ func TestFileAwareExecutor_ConcurrentFileMapping(t *testing.T) {
 				Path: "**/*.go",
 				Commands: map[string]*config.CommandConfig{
 					"process": {
-						Command:    "echo",
-						Args:       []string{"go process"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"go process"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -898,10 +898,10 @@ func TestFileAwareExecutor_ComplexGlobPatterns(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"analyze": {
-				Command:    "echo",
-				Args:       []string{"analyzing"},
-				ExitCodes:  []int{0},
-				MaxOutput:  100,
+				Command:   "echo",
+				Args:      []string{"analyzing"},
+				ExitCodes: []int{0},
+				MaxOutput: 100,
 			},
 		},
 		Paths: []*config.PathConfig{
@@ -909,10 +909,10 @@ func TestFileAwareExecutor_ComplexGlobPatterns(t *testing.T) {
 				Path: "src/**/[!_]*.js", // Exclude files starting with underscore
 				Commands: map[string]*config.CommandConfig{
 					"analyze": {
-						Command:    "echo",
-						Args:       []string{"public js analyze"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"public js analyze"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -920,10 +920,10 @@ func TestFileAwareExecutor_ComplexGlobPatterns(t *testing.T) {
 				Path: "src/**/_*.js", // Only files starting with underscore
 				Commands: map[string]*config.CommandConfig{
 					"analyze": {
-						Command:    "echo",
-						Args:       []string{"private js analyze"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"private js analyze"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},
@@ -931,10 +931,10 @@ func TestFileAwareExecutor_ComplexGlobPatterns(t *testing.T) {
 				Path: "**/*.{js,jsx,ts,tsx}", // Multiple extensions
 				Commands: map[string]*config.CommandConfig{
 					"analyze": {
-						Command:    "echo",
-						Args:       []string{"all js/ts analyze"},
-						ExitCodes:  []int{0},
-						MaxOutput:  100,
+						Command:   "echo",
+						Args:      []string{"all js/ts analyze"},
+						ExitCodes: []int{0},
+						MaxOutput: 100,
 					},
 				},
 			},

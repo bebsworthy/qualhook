@@ -257,4 +257,3 @@ func TestMockAITool_ThreadSafety(t *testing.T) {
 		t.Errorf("expected 10 calls, got %d", mock.GetCallCount())
 	}
 }
-

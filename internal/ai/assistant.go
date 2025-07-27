@@ -3,16 +3,19 @@ package ai
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
 	intconfig "github.com/bebsworthy/qualhook/internal/config"
 	"github.com/bebsworthy/qualhook/internal/debug"
 	"github.com/bebsworthy/qualhook/internal/executor"
 	"github.com/bebsworthy/qualhook/pkg/config"
-	"github.com/AlecAivazis/survey/v2"
 )
 
 // assistantImpl implements the Assistant interface
@@ -20,24 +23,34 @@ type assistantImpl struct {
 	detector          ToolDetector
 	promptGen         PromptGenerator
 	parser            ResponseParser
-	executor          *executor.CommandExecutor
+	executor          commandExecutor
 	progress          ProgressIndicator
 	testRunner        TestRunner
 	ui                *InteractiveUI
 	selectedTool      string // Cache for tool selection
 	toolSelectionTime time.Time
+	responseCache     map[string]*cachedResponse // Cache for AI responses
+	cacheMutex        sync.RWMutex
+}
+
+// cachedResponse holds a cached AI response
+type cachedResponse struct {
+	response  string
+	timestamp time.Time
+	ttl       time.Duration
 }
 
 // NewAssistant creates a new AI assistant for configuration generation
-func NewAssistant(executor *executor.CommandExecutor) Assistant {
+func NewAssistant(executor commandExecutor) Assistant {
 	return &assistantImpl{
-		detector:   NewToolDetector(executor),
-		promptGen:  NewPromptGenerator(),
-		parser:     NewResponseParser(intconfig.NewValidator()),
-		executor:   executor,
-		progress:   NewProgressIndicator(),
-		testRunner: NewTestRunner(executor),
-		ui:         NewInteractiveUI(),
+		detector:      NewToolDetector(executor),
+		promptGen:     NewPromptGenerator(),
+		parser:        NewResponseParser(intconfig.NewValidator()),
+		executor:      executor,
+		progress:      NewProgressIndicator(),
+		testRunner:    NewTestRunner(executor),
+		ui:            NewInteractiveUI(),
+		responseCache: make(map[string]*cachedResponse),
 	}
 }
 
@@ -223,6 +236,15 @@ func (a *assistantImpl) selectTool(_ context.Context, options AIOptions) (Tool, 
 func (a *assistantImpl) executeAITool(ctx context.Context, tool Tool, prompt string, options AIOptions) (string, error) {
 	debug.Log("Executing AI tool %s in directory: %s", tool.Name, options.WorkingDir)
 
+	// Generate cache key from prompt and tool
+	cacheKey := a.generateCacheKey(tool.Name, prompt)
+
+	// Check cache for recent responses
+	if cached := a.getCachedResponse(cacheKey); cached != nil {
+		debug.Log("Using cached AI response for key: %s", cacheKey[:8])
+		return cached.response, nil
+	}
+
 	// Start progress indicator if interactive
 	if options.Interactive {
 		a.progress.Start(fmt.Sprintf("Analyzing project with %s...", tool.Name))
@@ -233,24 +255,24 @@ func (a *assistantImpl) executeAITool(ctx context.Context, tool Tool, prompt str
 	execCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// Set up cancellation handling if interactive
-	if options.Interactive {
-		go func() {
-			select {
-			case <-a.progress.WaitForCancellation(execCtx):
-				debug.Log("User requested cancellation")
-				cancel()
-			case <-execCtx.Done():
-				// Context canceled by other means
-			}
-		}()
-	}
-
 	// Apply timeout if specified
 	if options.Timeout > 0 {
 		timeoutCtx, timeoutCancel := context.WithTimeout(execCtx, options.Timeout)
 		defer timeoutCancel()
 		execCtx = timeoutCtx
+	}
+
+	// Set up cancellation handling if interactive
+	if options.Interactive {
+		go func() {
+			select {
+			case <-a.progress.WaitForCancellation(ctx):
+				debug.Log("User requested cancellation")
+				cancel()
+			case <-ctx.Done():
+				// Context canceled by other means
+			}
+		}()
 	}
 
 	// Execute the AI tool
@@ -295,6 +317,10 @@ func (a *assistantImpl) executeAITool(ctx context.Context, tool Tool, prompt str
 			debug.Log("AI tool returned non-zero exit code %d: %s", result.ExitCode, result.Stderr)
 			return "", NewAIError(ErrTypeExecutionFailed, fmt.Sprintf("%s failed with exit code %d: %s", tool.Name, result.ExitCode, result.Stderr), nil)
 		}
+
+		// Cache successful response
+		a.cacheResponse(cacheKey, result.Stdout, 10*time.Minute)
+
 		return result.Stdout, nil
 	}
 }
@@ -361,7 +387,7 @@ func (a *assistantImpl) handlePartialResponse(response string, parseErr error) (
 
 	// Use the new extraction helper
 	partialCommands, recoveryHint := ExtractPartialConfig(response, parseErr)
-	
+
 	if len(cfg.Commands) > 0 {
 		debug.Log("Extracted partial configuration from AI response with %d commands", len(cfg.Commands))
 		// If we have some commands, return them with a recovery error
@@ -424,10 +450,10 @@ func buildAIToolArgs(toolName string, prompt string) []string {
 func extractCommandFromResponse(response string, cmdType string) *config.CommandConfig {
 	// This is a simple heuristic approach
 	// Look for common patterns in AI responses
-	
+
 	// Convert response to lowercase for case-insensitive matching
 	lowerResponse := strings.ToLower(response)
-	
+
 	// Look for the command type mentioned with a command
 	patterns := []struct {
 		prefix string
@@ -448,12 +474,12 @@ func extractCommandFromResponse(response string, cmdType string) *config.Command
 			if end == -1 {
 				end = len(response) - start
 			}
-			
+
 			cmdLine := strings.TrimSpace(response[start : start+end])
-			
+
 			// Remove quotes if present
 			cmdLine = strings.Trim(cmdLine, "\"'")
-			
+
 			// Try to parse the command
 			parts := strings.Fields(cmdLine)
 			if len(parts) > 0 {
@@ -464,6 +490,52 @@ func extractCommandFromResponse(response string, cmdType string) *config.Command
 			}
 		}
 	}
-	
+
 	return nil
+}
+
+// generateCacheKey creates a cache key from tool name and prompt
+func (a *assistantImpl) generateCacheKey(toolName, prompt string) string {
+	h := sha256.New()
+	h.Write([]byte(toolName))
+	h.Write([]byte(prompt))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// getCachedResponse retrieves a cached response if it's still valid
+func (a *assistantImpl) getCachedResponse(key string) *cachedResponse {
+	a.cacheMutex.RLock()
+	defer a.cacheMutex.RUnlock()
+
+	if cached, exists := a.responseCache[key]; exists {
+		if time.Since(cached.timestamp) < cached.ttl {
+			return cached
+		}
+	}
+	return nil
+}
+
+// cacheResponse stores a response in the cache
+func (a *assistantImpl) cacheResponse(key, response string, ttl time.Duration) {
+	a.cacheMutex.Lock()
+	defer a.cacheMutex.Unlock()
+
+	a.responseCache[key] = &cachedResponse{
+		response:  response,
+		timestamp: time.Now(),
+		ttl:       ttl,
+	}
+
+	// Clean up old entries
+	a.cleanupCache()
+}
+
+// cleanupCache removes expired entries from the cache
+func (a *assistantImpl) cleanupCache() {
+	now := time.Now()
+	for key, cached := range a.responseCache {
+		if now.Sub(cached.timestamp) > cached.ttl {
+			delete(a.responseCache, key)
+		}
+	}
 }

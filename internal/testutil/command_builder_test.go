@@ -6,15 +6,15 @@ import (
 )
 
 const (
-	testDirTmp = "/tmp"
-	testCmdTrue = "true"
+	testDirTmp   = "/tmp"
+	testCmdTrue  = "true"
 	testCmdFalse = "false"
 )
 
 func TestCommandBuilder(t *testing.T) {
 	t.Run("default values", func(t *testing.T) {
 		cmd := NewCommandBuilder().Build()
-		
+
 		if cmd.Name != "test-command" {
 			t.Errorf("Expected default name 'test-command', got %q", cmd.Name)
 		}
@@ -61,7 +61,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("echo command", func(t *testing.T) {
 		cmd := NewCommandBuilder().Echo("hello world").Build()
-		
+
 		if cmd.Name != "echo" {
 			t.Errorf("Expected name 'echo', got %q", cmd.Name)
 		}
@@ -75,7 +75,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("sleep command", func(t *testing.T) {
 		cmd := NewCommandBuilder().Sleep("2").Build()
-		
+
 		if cmd.Name != "sleep" {
 			t.Errorf("Expected name 'sleep', got %q", cmd.Name)
 		}
@@ -89,7 +89,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("failing command", func(t *testing.T) {
 		cmd := NewCommandBuilder().Failing().Build()
-		
+
 		if cmd.Name != testCmdFalse {
 			t.Errorf("Expected name 'false', got %q", cmd.Name)
 		}
@@ -100,7 +100,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("successful command", func(t *testing.T) {
 		cmd := NewCommandBuilder().Successful().Build()
-		
+
 		if cmd.Name != testCmdTrue {
 			t.Errorf("Expected name 'true', got %q", cmd.Name)
 		}
@@ -111,7 +111,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("script command", func(t *testing.T) {
 		cmd := NewCommandBuilder().Script("echo hello && echo world").Build()
-		
+
 		if cmd.Name != "script" {
 			t.Errorf("Expected name 'script', got %q", cmd.Name)
 		}
@@ -146,7 +146,7 @@ func TestCommandBuilder(t *testing.T) {
 
 	t.Run("execute integration", func(t *testing.T) {
 		stdout, stderr, exitCode := NewCommandBuilder().Echo("test output").Execute(t)
-		
+
 		if exitCode != 0 {
 			t.Errorf("Expected exit code 0, got %d", exitCode)
 		}

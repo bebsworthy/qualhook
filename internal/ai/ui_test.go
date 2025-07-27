@@ -376,7 +376,7 @@ func TestPromptForCommandModification(t *testing.T) {
 	t.Run("function exists and returns correct type", func(t *testing.T) {
 		// The function exists and can be called
 		assert.NotNil(t, ui.PromptForCommandModification)
-		
+
 		// Verify the original command structure is preserved in copy
 		require.NotNil(t, original)
 		assert.Equal(t, "npm", original.Command)
@@ -412,7 +412,7 @@ func TestSelectCommandsToReview(t *testing.T) {
 	// This test validates the function exists and would order commands correctly
 	t.Run("function exists with correct command map", func(t *testing.T) {
 		assert.NotNil(t, ui.SelectCommandsToReview)
-		
+
 		// Verify command map structure
 		assert.Len(t, commands, 6)
 		assert.Contains(t, commands, "format")
@@ -502,10 +502,10 @@ func TestUIHelperIntegration(t *testing.T) {
 		output := captureOutput(func() {
 			// Show configuration
 			_ = ui.ReviewConfiguration(cfg)
-			
+
 			// Show progress
 			ui.ShowAIProgress("Validating commands...")
-			
+
 			// Show comparison
 			_ = ui.DisplayCommandComparison(
 				cfg.Commands["format"],
@@ -569,7 +569,7 @@ func TestEmptyStateHandling(t *testing.T) {
 		assert.Contains(t, output, "lint: <not configured>")
 		assert.Contains(t, output, "typecheck: <not configured>")
 		assert.Contains(t, output, "test: <not configured>")
-		
+
 		// Should not show custom commands section
 		assert.NotContains(t, output, "Custom Commands:")
 		assert.NotContains(t, output, "Monorepo Configuration:")

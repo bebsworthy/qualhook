@@ -44,7 +44,7 @@ func TestExecutorWithIsolation(t *testing.T) {
 		// Create a project structure
 		env.CreateTempDir("src")
 		env.CreateTempDir("test")
-		
+
 		// Create some files
 		env.CreateTempFile("src/main.go", "package main\n\nfunc main() {}")
 		env.CreateTempFile("test/main_test.go", "package main\n\nimport \"testing\"")
@@ -77,9 +77,9 @@ func TestExecutorWithIsolation(t *testing.T) {
 		scriptContent := `#!/bin/sh
 echo "Custom command executed"
 exit 0`
-		
+
 		scriptPath := env.CreateTempFile("safe-script.sh", scriptContent)
-		
+
 		// Make it executable (if not on Windows)
 		if !testutil.IsWindows() {
 			exec := executor.NewCommandExecutor(5 * time.Second)
@@ -213,7 +213,7 @@ func TestMigrationExample(t *testing.T) {
 	// Before: Test without isolation
 	t.Run("old_style_test", func(t *testing.T) {
 		t.Skip("Example of old style - don't actually run")
-		
+
 		// This is how tests used to work - directly using executors
 		// executor := NewCommandExecutor(5 * time.Second)
 		// result, err := executor.Execute("rm", []string{"-rf", "/tmp/test"}, executor.ExecOptions{})
@@ -225,10 +225,10 @@ func TestMigrationExample(t *testing.T) {
 		testutil.WithIsolatedEnvironment(t, func(env *testutil.TestEnvironment) {
 			// Now we work in an isolated environment
 			testFile := env.CreateTempFile("test.txt", "safe to delete")
-			
+
 			// Use safe commands
 			exec := executor.NewCommandExecutor(5 * time.Second)
-			
+
 			// This will only affect the isolated temp directory
 			result, err := exec.Execute("rm", []string{testFile}, executor.ExecOptions{
 				WorkingDir: env.TempDir(),
@@ -237,7 +237,7 @@ func TestMigrationExample(t *testing.T) {
 			// Note: rm is not whitelisted by default, so this would actually fail
 			// You would need to explicitly whitelist it for this specific test:
 			// env.AllowCommand("rm")
-			
+
 			if err != nil {
 				t.Logf("As expected, rm command is not whitelisted: %v", err)
 			}

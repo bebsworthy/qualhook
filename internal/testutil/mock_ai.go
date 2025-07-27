@@ -134,7 +134,7 @@ func defaultConfigResponse() string {
       "command": "golangci-lint",
       "args": ["run"],
       "errorPatterns": [
-        {"pattern": "\\S+:\\d+:\\d+:", "flags": ""}
+        {"pattern": "\\\\S+:\\\\d+:\\\\d+:", "flags": ""}
       ],
       "exitCodes": [1]
     },
@@ -174,7 +174,7 @@ func MonorepoResponse() string {
       "command": "prettier",
       "args": ["--write", "."],
       "errorPatterns": [
-        {"pattern": "\\[error\\]", "flags": "i"}
+        {"pattern": "\\\\[error\\\\]", "flags": "i"}
       ],
       "exitCodes": [1, 2]
     },
@@ -182,7 +182,7 @@ func MonorepoResponse() string {
       "command": "eslint",
       "args": [".", "--fix"],
       "errorPatterns": [
-        {"pattern": "\\d+ problems? \\(\\d+ errors?, \\d+ warnings?\\)", "flags": ""}
+        {"pattern": "\\\\d+ problems? \\\\(\\\\d+ errors?, \\\\d+ warnings?\\\\)", "flags": ""}
       ],
       "exitCodes": [1]
     },
@@ -190,7 +190,7 @@ func MonorepoResponse() string {
       "command": "tsc",
       "args": ["--noEmit"],
       "errorPatterns": [
-        {"pattern": "error TS\\d+:", "flags": ""}
+        {"pattern": "error TS\\\\d+:", "flags": ""}
       ],
       "exitCodes": [1, 2]
     },
@@ -261,8 +261,8 @@ func PartialSuccessResponse() string {
       "command": "pylint",
       "args": ["--recursive=y", "."],
       "errorPatterns": [
-        {"pattern": "E\\d{4}:", "flags": ""},
-        {"pattern": "W\\d{4}:", "flags": ""}
+        {"pattern": "E\\\\d{4}:", "flags": ""},
+        {"pattern": "W\\\\d{4}:", "flags": ""}
       ],
       "exitCodes": [1, 2]
     },
@@ -448,4 +448,3 @@ func ComplexProjectResponse() string {
   }
 }`
 }
-

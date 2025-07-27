@@ -19,13 +19,13 @@ import (
 // TestCommandExecution tests standard command execution scenarios
 func TestCommandExecution(t *testing.T) {
 	tests := []struct {
-		name           string
-		command        string
-		args           []string
-		config         *config.Config
-		wantExitCode   int
-		wantStdout     string
-		wantStderr     string
+		name            string
+		command         string
+		args            []string
+		config          *config.Config
+		wantExitCode    int
+		wantStdout      string
+		wantStderr      string
 		skipStdoutCheck bool // For cases where error reporter modifies output
 	}{
 		{
@@ -139,7 +139,7 @@ func TestCommandExecution(t *testing.T) {
 			// Capture output
 			stdout := testutil.NewTestWriter()
 			stderr := testutil.NewTestWriter()
-			
+
 			oldOutputWriter := outputWriter
 			oldErrorWriter := errorWriter
 			outputWriter = stdout
@@ -294,7 +294,7 @@ func TestMonorepoFileAwareExecution(t *testing.T) {
 			// Capture output
 			stdout := testutil.NewTestWriter()
 			stderr := testutil.NewTestWriter()
-			
+
 			oldOutputWriter := outputWriter
 			oldErrorWriter := errorWriter
 			outputWriter = stdout
@@ -414,7 +414,7 @@ func TestConfigValidation(t *testing.T) {
 // TestDebugMode tests debug mode execution
 func TestDebugMode(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	cfg := testutil.NewConfigBuilder().
 		WithSimpleCommand("test", "echo", "Running tests").
 		Build()
@@ -438,7 +438,7 @@ func TestDebugMode(t *testing.T) {
 	// Capture regular output
 	stdout := testutil.NewTestWriter()
 	stderr := testutil.NewTestWriter()
-	
+
 	oldOutputWriter := outputWriter
 	oldErrorWriter := errorWriter
 	outputWriter = stdout
@@ -515,8 +515,8 @@ func TestFailingCommands(t *testing.T) {
 			name: "command output matches error pattern",
 			config: testutil.NewConfigBuilder().
 				WithCommand("test", &config.CommandConfig{
-					Command: "bash",
-					Args:    []string{errorScript},
+					Command:   "bash",
+					Args:      []string{errorScript},
 					ExitCodes: []int{0},
 					ErrorPatterns: []*config.RegexPattern{
 						{Pattern: "FAIL:", Flags: ""},
@@ -602,7 +602,7 @@ exit 0`
 		t.Fatalf("Failed to write script: %v", err)
 	}
 
-	// Create an error script 
+	// Create an error script
 	errorScriptPath := filepath.Join(tempDir, "lint-error.sh")
 	errorScriptContent := `#!/bin/bash
 echo "Error: linting failed" >&2
@@ -668,7 +668,7 @@ exit 1`
 			// Capture output
 			stdout := testutil.NewTestWriter()
 			stderr := testutil.NewTestWriter()
-			
+
 			oldOutputWriter := outputWriter
 			oldErrorWriter := errorWriter
 			outputWriter = stdout

@@ -73,7 +73,7 @@ func TestOutputFilter_Filter(t *testing.T) {
 			{Pattern: "^\\s*\\d+:\\d+", Flags: "m"},
 		},
 		ContextLines: 2,
-		MaxLines:    50,
+		MaxLines:     50,
 	})
 
 	tests := []struct {
@@ -317,4 +317,3 @@ line 9`
 		})
 	}
 }
-

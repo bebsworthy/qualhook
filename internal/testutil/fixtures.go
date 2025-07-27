@@ -13,38 +13,38 @@ import (
 // The path is relative to the test/fixtures directory.
 func FixturePath(t *testing.T, relativePath string) string {
 	t.Helper()
-	
+
 	// Get the directory of this source file
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatal("Failed to get source file path")
 	}
-	
+
 	// Navigate to project root
 	projectRoot := filepath.Join(filepath.Dir(filename), "..", "..")
 	fixturePath := filepath.Join(projectRoot, "test", "fixtures", relativePath)
-	
+
 	// Clean the path
 	fixturePath = filepath.Clean(fixturePath)
-	
+
 	// Verify the fixture exists
 	if _, err := os.Stat(fixturePath); err != nil {
 		t.Fatalf("Fixture not found: %s", fixturePath)
 	}
-	
+
 	return fixturePath
 }
 
 // LoadFixture reads and returns the contents of a fixture file.
 func LoadFixture(t *testing.T, relativePath string) []byte {
 	t.Helper()
-	
+
 	path := FixturePath(t, relativePath)
 	data, err := os.ReadFile(path) // #nosec G304 - paths are controlled by tests
 	if err != nil {
 		t.Fatalf("Failed to read fixture %s: %v", relativePath, err)
 	}
-	
+
 	return data
 }
 
@@ -82,18 +82,18 @@ func OutputFixture(t *testing.T, name string) string {
 // The temporary directory is automatically cleaned up when the test completes.
 func CreateTempFixture(t *testing.T, fixturePath string) string {
 	t.Helper()
-	
+
 	// Create temporary directory
 	tempDir := t.TempDir()
-	
+
 	// Get the source path
 	srcPath := FixturePath(t, fixturePath)
-	
+
 	// Copy fixture to temp directory
 	if err := copyDir(srcPath, tempDir); err != nil {
 		t.Fatalf("Failed to copy fixture to temp dir: %v", err)
 	}
-	
+
 	return tempDir
 }
 
@@ -103,7 +103,7 @@ func copyDir(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// If source is a file, copy it directly
 	if !srcInfo.IsDir() {
 		srcData, err := os.ReadFile(src) // #nosec G304 - paths are controlled by tests
@@ -113,23 +113,23 @@ func copyDir(src, dst string) error {
 		dstPath := filepath.Join(dst, filepath.Base(src))
 		return os.WriteFile(dstPath, srcData, srcInfo.Mode())
 	}
-	
+
 	// Create destination directory
 	if err := os.MkdirAll(dst, srcInfo.Mode()); err != nil {
 		return err
 	}
-	
+
 	// Read directory contents
 	entries, err := os.ReadDir(src)
 	if err != nil {
 		return err
 	}
-	
+
 	// Copy each entry
 	for _, entry := range entries {
 		srcPath := filepath.Join(src, entry.Name())
 		dstPath := filepath.Join(dst, entry.Name())
-		
+
 		if entry.IsDir() {
 			if err := copyDir(srcPath, dstPath); err != nil {
 				return err
@@ -148,6 +148,6 @@ func copyDir(src, dst string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }

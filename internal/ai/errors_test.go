@@ -230,11 +230,10 @@ func TestIsRetryableError(t *testing.T) {
 	}
 }
 
-
 func TestHandleNetworkError(t *testing.T) {
 	tests := []struct {
-		name            string
-		err             error
+		name             string
+		err              error
 		expectNetworkErr bool
 	}{
 		{
@@ -267,12 +266,12 @@ func TestHandleNetworkError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handled := HandleNetworkError(tt.err)
-			
+
 			if tt.err == nil && handled != nil {
 				t.Error("Expected nil for nil input")
 				return
 			}
-			
+
 			if tt.expectNetworkErr {
 				var errWithRecovery *ErrorWithRecovery
 				if !errors.As(handled, &errWithRecovery) {
@@ -289,9 +288,9 @@ func TestHandleNetworkError(t *testing.T) {
 
 func TestExtractPartialConfig(t *testing.T) {
 	tests := []struct {
-		name              string
-		response          string
-		expectedCommands  map[string]bool
+		name               string
+		response           string
+		expectedCommands   map[string]bool
 		expectRecoveryHint bool
 	}{
 		{
@@ -337,17 +336,17 @@ func TestExtractPartialConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			partialCommands, recoveryHint := ExtractPartialConfig(tt.response, nil)
-			
+
 			if len(partialCommands) != len(tt.expectedCommands) {
 				t.Errorf("Expected %d commands, got %d", len(tt.expectedCommands), len(partialCommands))
 			}
-			
+
 			for cmd, expected := range tt.expectedCommands {
 				if partialCommands[cmd] != expected {
 					t.Errorf("Expected command %s = %v, got %v", cmd, expected, partialCommands[cmd])
 				}
 			}
-			
+
 			if tt.expectRecoveryHint && recoveryHint == "" {
 				t.Error("Expected recovery hint, got empty string")
 			} else if !tt.expectRecoveryHint && recoveryHint != "" {
@@ -359,33 +358,33 @@ func TestExtractPartialConfig(t *testing.T) {
 
 func TestSanitizeErrorMessage(t *testing.T) {
 	tests := []struct {
-		name      string
-		err       error
+		name           string
+		err            error
 		shouldSanitize bool
 	}{
 		{
-			name: "error with API key",
-			err:  errors.New("Authentication failed with key sk-1234567890abcdef"),
+			name:           "error with API key",
+			err:            errors.New("Authentication failed with key sk-1234567890abcdef"),
 			shouldSanitize: true,
 		},
 		{
-			name: "error with user path",
-			err:  errors.New("File not found: /Users/johndoe/project/config.json"),
+			name:           "error with user path",
+			err:            errors.New("File not found: /Users/johndoe/project/config.json"),
 			shouldSanitize: true,
 		},
 		{
-			name: "error with token",
-			err:  errors.New("Invalid token: token_abc123xyz"),
+			name:           "error with token",
+			err:            errors.New("Invalid token: token_abc123xyz"),
 			shouldSanitize: true,
 		},
 		{
-			name: "normal error",
-			err:  errors.New("Command not found"),
+			name:           "normal error",
+			err:            errors.New("Command not found"),
 			shouldSanitize: false,
 		},
 		{
-			name: "nil error",
-			err:  nil,
+			name:           "nil error",
+			err:            nil,
 			shouldSanitize: false,
 		},
 	}
@@ -393,19 +392,19 @@ func TestSanitizeErrorMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sanitized := SanitizeErrorMessage(tt.err)
-			
+
 			if tt.err == nil && sanitized != nil {
 				t.Error("Expected nil for nil input")
 				return
 			}
-			
+
 			if tt.err == nil {
 				return
 			}
-			
+
 			sanitizedMsg := sanitized.Error()
 			originalMsg := tt.err.Error()
-			
+
 			if tt.shouldSanitize {
 				// Should not contain sensitive patterns
 				sensitivePatterns := []string{"sk-", "johndoe", "token_abc", "api_key"}
@@ -414,7 +413,7 @@ func TestSanitizeErrorMessage(t *testing.T) {
 						t.Errorf("Sanitized message still contains sensitive pattern %q: %s", pattern, sanitizedMsg)
 					}
 				}
-				
+
 				// Should indicate sanitization occurred
 				if !strings.Contains(sanitizedMsg, "[REDACTED]") && !strings.Contains(sanitizedMsg, "[USER_PATH]") && !strings.Contains(sanitizedMsg, "sensitive information removed") {
 					t.Error("Sanitized message should indicate sanitization occurred")
@@ -450,12 +449,12 @@ func TestWrapErrorWithContext(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wrapped := WrapErrorWithContext(tt.err, tt.context)
-			
+
 			if tt.err == nil && wrapped != nil {
 				t.Error("Expected nil for nil input")
 				return
 			}
-			
+
 			if tt.err != nil && wrapped.Error() != tt.want {
 				t.Errorf("Expected %q, got %q", tt.want, wrapped.Error())
 			}

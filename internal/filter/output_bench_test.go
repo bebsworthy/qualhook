@@ -255,7 +255,7 @@ func BenchmarkWorstCaseScenarios(b *testing.B) {
 				{Pattern: `ERROR:`, Flags: ""},
 			},
 			ContextLines: 5,
-			MaxLines:    100,
+			MaxLines:     100,
 		}
 
 		filter, _ := NewOutputFilter(filterRules)

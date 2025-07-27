@@ -136,12 +136,12 @@ func GetRecoverySuggestions(errType AIErrorType) []string {
 // FormatErrorWithSuggestions formats an error with recovery suggestions
 func FormatErrorWithSuggestions(err error) string {
 	var builder strings.Builder
-	
+
 	// Write the main error
 	builder.WriteString("Error: ")
 	builder.WriteString(err.Error())
 	builder.WriteString("\n")
-	
+
 	// Check if it's an ErrorWithRecovery
 	if errWithRecovery, ok := err.(*ErrorWithRecovery); ok {
 		if len(errWithRecovery.RecoverySuggestions) > 0 {
@@ -150,7 +150,7 @@ func FormatErrorWithSuggestions(err error) string {
 				builder.WriteString(fmt.Sprintf("  %d. %s\n", i+1, suggestion))
 			}
 		}
-		
+
 		// If there's partial data, mention it
 		if errWithRecovery.PartialData != nil {
 			builder.WriteString("\nNote: Partial data was recovered and can be used.\n")
@@ -165,7 +165,7 @@ func FormatErrorWithSuggestions(err error) string {
 			}
 		}
 	}
-	
+
 	return builder.String()
 }
 
@@ -182,7 +182,7 @@ func IsRetryableError(err error) bool {
 	if err == nil {
 		return false
 	}
-	
+
 	// Unwrap to get the root cause
 	var aiErr *AIError
 	if errors.As(err, &aiErr) {
@@ -196,7 +196,7 @@ func IsRetryableError(err error) bool {
 			return true
 		}
 	}
-	
+
 	// Check for common retryable error patterns
 	errMsg := strings.ToLower(err.Error())
 	retryablePatterns := []string{
@@ -207,23 +207,22 @@ func IsRetryableError(err error) bool {
 		"unavailable",
 		"rate limit",
 	}
-	
+
 	for _, pattern := range retryablePatterns {
 		if strings.Contains(errMsg, pattern) {
 			return true
 		}
 	}
-	
+
 	return false
 }
-
 
 // HandleNetworkError provides specific handling for network-related errors
 func HandleNetworkError(err error) error {
 	if err == nil {
 		return nil
 	}
-	
+
 	errMsg := strings.ToLower(err.Error())
 	networkPatterns := []string{
 		"no such host",
@@ -233,7 +232,7 @@ func HandleNetworkError(err error) error {
 		"timeout",
 		"dns",
 	}
-	
+
 	for _, pattern := range networkPatterns {
 		if strings.Contains(errMsg, pattern) {
 			return NewErrorWithRecovery(
@@ -250,14 +249,14 @@ func HandleNetworkError(err error) error {
 			)
 		}
 	}
-	
+
 	return err
 }
 
 // ExtractPartialConfig attempts to extract partial configuration from an error scenario
 func ExtractPartialConfig(response string, err error) (partialCommands map[string]bool, recoveryHint string) {
 	partialCommands = make(map[string]bool)
-	
+
 	// Check what command types are mentioned in the response
 	commandTypes := []string{"format", "lint", "typecheck", "test"}
 	for _, cmdType := range commandTypes {
@@ -268,11 +267,11 @@ func ExtractPartialConfig(response string, err error) (partialCommands map[strin
 			}
 		}
 	}
-	
+
 	if len(partialCommands) > 0 {
 		configured := []string{}
 		missing := []string{}
-		
+
 		for _, cmdType := range commandTypes {
 			if partialCommands[cmdType] {
 				configured = append(configured, cmdType)
@@ -280,12 +279,12 @@ func ExtractPartialConfig(response string, err error) (partialCommands map[strin
 				missing = append(missing, cmdType)
 			}
 		}
-		
-		recoveryHint = fmt.Sprintf(msgPartialSuccess, 
+
+		recoveryHint = fmt.Sprintf(msgPartialSuccess,
 			strings.Join(configured, ", "),
 			strings.Join(missing, ", "))
 	}
-	
+
 	return partialCommands, recoveryHint
 }
 
@@ -294,22 +293,22 @@ func SanitizeErrorMessage(err error) error {
 	if err == nil {
 		return nil
 	}
-	
+
 	msg := err.Error()
 	sanitized := msg
-	
+
 	// Check for API keys or tokens
 	if containsAPIKeyPattern(msg) {
 		sanitized = "[REDACTED]"
 	}
-	
+
 	// Sanitize file paths with usernames
 	sanitized = sanitizePaths(sanitized)
-	
+
 	if sanitized != msg {
 		return fmt.Errorf("%s (sensitive information removed)", sanitized)
 	}
-	
+
 	return err
 }
 
@@ -319,7 +318,7 @@ func containsAPIKeyPattern(msg string) bool {
 	if !strings.Contains(lowerMsg, "key") && !strings.Contains(lowerMsg, "token") {
 		return false
 	}
-	
+
 	patterns := []string{"sk-", "api_key", "api-key", "token_", "token-"}
 	for _, pattern := range patterns {
 		if strings.Contains(msg, pattern) {
@@ -336,18 +335,18 @@ func sanitizePaths(msg string) string {
 		prefixLen int
 		separator string
 	}
-	
+
 	patterns := []pathPattern{
 		{"/Users/", 7, "/"},
 		{"/home/", 6, "/"},
 		{"C:\\Users\\", 10, "\\"},
 	}
-	
+
 	result := msg
 	for _, pattern := range patterns {
 		result = sanitizePath(result, pattern.prefix, pattern.prefixLen, pattern.separator)
 	}
-	
+
 	return result
 }
 
@@ -356,17 +355,17 @@ func sanitizePath(msg, prefix string, prefixLen int, separator string) string {
 	if !strings.Contains(msg, prefix) {
 		return msg
 	}
-	
+
 	start := strings.Index(msg, prefix)
 	if start < 0 {
 		return msg
 	}
-	
+
 	end := strings.Index(msg[start+prefixLen:], separator)
 	if end <= 0 {
 		return msg
 	}
-	
+
 	username := msg[start+prefixLen : start+prefixLen+end]
 	placeholder := strings.ReplaceAll(prefix, separator, "") + "[USER]"
 	return strings.ReplaceAll(msg, prefix+username, placeholder)

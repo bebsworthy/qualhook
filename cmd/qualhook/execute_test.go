@@ -32,8 +32,8 @@ func TestExecuteCommand(t *testing.T) {
 				Version: "1.0",
 				Commands: map[string]*config.CommandConfig{
 					"test": {
-						Command: "echo",
-						Args:    []string{"Hello", "World"},
+						Command:   "echo",
+						Args:      []string{"Hello", "World"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error"},
@@ -63,8 +63,8 @@ func TestExecuteCommand(t *testing.T) {
 				Version: "1.0",
 				Commands: map[string]*config.CommandConfig{
 					"echo": {
-						Command: "echo",
-						Args:    []string{"Base"},
+						Command:   "echo",
+						Args:      []string{"Base"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error"},
@@ -83,9 +83,9 @@ func TestExecuteCommand(t *testing.T) {
 				Version: "1.0",
 				Commands: map[string]*config.CommandConfig{
 					"sleep": {
-						Command: "echo",
-						Args:    []string{"Quick test"},
-						Timeout: 5000, // 5 seconds
+						Command:   "echo",
+						Args:      []string{"Quick test"},
+						Timeout:   5000, // 5 seconds
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error"},
@@ -139,8 +139,8 @@ func TestExecuteCommand_WithHookInput(t *testing.T) {
 		Version: "1.0",
 		Commands: map[string]*config.CommandConfig{
 			"lint": {
-				Command: "echo",
-				Args:    []string{"Root lint"},
+				Command:   "echo",
+				Args:      []string{"Root lint"},
 				ExitCodes: []int{1},
 				ErrorPatterns: []*config.RegexPattern{
 					{Pattern: "error"},
@@ -153,8 +153,8 @@ func TestExecuteCommand_WithHookInput(t *testing.T) {
 				Path: "frontend/**",
 				Commands: map[string]*config.CommandConfig{
 					"lint": {
-						Command: "echo",
-						Args:    []string{"Frontend lint"},
+						Command:   "echo",
+						Args:      []string{"Frontend lint"},
 						ExitCodes: []int{1},
 						ErrorPatterns: []*config.RegexPattern{
 							{Pattern: "error"},
