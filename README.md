@@ -1,3 +1,5 @@
+**IMPORTANT** THIS IS VIBE CODED CRAP. 
+
 # Quality Hook
 
 Quality Hook is a configurable CLI tool designed to run quality checks (formatting, linting, type checking, testing) on code changes and provide filtered, actionable feedback optimized for Claude Code and other LLMs.
